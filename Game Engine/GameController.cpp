@@ -64,6 +64,9 @@ void GameController::gameLoop()
 		//Handle events on queue
 		while (SDL_PollEvent(&e) != 0)
 		{
+			//keystates are updated every time SDL_Pollevent is called
+			const Uint8 *state = SDL_GetKeyboardState(NULL); //returns a pointer to array of key states when NULL is passed as parameter
+			movePlayer(state);
 			//User requests quit
 			if (e.type == SDL_QUIT)
 			{
@@ -72,32 +75,32 @@ void GameController::gameLoop()
 				return;
 			}
 			//User presses a key
-			else if (e.type == SDL_KEYDOWN)
-			{
-				//Select surfaces based on key press
-				switch (e.key.keysym.sym)
-				{
-				case SDLK_UP:
-					movePlayer(KEY_PRESS_UP);
-					break;
+			//else if (e.type == SDL_KEYDOWN)
+			//{
+			//	//Select surfaces based on key press
+			//	switch (e.key.keysym.sym)
+			//	{
+			//	case SDLK_UP:
+			//		movePlayer(KEY_PRESS_UP);
+			//		break;
 
-				case SDLK_DOWN:
-					movePlayer(KEY_PRESS_DOWN);
-					break;
+			//	case SDLK_DOWN:
+			//		movePlayer(KEY_PRESS_DOWN);
+			//		break;
 
-				case SDLK_LEFT:
-					movePlayer(KEY_PRESS_LEFT);
-					break;
+			//	case SDLK_LEFT:
+			//		movePlayer(KEY_PRESS_LEFT);
+			//		break;
 
-				case SDLK_RIGHT:
-					movePlayer(KEY_PRESS_RIGHT);
-					break;
+			//	case SDLK_RIGHT:
+			//		movePlayer(KEY_PRESS_RIGHT);
+			//		break;
 
-				default:
-					movePlayer(KEY_PRESS_DEFAULT);
-					break;
-				}
-			}
+			//	default:
+			//		movePlayer(KEY_PRESS_DEFAULT);
+			//		break;
+			//	}
+			//}
 		}
 
 		//update game logic/model
@@ -112,28 +115,25 @@ void GameController::gameLoop()
 	}
 }
 
-void GameController::movePlayer(int keyPress) const
+void GameController::movePlayer(const Uint8* keyStates) const
 {
-	switch(keyPress)
+	model->getEntity(0)->setVelocityX(0);
+	model->getEntity(0)->setVelocityY(0);
+	if (keyStates[SDL_SCANCODE_UP])
 	{
-	case KEY_PRESS_UP:
 		model->getEntity(0)->setVelocityY(-1);
-		model->getEntity(0)->setVelocityX(0);
-		break;
-	case KEY_PRESS_DOWN:
+	}
+	else if (keyStates[SDL_SCANCODE_DOWN])
+	{
 		model->getEntity(0)->setVelocityY(1);
-		model->getEntity(0)->setVelocityX(0);
-		break;
-	case KEY_PRESS_LEFT:
+	}
+	if (keyStates[SDL_SCANCODE_LEFT])
+	{
 		model->getEntity(0)->setVelocityX(-1);
-		model->getEntity(0)->setVelocityY(0);
-		break;
-	case KEY_PRESS_RIGHT:
+	}
+	else if (keyStates[SDL_SCANCODE_RIGHT])
+	{
 		model->getEntity(0)->setVelocityX(1);
-		model->getEntity(0)->setVelocityY(0);
-		break;
-	default:
-		break;
 	}
 }
 

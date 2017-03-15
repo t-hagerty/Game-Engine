@@ -13,7 +13,7 @@ public:
 private:
 	int fps = 0;
 	void gameLoop();
-	void movePlayer(int keyPress) const;
+	void movePlayer(const Uint8* keyStates) const;
 	void update(double delta) const;
 	void render() const;
 	GameModel* model;
