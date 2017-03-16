@@ -36,20 +36,25 @@ int GameView::getWindowHeight() const
 	return WINDOW_HEIGHT;
 }
 
-void GameView::renderRectangle(double posX, double posY, int width, int height) const
+void GameView::renderClear(int red, int green, int blue, int alpha) const
 {
 	//Clear screen
-	SDL_SetRenderDrawColor(gameRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+	SDL_SetRenderDrawColor(gameRenderer, red, green, blue, alpha);
 	SDL_RenderClear(gameRenderer);
+}
 
-	//Render red filled quad
+void GameView::renderUpdate() const
+{
+	//Update screen
+	SDL_RenderPresent(gameRenderer);
+}
+
+void GameView::renderRectangle(double posX, double posY, int width, int height) const
+{
 	SDL_Rect fillRect = { posX, posY, width, height};
 	//printf("posx: %f, posy: %f, posx + width: %f, posy + height: %f", posX, posY, (posX + width), (posY + height));
 	SDL_SetRenderDrawColor(gameRenderer, 0x00, 0x00, 0x00, 0x00);
 	SDL_RenderFillRect(gameRenderer, &fillRect);
-
-	//Update screen
-	SDL_RenderPresent(gameRenderer);
 }
 
 bool GameView::init()

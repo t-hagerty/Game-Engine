@@ -8,6 +8,8 @@ public:
 	~GameView();
 	int getWindowWidth() const;
 	int getWindowHeight() const;
+	void renderClear(int red = 0xFF, int green = 0xFF, int blue = 0xFF, int alpha = 0xFF) const;
+	void renderUpdate() const;
 	void renderRectangle(double posX, double posY, int width, int height) const; //FOR TESTING ONLY
 	void close();
 private:
