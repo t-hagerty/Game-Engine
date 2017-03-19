@@ -8,8 +8,6 @@ GameController::GameController(GameModel* m, GameView* v)
 {
 	model = m;
 	view = v;
-	model->setAreaHeight(view->getWindowHeight());
-	model->setAreaWidth(view->getWindowWidth());
 	model->addEntity(new Rectangle(10, 10, 10, 5, 1, 0));
 	model->addEntity(new Rectangle(20, 20, 480, 355, -1, -0.2));
 	gameLoop();
@@ -27,6 +25,7 @@ void GameController::update(double delta) const
 void GameController::render() const
 {
 	view->renderClear();
+	view->renderTileMap(model->getTileMap(), model->getMapRows(), model->getMapCols(), model->getTileSize());
 	Entity* p = model->getPlayer();
 	view->renderRectangle(p->getPosX(), p->getPosY(), p->getWidth(), p->getHeight());
 	for(int i = 0; i < model->getNumberOfEntities(); i++)

@@ -13,6 +13,15 @@ GameView::GameView()
 	}
 	else
 	{
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/floor.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_bottom_left_corner.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_bottom_right_corner.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_top_left_corner.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_top_right_corner.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_horizontal.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_vertical.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/grass.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/barrier.bmp"));
 		SDL_UpdateWindowSurface(gameWindow);
 	}
 }
@@ -49,6 +58,23 @@ void GameView::renderUpdate() const
 	SDL_RenderPresent(gameRenderer);
 }
 
+void GameView::renderTileMap(int** map, int rows, int cols, int tileSize)
+{
+	SDL_Rect tileSpace = {0, 0, 0, 0};
+
+	for(int r = 0; r < rows; r++)
+	{
+		for(int c = 0; c < cols; c++)
+		{
+			tileSpace.x = c*tileSize;
+			tileSpace.y = r*tileSize;
+			tileSpace.w = tileSize;
+			tileSpace.h = tileSize;
+			SDL_RenderCopy(gameRenderer, tileSet.at(map[r][c]), nullptr, &tileSpace);
+		}
+	}
+}
+
 void GameView::renderRectangle(double posX, double posY, int width, int height) const
 {
 	SDL_Rect fillRect = { posX, posY, width, height};
@@ -70,7 +96,7 @@ bool GameView::init()
 	else
 	{
 		//Set texture filtering to linear
-	if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"))
+		if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"))
 		{
 			printf("Warning: Linear texture filtering not enabled! \n");
 		}
@@ -96,9 +122,56 @@ bool GameView::init()
 				//Initialize renderer color
 				SDL_SetRenderDrawColor(gameRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 			}
+			//Get window surface
+			gScreenSurface = SDL_GetWindowSurface(gameWindow);
 		}
 	}
 	return success;
+}
+
+SDL_Texture* GameView::loadTexture(std::string filePath)
+{
+	SDL_Texture* texture = nullptr;
+
+	SDL_Surface* textureImage = loadImage(filePath);
+	if(textureImage == nullptr)
+	{
+		printf("Unable to load image %s. SDL Error: %s\n", filePath.c_str(), SDL_GetError());
+	}
+	else
+	{
+		texture = SDL_CreateTextureFromSurface(gameRenderer, textureImage);
+		if(texture == nullptr)
+		{
+			printf("Unable to create texture from %s. SDL Error: %s\n", filePath.c_str(), SDL_GetError());
+		}
+
+		SDL_FreeSurface(textureImage);
+	}
+
+	return texture;
+}
+
+SDL_Surface * GameView::loadImage(std::string filePath) const
+{
+	SDL_Surface* optimizedImage = nullptr;
+
+	SDL_Surface* loadedImage = SDL_LoadBMP(filePath.c_str());
+	if(loadedImage == nullptr)
+	{
+		printf("Unable to load image %s. SDL Error: %s\n", filePath.c_str(), SDL_GetError());
+	}
+	else
+	{
+		optimizedImage = SDL_ConvertSurface(loadedImage, gScreenSurface->format, 0); //convert to image on surface to pixel format of the game's screen surface for optimization
+		if (optimizedImage == nullptr)
+		{
+			printf("Unable to optimize image %s. SDL Error: %s\n", filePath.c_str(), SDL_GetError());
+		}
+
+		SDL_FreeSurface(loadedImage); //free memory of loadedImage
+	}
+	return optimizedImage;
 }
 
 void GameView::close()
