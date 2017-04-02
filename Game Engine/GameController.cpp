@@ -78,6 +78,19 @@ void GameController::gameLoop()
 				view->close();
 				return;
 			}
+			//User presses a key
+			else if (e.type == SDL_KEYDOWN)
+			{
+				//Select surfaces based on key press
+				switch (e.key.keysym.sym)
+				{
+				case SDLK_s:
+					model->saveMap("testMap");
+					break;
+				default:
+					break;
+				}
+			}
 		}
 		//keystates are updated every time SDL_Pollevent is called
 		//If we check them inside the Pollevent loop though, keystates will be handled multiple times!

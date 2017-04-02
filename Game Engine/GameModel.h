@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "Entity.h"
+#include "SDL_endian.h"
 
 class GameModel
 {
@@ -16,6 +17,9 @@ public:
 	int getMapRows() const;
 	int getMapCols() const;
 	int** getTileMap() const;
+	bool openMap();
+	bool openMap(std::string filePath);
+	bool saveMap(std::string filePath) const;
 private:
 	int screenWidth;
 	int screenHeight;
@@ -29,8 +33,6 @@ private:
 	std::vector<Entity*> entities;
 	Entity* player;
 	void moveAnEntity(Entity* e, double delta) const;
-	void createMap();
-	void createMap(std::string filePath);
 	void deleteMap() const;
 	enum textures
 	{

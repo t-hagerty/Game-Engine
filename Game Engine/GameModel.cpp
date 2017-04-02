@@ -1,5 +1,7 @@
 #include "GameModel.h"
 #include "Rectangle.h"
+#include <SDL.h>
+#include <iostream>
 
 
 GameModel::GameModel(int width, int height)
@@ -7,7 +9,7 @@ GameModel::GameModel(int width, int height)
 	screenWidth = width;
 	screenHeight = height;
 	tileSize = 20;
-	createMap();
+	openMap("testMap");
 	player = new Rectangle(10, 10, 20, 50, 0, 0);
 }
 
@@ -101,8 +103,9 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 	}
 }
 
-void GameModel::createMap()
+bool GameModel::openMap()
 {
+	bool success = true;
 	mapRows = 20;
     mapCols = 30;
 	int testMap[20][30] = { { 3, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4 },
@@ -129,25 +132,81 @@ void GameModel::createMap()
 	for (int i = 0; i < mapRows; i++)
 	{
 		tileMap[i] = new int[mapCols];
-		//tileMap[i] = testMap[i];
 		for(int j = 0; j < mapCols; j++)
 		{
 			tileMap[i][j] = testMap[i][j];
 		}
 	}
+	return success;
 }
 
-void GameModel::createMap(std::string filePath)
+bool GameModel::openMap(std::string filePath)
 {
-	//TODO: Implement file reading
-	//read number rows, columns from file
+	bool success = true;
 
-	tileMap = new int*[mapRows];
-	for (int i = 0; i < mapRows; i++)
+	SDL_RWops* file = SDL_RWFromFile(filePath.c_str(), "r+b");
+	if(file == nullptr)
 	{
-		tileMap[i] = new int[mapCols];
-		//for loop reading each number corresponding to a tile texture/type from left to right, top to bottom
+		printf("Warning: Unable to open file! SDL Error: %s\n", SDL_GetError());
+		success = false;
+		openMap(); //Will be handled better in the future, for now, just load the default map
 	}
+	else
+	{
+		//Load data
+		printf("Reading file...!\n");
+		SDL_RWread(file, &mapRows, sizeof(Sint32), 1); //read number of rows of saved map
+		SDL_RWread(file, &mapCols, sizeof(Sint32), 1); //read number of cols of saved map
+
+		tileMap = new int*[mapRows];
+		for (int r = 0; r < mapRows; r++)
+		{
+			tileMap[r] = new int[mapCols];
+			for (int c = 0; c < mapCols; c++)
+			{
+				SDL_RWread(file, &tileMap[r][c], sizeof(Sint32), 1);
+			}
+		}
+
+		//Close file handler
+		SDL_RWclose(file);
+	}
+
+	return success;
+}
+
+bool GameModel::saveMap(std::string filePath) const
+{
+	bool success = true;
+
+	SDL_RWops* file = SDL_RWFromFile(filePath.c_str(), "w+b");
+	SDL_RWwrite(file, &mapRows, sizeof(Sint32), 1);
+	SDL_RWwrite(file, &mapCols, sizeof(Sint32), 1);
+	if (file != nullptr)
+	{
+		//Save data
+		for (int r = 0; r < mapRows; r++)
+		{
+			for(int c = 0; c < mapCols; c++)
+			{
+				//print data for debugging:
+				//std::cout << tileMap[r][c];
+				//std::cout << ", ";
+				SDL_RWwrite(file, &tileMap[r][c], sizeof(Sint32), 1);
+			}
+			//std::cout << "\n";
+		}
+
+		//Close file handler
+		SDL_RWclose(file);
+	}
+	else
+	{
+		printf("Error: Unable to save file! %s\n", SDL_GetError());
+		success = false;
+	}
+
+	return success;
 }
 
 void GameModel::deleteMap() const
