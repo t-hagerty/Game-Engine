@@ -4,8 +4,8 @@
 
 int main()
 {
-	GameModel* model = new GameModel(600, 400);
-	GameView* view = new GameView();
+	GameModel* model = new GameModel();
+	GameView* view = new GameView(model->getLevelWidth(), model->getLevelHeight());
 	GameController controller = GameController(model, view);
 	return 0;
 }

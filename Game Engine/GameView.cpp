@@ -5,7 +5,7 @@
  * Game rendering using SDL was learned from http://lazyfoo.net/tutorials/SDL/index.php and some of the code here is currently borrowed from lessons at said site.
  */
 
-GameView::GameView()
+GameView::GameView(int levelW, int levelH)
 {
 	if(!init())
 	{
@@ -24,6 +24,12 @@ GameView::GameView()
 		tileSet.insert(tileSet.end(), loadTexture("map_tiles/barrier.bmp"));
 		SDL_UpdateWindowSurface(gameWindow);
 	}
+	camera->x = 0;
+	camera->y = 0;
+	camera->h = WINDOW_HEIGHT;
+	camera->w = WINDOW_WIDTH;
+	levelWidth = levelW;
+	levelHeight = levelH;
 }
 
 
@@ -58,19 +64,17 @@ void GameView::renderUpdate() const
 	SDL_RenderPresent(gameRenderer);
 }
 
-void GameView::renderTileMap(int** map, int rows, int cols, int tileSize)
+void GameView::renderTileMap(std::vector<Tile*> map, int rows, int cols, int tileSize)
 {
-	SDL_Rect tileSpace = {0, 0, 0, 0};
-
-	for(int r = 0; r < rows; r++)
+	for (Tile* t : map)
 	{
-		for(int c = 0; c < cols; c++)
+		if(SDL_HasIntersection(&t->getTileSpace(), camera))
 		{
-			tileSpace.x = c*tileSize;
-			tileSpace.y = r*tileSize;
-			tileSpace.w = tileSize;
-			tileSpace.h = tileSize;
-			SDL_RenderCopy(gameRenderer, tileSet.at(map[r][c]), nullptr, &tileSpace);
+			//Set rendering space and render to screen
+			SDL_Rect renderQuad = { t->getTileSpace().x - camera->x, t->getTileSpace().y - camera->y, t->getTileSpace().w, t->getTileSpace().h };
+
+			//Render to screen
+			SDL_RenderCopyEx(gameRenderer, tileSet.at(t->getType()), NULL, &renderQuad, 0.0, NULL, SDL_FLIP_NONE);
 		}
 	}
 }
@@ -78,9 +82,36 @@ void GameView::renderTileMap(int** map, int rows, int cols, int tileSize)
 void GameView::renderRectangle(double posX, double posY, int width, int height) const
 {
 	SDL_Rect fillRect = { posX, posY, width, height};
+	fillRect.x -= camera->x;
+	fillRect.y -= camera->y;
 	//printf("posx: %f, posy: %f, posx + width: %f, posy + height: %f", posX, posY, (posX + width), (posY + height));
 	SDL_SetRenderDrawColor(gameRenderer, 0x00, 0x00, 0x00, 0x00);
 	SDL_RenderFillRect(gameRenderer, &fillRect);
+}
+
+void GameView::positionCamera(SDL_Rect * playerBox) const
+{
+	//Center the camera over the dot
+	camera->x = (playerBox->x + playerBox->w / 2) - WINDOW_WIDTH / 2;
+	camera->y = (playerBox->y + playerBox->h / 2) - WINDOW_HEIGHT / 2;
+
+	//Keep the camera in bounds
+	if (camera->x < 0)
+	{
+		camera->x = 0;
+	}
+	else if (camera->x > levelWidth - camera->w)
+	{
+		camera->x = levelWidth - camera->w;
+	}
+	if (camera->y < 0)
+	{
+		camera->y = 0;
+	}
+	else if (camera->y > levelHeight - camera->h)
+	{
+		camera->y = levelHeight - camera->h;
+	}
 }
 
 bool GameView::init()

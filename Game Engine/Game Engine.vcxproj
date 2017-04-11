@@ -123,6 +123,7 @@
     <ClCompile Include="GameEngine.cpp" />
     <ClCompile Include="GameModel.cpp" />
     <ClCompile Include="GameView.cpp" />
+    <ClCompile Include="Tile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Rectangle.h" />
@@ -130,6 +131,7 @@
     <ClInclude Include="GameController.h" />
     <ClInclude Include="GameModel.h" />
     <ClInclude Include="GameView.h" />
+    <ClInclude Include="Tile.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

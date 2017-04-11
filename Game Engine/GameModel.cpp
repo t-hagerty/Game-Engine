@@ -4,13 +4,13 @@
 #include <iostream>
 
 
-GameModel::GameModel(int width, int height)
+GameModel::GameModel()
 {
-	screenWidth = width;
-	screenHeight = height;
-	tileSize = 20;
+	tileSize = 32; //TODO change later so that this size adjusts based on the size of the screen/window
 	openMap("testMap");
 	player = new Rectangle(10, 10, 20, 50, 0, 0);
+	levelHeight = mapRows * tileSize;
+	levelWidth = mapCols * tileSize;
 }
 
 
@@ -69,9 +69,24 @@ int GameModel::getMapCols() const
 	return mapCols;
 }
 
-int** GameModel::getTileMap() const
+int GameModel::getLevelWidth() const
+{
+	return levelWidth;
+}
+
+int GameModel::getLevelHeight() const
+{
+	return levelHeight;
+}
+
+std::vector<Tile*> GameModel::getTileMap() const
 {
 	return tileMap;
+}
+
+bool GameModel::setIsSolid(int tileType)
+{
+	return isSolidTable[tileType];
 }
 
 void GameModel::moveAnEntity(Entity * e, double delta) const
@@ -83,12 +98,12 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 		e->setPosX(0);
 		e->setVelocityX(0);
 	}
-	else if ((e->getPosX() + e->getWidth()) >= screenWidth) //If movement puts past the right bound of screen, put it against the right bound instead and set velocity to zero
+	else if ((e->getPosX() + e->getWidth()) >= levelWidth) //If movement puts past the right bound of screen, put it against the right bound instead and set velocity to zero
 	{
-		e->setPosX(screenWidth - e->getWidth());
+		e->setPosX(levelWidth - e->getWidth());
 		e->setVelocityX(0);
 	}
-
+	//TODO Collision with walls
 	e->setPosY(e->getPosY() + (e->getVelocityY() * delta));
 
 	if (e->getPosY() <= 0) //If movement puts past the top bound of screen, put it against the top bound instead and set velocity to zero
@@ -96,9 +111,9 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 		e->setPosY(0);
 		e->setVelocityY(0);
 	}
-	else if ((e->getPosY() + e->getHeight()) >= screenHeight) //If movement puts past the bottom bound of screen, put it against the bottom bound instead and set velocity to zero
+	else if ((e->getPosY() + e->getHeight()) >= levelHeight) //If movement puts past the bottom bound of screen, put it against the bottom bound instead and set velocity to zero
 	{
-		e->setPosY(screenHeight - e->getHeight());
+		e->setPosY(levelHeight - e->getHeight());
 		e->setVelocityY(0);
 	}
 }
@@ -128,13 +143,12 @@ bool GameModel::openMap()
 							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
 							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
 							{ 1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 2 } };
-	tileMap = new int*[mapRows];
-	for (int i = 0; i < mapRows; i++)
+	tileMap.reserve(mapRows * mapCols);
+	for (int r = 0; r < mapRows; r++)
 	{
-		tileMap[i] = new int[mapCols];
-		for(int j = 0; j < mapCols; j++)
+		for(int c = 0; c < mapCols; c++)
 		{
-			tileMap[i][j] = testMap[i][j];
+			tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, testMap[r][c], setIsSolid(testMap[r][c])));
 		}
 	}
 	return success;
@@ -158,13 +172,14 @@ bool GameModel::openMap(std::string filePath)
 		SDL_RWread(file, &mapRows, sizeof(Sint32), 1); //read number of rows of saved map
 		SDL_RWread(file, &mapCols, sizeof(Sint32), 1); //read number of cols of saved map
 
-		tileMap = new int*[mapRows];
+		tileMap.reserve(mapRows * mapCols);
 		for (int r = 0; r < mapRows; r++)
 		{
-			tileMap[r] = new int[mapCols];
 			for (int c = 0; c < mapCols; c++)
 			{
-				SDL_RWread(file, &tileMap[r][c], sizeof(Sint32), 1);
+				Sint32 tempType = -1;
+				SDL_RWread(file, &tempType, sizeof(Sint32), 1);
+				tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, tempType, setIsSolid(tempType)));
 			}
 		}
 
@@ -192,7 +207,8 @@ bool GameModel::saveMap(std::string filePath) const
 				//print data for debugging:
 				//std::cout << tileMap[r][c];
 				//std::cout << ", ";
-				SDL_RWwrite(file, &tileMap[r][c], sizeof(Sint32), 1);
+				int tempType = tileMap[(r*mapCols) + c]->getType();
+				SDL_RWwrite(file, &tempType, sizeof(Sint32), 1);
 			}
 			//std::cout << "\n";
 		}
@@ -211,9 +227,9 @@ bool GameModel::saveMap(std::string filePath) const
 
 void GameModel::deleteMap() const
 {
-	for (int i = 0; i < mapRows; ++i) 
+	for (int i = 0; i < mapRows*mapCols; ++i) 
 	{
-		delete[] tileMap[i];
+		delete &tileMap[i];
 	}
-	delete[] tileMap;
+	delete &tileMap;
 }

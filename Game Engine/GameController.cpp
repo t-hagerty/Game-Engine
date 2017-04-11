@@ -25,6 +25,7 @@ void GameController::update(double delta) const
 void GameController::render() const
 {
 	view->renderClear();
+	view->positionCamera(model->getPlayer()->getCollisionBox());
 	view->renderTileMap(model->getTileMap(), model->getMapRows(), model->getMapCols(), model->getTileSize());
 	Entity* p = model->getPlayer();
 	view->renderRectangle(p->getPosX(), p->getPosY(), p->getWidth(), p->getHeight());

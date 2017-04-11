@@ -10,40 +10,50 @@ Entity::Entity(int h, int w, double positionX, double positionY, double velX, do
 	posY = positionY;
 	velocityX = velX;
 	velocityY = velY;
+	collisionBox = new SDL_Rect();
+	collisionBox->x = positionX;
+	collisionBox->y = positionY;
+	collisionBox->w = w;
+	collisionBox->h = h;
 }
 
 Entity::~Entity()
 {
 }
 
-void Entity::setPosX(double newX)
+void Entity::setPosX(double newX) const
 {
-	posX = newX;
+	collisionBox->x = newX;
 }
 
 double Entity::getPosX() const
 {
-	return posX;
+	return collisionBox->x;
 }
 
-void Entity::setPosY(double newY)
+void Entity::setPosY(double newY) const
 {
-	posY = newY;
+	collisionBox->y = newY;
 }
 
 double Entity::getPosY() const
 {
-	return posY;
+	return collisionBox->y;
+}
+
+SDL_Rect* Entity::getCollisionBox() const
+{
+	return collisionBox;
 }
 
 int Entity::getHeight() const
 {
-	return height;
+	return collisionBox->h;
 }
 
 int Entity::getWidth() const
 {
-	return width;
+	return collisionBox->w;
 }
 
 void Entity::setVelocityX(double newVelX)

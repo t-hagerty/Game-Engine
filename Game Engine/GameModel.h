@@ -2,11 +2,12 @@
 #include <vector>
 #include "Entity.h"
 #include "SDL_endian.h"
+#include "Tile.h"
 
 class GameModel
 {
 public:
-	GameModel(int width, int height);
+	GameModel();
 	~GameModel();
 	void addEntity(Entity* newEntity);
 	void moveEntities(double delta);
@@ -16,7 +17,9 @@ public:
 	int getTileSize() const;
 	int getMapRows() const;
 	int getMapCols() const;
-	int** getTileMap() const;
+	int getLevelWidth() const;
+	int getLevelHeight() const;
+	std::vector<Tile*> getTileMap() const;
 	bool openMap();
 	bool openMap(std::string filePath);
 	bool saveMap(std::string filePath) const;
@@ -24,14 +27,15 @@ private:
 	int screenWidth;
 	int screenHeight;
 	int tileSize;
-	int numTileTypes;
+	const static int numTileTypes = 9;
 	int levelWidth;
 	int levelHeight;
-	int **tileMap;
+	std::vector<Tile*> tileMap;
 	int mapRows;
 	int mapCols;
 	std::vector<Entity*> entities;
 	Entity* player;
+	bool setIsSolid(int tileType);
 	void moveAnEntity(Entity* e, double delta) const;
 	void deleteMap() const;
 	enum textures
@@ -46,5 +50,6 @@ private:
 		GRASS,
 		BARRIER
 	};
+	bool isSolidTable[numTileTypes] = { false, true, true, true, true, true, true, false, true };
 };
 
