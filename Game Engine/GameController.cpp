@@ -8,7 +8,7 @@ GameController::GameController(GameModel* m, GameView* v)
 {
 	model = m;
 	view = v;
-	model->addEntity(new Rectangle(10, 10, 10, 5, 1, 0));
+	model->addEntity(new Rectangle(15, 15, 10, 5, 1, 0));
 	model->addEntity(new Rectangle(20, 20, 480, 355, -1, -0.2));
 	gameLoop();
 }

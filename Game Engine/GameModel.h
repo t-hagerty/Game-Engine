@@ -31,12 +31,14 @@ private:
 	int levelWidth;
 	int levelHeight;
 	std::vector<Tile*> tileMap;
+	Tile* convert2DCoordsToMapIndex(int row, int col) const;
 	int mapRows;
 	int mapCols;
 	std::vector<Entity*> entities;
 	Entity* player;
 	bool setIsSolid(int tileType);
 	void moveAnEntity(Entity* e, double delta) const;
+	static bool isInsideWall(Entity* entity, Tile* t);
 	void deleteMap() const;
 	enum textures
 	{

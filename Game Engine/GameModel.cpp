@@ -8,7 +8,7 @@ GameModel::GameModel()
 {
 	tileSize = 32; //TODO change later so that this size adjusts based on the size of the screen/window
 	openMap("testMap");
-	player = new Rectangle(10, 10, 20, 50, 0, 0);
+	player = new Rectangle(10, 10, 60, 80, 0, 0);
 	levelHeight = mapRows * tileSize;
 	levelWidth = mapCols * tileSize;
 }
@@ -84,6 +84,11 @@ std::vector<Tile*> GameModel::getTileMap() const
 	return tileMap;
 }
 
+Tile * GameModel::convert2DCoordsToMapIndex(int row, int col) const
+{
+	return tileMap.at((row*mapCols) + col);
+}
+
 bool GameModel::setIsSolid(int tileType)
 {
 	return isSolidTable[tileType];
@@ -91,19 +96,12 @@ bool GameModel::setIsSolid(int tileType)
 
 void GameModel::moveAnEntity(Entity * e, double delta) const
 {
-	e->setPosX(e->getPosX() + (e->getVelocityX() * delta));
+	double oldX = e->getPosX();
+	double oldY = e->getPosY();
+	int posRow = oldY / tileSize;
+	int posCol = oldX / tileSize;
 
-	if (e->getPosX() <= 0) //If movement puts past the left bound of screen, put it against the left bound instead and set velocity to zero
-	{
-		e->setPosX(0);
-		e->setVelocityX(0);
-	}
-	else if ((e->getPosX() + e->getWidth()) >= levelWidth) //If movement puts past the right bound of screen, put it against the right bound instead and set velocity to zero
-	{
-		e->setPosX(levelWidth - e->getWidth());
-		e->setVelocityX(0);
-	}
-	//TODO Collision with walls
+	//=== Y MOVEMENT (UP(neg)/DOWN(pos)) ===
 	e->setPosY(e->getPosY() + (e->getVelocityY() * delta));
 
 	if (e->getPosY() <= 0) //If movement puts past the top bound of screen, put it against the top bound instead and set velocity to zero
@@ -116,6 +114,67 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 		e->setPosY(levelHeight - e->getHeight());
 		e->setVelocityY(0);
 	}
+
+	if (e->getVelocityY() > 0) //down
+	{
+		if ((posRow + 1) < mapRows && (isInsideWall(e, convert2DCoordsToMapIndex(posRow + 1, posCol))
+			|| (posCol + 1 < mapCols && isInsideWall(e, convert2DCoordsToMapIndex(posRow + 1, posCol + 1)))))
+		{
+			e->setPosY((posRow + 1) * tileSize - e->getHeight());
+		}
+	}
+	else if (e->getVelocityY() < 0) //up
+	{
+		if ((posRow - 1) >= 0 && (isInsideWall(e, convert2DCoordsToMapIndex(posRow - 1, posCol))
+			|| (posCol + 1 < mapCols && isInsideWall(e, convert2DCoordsToMapIndex(posRow - 1, posCol + 1)))))
+		{
+			e->setPosY((posRow)* tileSize);
+		}
+	}
+
+	//=== X MOVEMENT (LEFT(neg)/RIGHT(pos)) ===
+	e->setPosX(e->getPosX() + (e->getVelocityX() * delta));
+
+	if (e->getPosX() <= 0) //If movement puts past the left bound of screen, put it against the left bound instead and set velocity to zero
+	{
+		e->setPosX(0);
+		e->setVelocityX(0);
+	}
+	else if ((e->getPosX() + e->getWidth()) >= levelWidth) //If movement puts past the right bound of screen, put it against the right bound instead and set velocity to zero
+	{
+		e->setPosX(levelWidth - e->getWidth());
+		e->setVelocityX(0);
+	}
+
+	if (e->getVelocityX() > 0)
+	{
+		if ((posCol + 1) < mapCols && (isInsideWall(e, convert2DCoordsToMapIndex(posRow, posCol + 1))
+			|| (posRow + 1 < mapRows && isInsideWall(e, convert2DCoordsToMapIndex(posRow + 1, posCol + 1))))) //right
+		{
+			e->setPosX((posCol + 1) * tileSize - e->getWidth());
+		}
+	}
+	else if (e->getVelocityX() < 0)
+	{
+		if ((posCol - 1) >= 0 && (isInsideWall(e, convert2DCoordsToMapIndex(posRow, posCol - 1))
+			|| (posRow + 1 < mapRows && isInsideWall(e, convert2DCoordsToMapIndex(posRow + 1, posCol - 1))))) //left
+		{
+			e->setPosX((posCol)* tileSize);
+		}
+	}
+}
+
+bool GameModel::isInsideWall(Entity* entity, Tile * t)
+{
+	if(!t->isSolid())
+	{
+		return false;
+	}
+	if(SDL_HasIntersection(&t->getTileSpace(), entity->getCollisionBox()))
+	{
+		return true;
+	}
+	return false;
 }
 
 bool GameModel::openMap()
@@ -126,17 +185,17 @@ bool GameModel::openMap()
 	int testMap[20][30] = { { 3, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4 },
 							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
 							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
+							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
+							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 0, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
 							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
+							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 0, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
+							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
+							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
+							{ 6, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
+							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
+							{ 6, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
+							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
+							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
 							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
 							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
 							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
