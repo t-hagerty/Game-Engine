@@ -2,7 +2,7 @@
 
 
 
-Entity::Entity(int h, int w, double positionX, double positionY, double velX, double velY)
+Entity::Entity(int h, int w, float positionX, float positionY, float velX, float velY)
 {
 	height = h;
 	width = w;
@@ -21,24 +21,26 @@ Entity::~Entity()
 {
 }
 
-void Entity::setPosX(double newX) const
+void Entity::setPosX(float newX)
 {
+	posX = newX;
 	collisionBox->x = newX;
 }
 
-double Entity::getPosX() const
+float Entity::getPosX() const
 {
-	return collisionBox->x;
+	return posX;
 }
 
-void Entity::setPosY(double newY) const
+void Entity::setPosY(float newY)
 {
+	posY = newY;
 	collisionBox->y = newY;
 }
 
-double Entity::getPosY() const
+float Entity::getPosY() const
 {
-	return collisionBox->y;
+	return posY;
 }
 
 SDL_Rect* Entity::getCollisionBox() const
@@ -56,22 +58,22 @@ int Entity::getWidth() const
 	return collisionBox->w;
 }
 
-void Entity::setVelocityX(double newVelX)
+void Entity::setVelocityX(float newVelX)
 {
 	velocityX = newVelX;
 }
 
-double Entity::getVelocityX() const
+float Entity::getVelocityX() const
 {
 	return velocityX;
 }
 
-void Entity::setVelocityY(double newVelY)
+void Entity::setVelocityY(float newVelY)
 {
 	velocityY = newVelY;
 }
 
-double Entity::getVelocityY() const
+float Entity::getVelocityY() const
 {
 	return velocityY;
 }
