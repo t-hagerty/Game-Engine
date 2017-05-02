@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "Tile.h"
+#include "Entity.h"
 
 class GameView
 {
@@ -15,6 +16,7 @@ public:
 	void renderUpdate() const;
 	void renderTileMap(std::vector<Tile*> map, int rows, int cols, int tileSize);
 	void renderRectangle(double posX, double posY, int width, int height) const; //FOR TESTING ONLY
+	void renderEntitySprite(Entity* e, int frame);
 	void positionCamera(SDL_Rect* playerBox) const;
 	void close();
 private:

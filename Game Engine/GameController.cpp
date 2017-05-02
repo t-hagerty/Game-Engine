@@ -28,11 +28,11 @@ void GameController::render() const
 	view->positionCamera(model->getPlayer()->getCollisionBox());
 	view->renderTileMap(model->getTileMap(), model->getMapRows(), model->getMapCols(), model->getTileSize());
 	Entity* p = model->getPlayer();
-	view->renderRectangle(p->getPosX(), p->getPosY(), p->getWidth(), p->getHeight());
+	view->renderEntitySprite(p, fps);
 	for(int i = 0; i < model->getNumberOfEntities(); i++)
 	{
 		Entity* e = model->getEntity(i);
-		view->renderRectangle(e->getPosX(), e->getPosY(), e->getWidth(), e->getHeight());
+		view->renderEntitySprite(e, fps);
 	}
 	view->renderUpdate();
 }

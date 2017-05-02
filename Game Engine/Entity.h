@@ -1,5 +1,6 @@
 #pragma once
 #include <SDL.h>
+#include <string>
 
 class Entity
 {
@@ -18,6 +19,19 @@ public:
 	float getVelocityX() const;
 	void setVelocityY(float newVelY);
 	float getVelocityY() const;
+	std::string getSpriteFilePath() const;
+	SDL_Texture* getSpriteSheet() const;
+	void setSpriteSheet(SDL_Texture* newSheet);
+	int getSpriteWidth() const;
+	int getSpriteHeight() const;
+	int getSpriteSheetRows() const;
+	int getSpriteSheetCols() const;
+	int getAnimationFrame() const;
+	void setAnimationFrame(int newFrame);
+	void incrementAnimationFrame();
+	int getSpriteDirection() const;
+	void setSpriteDirection(int newDirection);
+
 protected:
 	int height;
 	int width;
@@ -26,6 +40,13 @@ protected:
 	float velocityX; //horizontal distance per frame (per ideal frame, 1/60th of a second, 16.66... milliseconds)
 	float velocityY; //vertical distance per frame
 	SDL_Rect* collisionBox;
-
+	std::string spriteFilePath = "spritesheets/player_walking.bmp";
+	SDL_Texture* spriteSheet;
+	const int SPRITE_WIDTH = 32;
+	const int SPRITE_HEIGHT = 32;
+	int spriteSheetRows;
+	int spriteSheetCols;
+	int animationFrame = 0;
+	int spriteDirection = 0; //0 = down-facing, 1 = right, 2 = left, 3 = up
 };
 

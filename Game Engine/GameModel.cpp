@@ -8,7 +8,7 @@ GameModel::GameModel()
 {
 	tileSize = 32; //TODO change later so that this size adjusts based on the size of the screen/window
 	openMap("testMap");
-	player = new Rectangle(10, 10, 60, 80, 0, 0);
+	player = new Rectangle(32, 32, 60, 80, 0, 0);
 	levelHeight = mapRows * tileSize;
 	levelWidth = mapCols * tileSize;
 }

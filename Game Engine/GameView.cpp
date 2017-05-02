@@ -89,6 +89,32 @@ void GameView::renderRectangle(double posX, double posY, int width, int height) 
 	SDL_RenderFillRect(gameRenderer, &fillRect);
 }
 
+void GameView::renderEntitySprite(Entity* e, int frame)
+{
+	if(e->getSpriteSheet() == nullptr)
+	{
+		e->setSpriteSheet(loadTexture(e->getSpriteFilePath()));
+	}
+	SDL_Rect spriteSheetClip = { e->getAnimationFrame() * e->getSpriteWidth(), 
+								e->getSpriteDirection() * e->getSpriteHeight(), 
+								e->getSpriteWidth(), e->getSpriteHeight() };
+	SDL_Rect fillRect = { e->getPosX(), e->getPosY(), e->getWidth(), e->getHeight() };
+	fillRect.x -= camera->x;
+	fillRect.y -= camera->y;
+	SDL_RenderCopy(gameRenderer, e->getSpriteSheet(), &spriteSheetClip, &fillRect);
+	if((e->getVelocityX() != 0 || e->getVelocityY() != 0))
+	{
+		if (frame == 0 || frame == 30)
+		{
+			e->incrementAnimationFrame();
+		}
+	}
+	else
+	{
+		e->setAnimationFrame(0);
+	}
+}
+
 void GameView::positionCamera(SDL_Rect * playerBox) const
 {
 	//Center the camera over the dot
@@ -171,6 +197,7 @@ SDL_Texture* GameView::loadTexture(std::string filePath)
 	}
 	else
 	{
+		SDL_SetColorKey(textureImage, SDL_TRUE, SDL_MapRGB(textureImage->format, 0xFF, 0, 0xFF));
 		texture = SDL_CreateTextureFromSurface(gameRenderer, textureImage);
 		if(texture == nullptr)
 		{
