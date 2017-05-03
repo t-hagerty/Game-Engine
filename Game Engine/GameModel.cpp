@@ -9,6 +9,7 @@ GameModel::GameModel()
 	tileSize = 32; //TODO change later so that this size adjusts based on the size of the screen/window
 	openMap("testMap");
 	player = new Rectangle(32, 32, 60, 80, 0, 0);
+	addEntity(player);
 	levelHeight = mapRows * tileSize;
 	levelWidth = mapCols * tileSize;
 }
@@ -29,7 +30,7 @@ void GameModel::moveEntities(double delta)
 	{
 		moveAnEntity(e, delta);
 	}
-	moveAnEntity(player, delta);
+	//moveAnEntity(player, delta);
 }
 
 Entity * GameModel::getEntity(int index)
@@ -122,6 +123,14 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 		{
 			e->setPosY((posRow + 1) * tileSize - e->getHeight());
 		}
+		for (Entity* anotherEntity : entities)
+		{
+			if (e != anotherEntity && isIntersectingEntity(e, anotherEntity))
+			{
+				e->setPosY(anotherEntity->getPosY() - e->getHeight());
+				//TODO Execute collision behavior (eg: damage, knockback)
+			}
+		}
 	}
 	else if (e->getVelocityY() < 0) //up
 	{
@@ -129,6 +138,14 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 			|| (posCol + 1 < mapCols && isInsideWall(e, convert2DCoordsToMapIndex(posRow - 1, posCol + 1)))))
 		{
 			e->setPosY((posRow)* tileSize);
+		}
+		for (Entity* anotherEntity : entities)
+		{
+			if (e != anotherEntity && isIntersectingEntity(e, anotherEntity))
+			{
+				e->setPosY(anotherEntity->getPosY() + anotherEntity->getHeight());
+				//TODO Execute collision behavior (eg: damage, knockback)
+			}
 		}
 	}
 
@@ -153,6 +170,14 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 		{
 			e->setPosX((posCol + 1) * tileSize - e->getWidth());
 		}
+		for(Entity* anotherEntity : entities)
+		{
+			if(e != anotherEntity && isIntersectingEntity(e, anotherEntity))
+			{
+				e->setPosX(anotherEntity->getPosX() - e->getWidth());
+				//TODO Execute collision behavior (eg: damage, knockback)
+			}
+		}
 	}
 	else if (e->getVelocityX() < 0)
 	{
@@ -160,6 +185,14 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 			|| (posRow + 1 < mapRows && isInsideWall(e, convert2DCoordsToMapIndex(posRow + 1, posCol - 1))))) //left
 		{
 			e->setPosX((posCol)* tileSize);
+		}
+		for (Entity* anotherEntity : entities)
+		{
+			if (e != anotherEntity && isIntersectingEntity(e, anotherEntity))
+			{
+				e->setPosX(anotherEntity->getPosX() + anotherEntity->getWidth());
+				//TODO Execute collision behavior (eg: damage, knockback)
+			}
 		}
 	}
 }
@@ -171,6 +204,15 @@ bool GameModel::isInsideWall(Entity* entity, Tile * t)
 		return false;
 	}
 	if(SDL_HasIntersection(&t->getTileSpace(), entity->getCollisionBox()))
+	{
+		return true;
+	}
+	return false;
+}
+
+bool GameModel::isIntersectingEntity(Entity* e1, Entity* e2)
+{
+	if (SDL_HasIntersection(e1->getCollisionBox(), e2->getCollisionBox()))
 	{
 		return true;
 	}

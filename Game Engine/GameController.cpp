@@ -8,8 +8,8 @@ GameController::GameController(GameModel* m, GameView* v)
 {
 	model = m;
 	view = v;
-	model->addEntity(new Rectangle(15, 15, 10, 5, 1, 0));
-	model->addEntity(new Rectangle(20, 20, 480, 355, -1, -0.2));
+	model->addEntity(new Rectangle(50, 40, 70, 300, 0, 0));
+	model->addEntity(new Rectangle(20, 20, 230, 255, 0.2, -0.5));
 	gameLoop();
 }
 
@@ -27,8 +27,8 @@ void GameController::render() const
 	view->renderClear();
 	view->positionCamera(model->getPlayer()->getCollisionBox());
 	view->renderTileMap(model->getTileMap(), model->getMapRows(), model->getMapCols(), model->getTileSize());
-	Entity* p = model->getPlayer();
-	view->renderEntitySprite(p, fps);
+	//Entity* p = model->getPlayer();
+	//view->renderEntitySprite(p, fps);
 	for(int i = 0; i < model->getNumberOfEntities(); i++)
 	{
 		Entity* e = model->getEntity(i);

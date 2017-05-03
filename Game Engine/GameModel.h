@@ -39,6 +39,7 @@ private:
 	bool setIsSolid(int tileType);
 	void moveAnEntity(Entity* e, double delta) const;
 	static bool isInsideWall(Entity* entity, Tile* t);
+	static bool isIntersectingEntity(Entity* e1, Entity* e2);
 	void deleteMap() const;
 	enum textures
 	{
