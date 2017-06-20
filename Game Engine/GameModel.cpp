@@ -85,7 +85,7 @@ std::vector<Tile*> GameModel::getTileMap() const
 	return tileMap;
 }
 
-Tile * GameModel::convert2DCoordsToMapIndex(int row, int col) const
+Tile * GameModel::getTileAtMapIndex(int row, int col) const
 {
 	return tileMap.at((row*mapCols) + col);
 }
@@ -118,8 +118,8 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 
 	if (e->getVelocityY() > 0) //down
 	{
-		if ((posRow + 1) < mapRows && (isInsideWall(e, convert2DCoordsToMapIndex(posRow + 1, posCol))
-			|| (posCol + 1 < mapCols && isInsideWall(e, convert2DCoordsToMapIndex(posRow + 1, posCol + 1)))))
+		if ((posRow + 1) < mapRows && (isInsideWall(e, getTileAtMapIndex(posRow + 1, posCol))
+			|| (posCol + 1 < mapCols && isInsideWall(e, getTileAtMapIndex(posRow + 1, posCol + 1)))))
 		{
 			e->setPosY((posRow + 1) * tileSize - e->getHeight());
 		}
@@ -134,8 +134,8 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 	}
 	else if (e->getVelocityY() < 0) //up
 	{
-		if ((posRow - 1) >= 0 && (isInsideWall(e, convert2DCoordsToMapIndex(posRow - 1, posCol))
-			|| (posCol + 1 < mapCols && isInsideWall(e, convert2DCoordsToMapIndex(posRow - 1, posCol + 1)))))
+		if ((posRow - 1) >= 0 && (isInsideWall(e, getTileAtMapIndex(posRow - 1, posCol))
+			|| (posCol + 1 < mapCols && isInsideWall(e, getTileAtMapIndex(posRow - 1, posCol + 1)))))
 		{
 			e->setPosY((posRow)* tileSize);
 		}
@@ -165,8 +165,8 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 
 	if (e->getVelocityX() > 0)
 	{
-		if ((posCol + 1) < mapCols && (isInsideWall(e, convert2DCoordsToMapIndex(posRow, posCol + 1))
-			|| (posRow + 1 < mapRows && isInsideWall(e, convert2DCoordsToMapIndex(posRow + 1, posCol + 1))))) //right
+		if ((posCol + 1) < mapCols && (isInsideWall(e, getTileAtMapIndex(posRow, posCol + 1))
+			|| (posRow + 1 < mapRows && isInsideWall(e, getTileAtMapIndex(posRow + 1, posCol + 1))))) //right
 		{
 			e->setPosX((posCol + 1) * tileSize - e->getWidth());
 		}
@@ -181,8 +181,9 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 	}
 	else if (e->getVelocityX() < 0)
 	{
-		if ((posCol - 1) >= 0 && (isInsideWall(e, convert2DCoordsToMapIndex(posRow, posCol - 1))
-			|| (posRow + 1 < mapRows && isInsideWall(e, convert2DCoordsToMapIndex(posRow + 1, posCol - 1))))) //left
+		if ((posCol - 1) >= 0 && (isInsideWall(e, getTileAtMapIndex(posRow, posCol - 1))
+			|| (posRow + 1 < mapRows && isInsideWall(e, getTileAtMapIndex(posRow + 1, posCol - 1))))
+				|| (e->getVelocityY() < 0 && (posRow - 1 >= 0 && isInsideWall(e, getTileAtMapIndex(posRow - 1, posCol - 1))))) //left
 		{
 			e->setPosX((posCol)* tileSize);
 		}
@@ -193,6 +194,22 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 				e->setPosX(anotherEntity->getPosX() + anotherEntity->getWidth());
 				//TODO Execute collision behavior (eg: damage, knockback)
 			}
+		}
+	}
+
+	//Safety check, make sure once we're done, the entity didnt manage to still make it inside a wall, if so, fallback on moving it back to former pos:
+	if(isInsideWall(e, getTileAtMapIndex(e->getPosY() / tileSize, e->getPosX() / tileSize)))
+	{
+		e->setPosX(oldX);
+		e->setPosY(oldY);
+	}
+	for (Entity* anotherEntity : entities)
+	{
+		if (e != anotherEntity && isIntersectingEntity(e, anotherEntity))
+		{
+			e->setPosX(oldX);
+			e->setPosY(oldY);
+			//TODO Execute collision behavior (eg: damage, knockback)
 		}
 	}
 }

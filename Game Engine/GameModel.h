@@ -31,7 +31,7 @@ private:
 	int levelWidth;
 	int levelHeight;
 	std::vector<Tile*> tileMap;
-	Tile* convert2DCoordsToMapIndex(int row, int col) const;
+	Tile* getTileAtMapIndex(int row, int col) const;
 	int mapRows;
 	int mapCols;
 	std::vector<Entity*> entities;
