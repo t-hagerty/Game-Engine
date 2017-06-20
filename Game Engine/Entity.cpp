@@ -8,8 +8,8 @@ Entity::Entity(int h, int w, float positionX, float positionY, float velX, float
 	width = w;
 	posX = positionX;
 	posY = positionY;
-	velocityX = velX;
-	velocityY = velY;
+	setVelocityX(velX);
+	setVelocityY(velY);
 	collisionBox = new SDL_Rect();
 	collisionBox->x = positionX;
 	collisionBox->y = positionY;
