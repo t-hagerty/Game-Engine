@@ -2,13 +2,14 @@
 #include "Rectangle.h"
 #include <SDL.h>
 #include <iostream>
+#include "Player.h"
 
 
 GameModel::GameModel()
 {
 	tileSize = 32; //TODO change later so that this size adjusts based on the size of the screen/window
 	openMap("testMap");
-	player = new Rectangle(32, 32, 60, 80, 0, 0);
+	player = new Player(32, 32, 60, 80, 0, 0, 10);
 	addEntity(player);
 	levelHeight = mapRows * tileSize;
 	levelWidth = mapCols * tileSize;
@@ -50,7 +51,7 @@ int GameModel::getNumberOfEntities() const
 	return entities.size();
 }
 
-Entity * GameModel::getPlayer() const
+Player * GameModel::getPlayer() const
 {
 	return player;
 }
@@ -102,6 +103,7 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 	int posRow = oldY / tileSize;
 	int posCol = oldX / tileSize;
 
+	e->determineMovement(player->getPosX(), player->getPosY());
 	//=== Y MOVEMENT (UP(neg)/DOWN(pos)) ===
 	e->setPosY(e->getPosY() + (e->getVelocityY() * delta));
 

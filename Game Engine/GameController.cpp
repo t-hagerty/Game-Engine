@@ -2,14 +2,15 @@
 #include <iostream>
 #include "Entity.h"
 #include "Rectangle.h"
+#include "Enemy.h"
 
 
 GameController::GameController(GameModel* m, GameView* v)
 {
 	model = m;
 	view = v;
-	model->addEntity(new Rectangle(50, 40, 70, 300, 0, 0));
-	model->addEntity(new Rectangle(20, 20, 230, 255, 0.2, -0.5));
+	model->addEntity(new Enemy(50, 40, 70, 300, 0, 0, 10));
+	model->addEntity(new Enemy(20, 20, 230, 255, 0.2, -0.5, 10));
 	gameLoop();
 }
 
@@ -27,8 +28,7 @@ void GameController::render() const
 	view->renderClear();
 	view->positionCamera(model->getPlayer()->getCollisionBox());
 	view->renderTileMap(model->getTileMap(), model->getMapRows(), model->getMapCols(), model->getTileSize());
-	//Entity* p = model->getPlayer();
-	//view->renderEntitySprite(p, fps);
+
 	for(int i = 0; i < model->getNumberOfEntities(); i++)
 	{
 		Entity* e = model->getEntity(i);
@@ -67,6 +67,10 @@ void GameController::gameLoop()
 			std::cout << "\n";
 			lastFpsTime = 0;
 			fps = 0;
+			std::cout << model->getPlayer()->getVelocityX();
+			std::cout << ", ";
+			std::cout << model->getPlayer()->getVelocityY();
+			std::cout << "\n";
 		}
 
 		//Handle events on queue
@@ -121,23 +125,29 @@ void GameController::gameLoop()
 
 void GameController::movePlayer(const Uint8* keyStates) const
 {
-	model->getPlayer()->setVelocityX(0);
-	model->getPlayer()->setVelocityY(0);
 	if (keyStates[SDL_SCANCODE_UP])
 	{
-		model->getPlayer()->setVelocityY(-1);
+		model->getPlayer()->setVerticalMovementKeyPress(-1);
 	}
 	else if (keyStates[SDL_SCANCODE_DOWN])
 	{
-		model->getPlayer()->setVelocityY(1);
+		model->getPlayer()->setVerticalMovementKeyPress(1);
+	}
+	else
+	{
+		model->getPlayer()->setVerticalMovementKeyPress(0);
 	}
 	if (keyStates[SDL_SCANCODE_LEFT])
 	{
-		model->getPlayer()->setVelocityX(-1);
+		model->getPlayer()->setHorizontalMovementKeyPress(-1);
 	}
 	else if (keyStates[SDL_SCANCODE_RIGHT])
 	{
-		model->getPlayer()->setVelocityX(1);
+		model->getPlayer()->setHorizontalMovementKeyPress(1);
+	}
+	else
+	{
+		model->getPlayer()->setHorizontalMovementKeyPress(0);
 	}
 }
 

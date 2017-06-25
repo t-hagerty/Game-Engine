@@ -12,7 +12,6 @@ Rectangle::~Rectangle()
 {
 }
 
-void Rectangle::test()
+void Rectangle::determineMovement(double playerPosX, double plaerPosY)
 {
-	//no purpose
 }

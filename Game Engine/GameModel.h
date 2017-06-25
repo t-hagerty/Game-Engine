@@ -3,6 +3,7 @@
 #include "Entity.h"
 #include "SDL_endian.h"
 #include "Tile.h"
+#include "Player.h"
 
 class GameModel
 {
@@ -13,7 +14,7 @@ public:
 	void moveEntities(double delta);
 	Entity* getEntity(int index);
 	int getNumberOfEntities() const;
-	Entity* getPlayer() const;
+	Player* getPlayer() const;
 	int getTileSize() const;
 	int getMapRows() const;
 	int getMapCols() const;
@@ -35,7 +36,7 @@ private:
 	int mapRows;
 	int mapCols;
 	std::vector<Entity*> entities;
-	Entity* player;
+	Player* player;
 	bool setIsSolid(int tileType);
 	void moveAnEntity(Entity* e, double delta) const;
 	static bool isInsideWall(Entity* entity, Tile* t);

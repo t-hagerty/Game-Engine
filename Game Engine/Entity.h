@@ -6,8 +6,7 @@ class Entity
 {
 public:
 	Entity(int h, int w, float positionX, float positionY, float velX, float velY);
-	~Entity();
-	virtual void test() = 0;
+	virtual ~Entity();
 	void setPosX(float newX);
 	float getPosX() const;
 	void setPosY(float newY);
@@ -31,6 +30,7 @@ public:
 	void incrementAnimationFrame();
 	int getSpriteDirection() const;
 	void setSpriteDirection(int newDirection);
+	virtual void determineMovement(double playerPosX, double playerPosY) = 0;
 
 protected:
 	int height;
@@ -39,6 +39,7 @@ protected:
 	float posY;
 	float velocityX; //horizontal distance per frame (per ideal frame, 1/60th of a second, 16.66... milliseconds)
 	float velocityY; //vertical distance per frame
+	const float MAX_VELOCITY = 2;
 	SDL_Rect* collisionBox;
 	std::string spriteFilePath = "spritesheets/player_walking.bmp";
 	SDL_Texture* spriteSheet;

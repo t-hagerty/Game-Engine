@@ -84,7 +84,6 @@ void GameView::renderRectangle(double posX, double posY, int width, int height) 
 	SDL_Rect fillRect = { posX, posY, width, height};
 	fillRect.x -= camera->x;
 	fillRect.y -= camera->y;
-	//printf("posx: %f, posy: %f, posx + width: %f, posy + height: %f", posX, posY, (posX + width), (posY + height));
 	SDL_SetRenderDrawColor(gameRenderer, 0x00, 0x00, 0x00, 0x00);
 	SDL_RenderFillRect(gameRenderer, &fillRect);
 }
@@ -104,7 +103,7 @@ void GameView::renderEntitySprite(Entity* e, int frame)
 	SDL_RenderCopy(gameRenderer, e->getSpriteSheet(), &spriteSheetClip, &fillRect);
 	if((e->getVelocityX() != 0 || e->getVelocityY() != 0))
 	{
-		if (frame == 0 || frame == 30)
+		if (frame == 0 || frame == 15 || frame == 30 || frame == 45)
 		{
 			e->incrementAnimationFrame();
 		}

@@ -15,7 +15,6 @@ Entity::Entity(int h, int w, float positionX, float positionY, float velX, float
 	collisionBox->y = positionY;
 	collisionBox->w = w;
 	collisionBox->h = h;
-
 }
 
 Entity::~Entity()
