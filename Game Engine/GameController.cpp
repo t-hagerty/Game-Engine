@@ -67,10 +67,6 @@ void GameController::gameLoop()
 			std::cout << "\n";
 			lastFpsTime = 0;
 			fps = 0;
-			std::cout << model->getPlayer()->getVelocityX();
-			std::cout << ", ";
-			std::cout << model->getPlayer()->getVelocityY();
-			std::cout << "\n";
 		}
 
 		//Handle events on queue

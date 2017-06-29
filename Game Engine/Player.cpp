@@ -13,6 +13,12 @@ Player::~Player()
 
 void Player::determineMovement(double playerPosX, double plaerPosY)
 {
+	float max = MAX_VELOCITY;
+	if(horizontalMovementKeyPress != 0 && verticalMovementKeyPress != 0) //if diagonal movement (will always be 45 degree angle)
+	{
+		max /= sqrt(2);
+	}
+
 	if(horizontalMovementKeyPress == 0)
 	{
 		setVelocityX(velocityX / 2);
@@ -28,9 +34,9 @@ void Player::determineMovement(double playerPosX, double plaerPosY)
 			velocityX = 0.5;
 		}
 		setVelocityX(velocityX * 1.2);
-		if (velocityX > MAX_VELOCITY)
+		if (velocityX > max)
 		{
-			velocityX = MAX_VELOCITY;
+			velocityX = max;
 		}
 	}
 	else if (horizontalMovementKeyPress == -1)
@@ -40,9 +46,9 @@ void Player::determineMovement(double playerPosX, double plaerPosY)
 			velocityX = -0.5;
 		}
 		setVelocityX(velocityX * 1.2);
-		if (velocityX < MAX_VELOCITY * -1)
+		if (velocityX < max * -1)
 		{
-			velocityX = MAX_VELOCITY * -1;
+			velocityX = max * -1;
 		}
 	}
 	if (verticalMovementKeyPress == 0)
@@ -60,9 +66,9 @@ void Player::determineMovement(double playerPosX, double plaerPosY)
 			velocityY = 0.5;
 		}
 		setVelocityY(velocityY * 1.2);
-		if (velocityY > MAX_VELOCITY)
+		if (velocityY > max)
 		{
-			velocityY = MAX_VELOCITY;
+			velocityY = max;
 		}
 	}
 	else if (verticalMovementKeyPress == -1)
@@ -72,9 +78,9 @@ void Player::determineMovement(double playerPosX, double plaerPosY)
 			velocityY = -0.5;
 		}
 		setVelocityY(velocityY * 1.2);
-		if(velocityY < MAX_VELOCITY * -1)
+		if(velocityY < max * -1)
 		{
-			velocityY = MAX_VELOCITY * -1;
+			velocityY = max * -1;
 		}
 	}
 }

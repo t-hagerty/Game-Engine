@@ -13,4 +13,8 @@ Projectile::~Projectile()
 
 void Projectile::determineMovement(double playerPosX, double plaerPosY)
 {
+	if(velocityX == 0 && velocityY == 0)
+	{
+		delete this; //Projectile no longer moving, hit a wall or another entity
+	}
 }

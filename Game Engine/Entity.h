@@ -39,7 +39,7 @@ protected:
 	float posY;
 	float velocityX; //horizontal distance per frame (per ideal frame, 1/60th of a second, 16.66... milliseconds)
 	float velocityY; //vertical distance per frame
-	const float MAX_VELOCITY = 2;
+	const float MAX_VELOCITY = 1.5;
 	SDL_Rect* collisionBox;
 	std::string spriteFilePath = "spritesheets/player_walking.bmp";
 	SDL_Texture* spriteSheet;
