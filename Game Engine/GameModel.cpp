@@ -9,7 +9,7 @@ GameModel::GameModel()
 {
 	tileSize = 32; //TODO change later so that this size adjusts based on the size of the screen/window
 	openMap("testMap");
-	player = new Player(32, 32, 60, 80, 0, 0, 10);
+	player = new Player(64, 64, 60, 80, 0, 0, 10);
 	addEntity(player);
 	levelHeight = mapRows * tileSize;
 	levelWidth = mapCols * tileSize;
@@ -100,8 +100,10 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 {
 	double oldX = e->getPosX();
 	double oldY = e->getPosY();
-	int posRow = oldY / tileSize;
-	int posCol = oldX / tileSize;
+	int posRowTop = oldY / tileSize;
+	int posRowBottom = (oldY + e->getHeight()) / tileSize;
+	int posColLeft = oldX / tileSize;
+	int posColRight = (oldX + e->getWidth()) / tileSize;
 
 	e->determineMovement(player->getPosX(), player->getPosY());
 	//=== Y MOVEMENT (UP(neg)/DOWN(pos)) ===
@@ -117,13 +119,28 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 		e->setPosY(levelHeight - e->getHeight());
 		e->setVelocityY(0);
 	}
-
 	if (e->getVelocityY() > 0) //down
 	{
-		if ((posRow + 1) < mapRows && (isInsideWall(e, getTileAtMapIndex(posRow + 1, posCol))
-			|| (posCol + 1 < mapCols && isInsideWall(e, getTileAtMapIndex(posRow + 1, posCol + 1)))))
+		/*if (e->getHeight() == 50 && e->getWidth() == 50)
 		{
-			e->setPosY((posRow + 1) * tileSize - e->getHeight());
+			std::cout << oldY;
+			std::cout << ": ";
+			std::cout << posRowTop;
+			std::cout << ", ";
+			std::cout << oldY + e->getHeight();
+			std::cout << ", ";
+			std::cout << posRowBottom;
+			std::cout << "\n";
+			std::cout << ((oldY + e->getHeight()) / tileSize);
+			std::cout << "\n";
+			int temp = (oldY + e->getHeight()) / tileSize;
+			std::cout << temp;
+			std::cout << "\n";
+		}*/
+		if ((posRowBottom) < mapRows && (isInsideWall(e, getTileAtMapIndex(posRowBottom, posColLeft))
+			|| (posColRight < mapCols && isInsideWall(e, getTileAtMapIndex(posRowBottom, posColRight)))))
+		{
+			e->setPosY((posRowBottom) * tileSize - e->getHeight());
 		}
 		for (Entity* anotherEntity : entities)
 		{
@@ -136,10 +153,10 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 	}
 	else if (e->getVelocityY() < 0) //up
 	{
-		if ((posRow - 1) >= 0 && (isInsideWall(e, getTileAtMapIndex(posRow - 1, posCol))
-			|| (posCol + 1 < mapCols && isInsideWall(e, getTileAtMapIndex(posRow - 1, posCol + 1)))))
+		if ((posRowTop - 1) >= 0 && (isInsideWall(e, getTileAtMapIndex(posRowTop - 1, posColLeft))
+			|| (posColRight < mapCols && isInsideWall(e, getTileAtMapIndex(posRowTop - 1, posColRight)))))
 		{
-			e->setPosY((posRow)* tileSize);
+			e->setPosY((posRowTop)* tileSize);
 		}
 		for (Entity* anotherEntity : entities)
 		{
@@ -165,12 +182,12 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 		e->setVelocityX(0);
 	}
 
-	if (e->getVelocityX() > 0)
+	if (e->getVelocityX() > 0) //right
 	{
-		if ((posCol + 1) < mapCols && (isInsideWall(e, getTileAtMapIndex(posRow, posCol + 1))
-			|| (posRow + 1 < mapRows && isInsideWall(e, getTileAtMapIndex(posRow + 1, posCol + 1))))) //right
+		if ((posColRight) < mapCols && (isInsideWall(e, getTileAtMapIndex(posRowTop, posColRight))
+			|| (posRowBottom < mapRows && isInsideWall(e, getTileAtMapIndex(posRowBottom, posColRight))))) //TODO
 		{
-			e->setPosX((posCol + 1) * tileSize - e->getWidth());
+			e->setPosX((posColRight) * tileSize - e->getWidth());
 		}
 		for(Entity* anotherEntity : entities)
 		{
@@ -181,13 +198,13 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 			}
 		}
 	}
-	else if (e->getVelocityX() < 0)
+	else if (e->getVelocityX() < 0) //left
 	{
-		if ((posCol - 1) >= 0 && (isInsideWall(e, getTileAtMapIndex(posRow, posCol - 1))
-			|| (posRow + 1 < mapRows && isInsideWall(e, getTileAtMapIndex(posRow + 1, posCol - 1))))
-				|| (e->getVelocityY() < 0 && (posRow - 1 >= 0 && isInsideWall(e, getTileAtMapIndex(posRow - 1, posCol - 1))))) //left
+		if ((posColLeft - 1) >= 0 && (isInsideWall(e, getTileAtMapIndex(posRowTop, posColLeft - 1))
+			|| (posRowBottom < mapRows && isInsideWall(e, getTileAtMapIndex(posRowBottom, posColLeft - 1))))
+				|| (e->getVelocityY() < 0 && (posRowTop - 1 >= 0 && isInsideWall(e, getTileAtMapIndex(posRowTop - 1, posColLeft - 1))))) //left
 		{
-			e->setPosX((posCol)* tileSize);
+			e->setPosX((posColLeft)* tileSize);
 		}
 		for (Entity* anotherEntity : entities)
 		{
@@ -225,6 +242,21 @@ bool GameModel::isInsideWall(Entity* entity, Tile * t)
 	if(SDL_HasIntersection(&t->getTileSpace(), entity->getCollisionBox()))
 	{
 		return true;
+	}
+	return false;
+}
+
+bool GameModel::isInsideAnyWalls(Entity * entity, int topRow, int bottomRow, int leftCol, int rightCol) const
+{
+	for(int r = topRow; r <= bottomRow; r++)
+	{
+		for(int c = leftCol; c <= rightCol; c++)
+		{	
+			if(isInsideWall(entity, getTileAtMapIndex(r, c)))
+			{
+				return true;
+			}
+		}
 	}
 	return false;
 }
