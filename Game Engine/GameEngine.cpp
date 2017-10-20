@@ -2,6 +2,7 @@
 #include "GameView.h"
 #include "GameController.h"
 
+
 int main()
 {
 	GameModel* model = new GameModel();

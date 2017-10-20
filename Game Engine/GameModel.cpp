@@ -1,6 +1,7 @@
 #include "GameModel.h"
 #include "Rectangle.h"
 #include <SDL.h>
+#undef main
 #include <iostream>
 #include "Player.h"
 
@@ -9,7 +10,7 @@ GameModel::GameModel()
 {
 	tileSize = 32; //TODO change later so that this size adjusts based on the size of the screen/window
 	openMap("testMap");
-	player = new Player(32, 32, 60, 80, 0, 0, 10);
+	player = new Player(80, 80, 60, 80, 0, 0, 10);
 	addEntity(player);
 	levelHeight = mapRows * tileSize;
 	levelWidth = mapCols * tileSize;
