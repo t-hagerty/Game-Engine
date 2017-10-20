@@ -137,8 +137,7 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 			std::cout << temp;
 			std::cout << "\n";
 		}*/
-		if ((posRowBottom) < mapRows && (isInsideWall(e, getTileAtMapIndex(posRowBottom, posColLeft))
-			|| (posColRight < mapCols && isInsideWall(e, getTileAtMapIndex(posRowBottom, posColRight)))))
+		if ((posRowBottom) < mapRows && posColRight < mapCols && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight))
 		{
 			e->setPosY((posRowBottom) * tileSize - e->getHeight());
 		}
@@ -153,10 +152,9 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 	}
 	else if (e->getVelocityY() < 0) //up
 	{
-		if ((posRowTop - 1) >= 0 && (isInsideWall(e, getTileAtMapIndex(posRowTop - 1, posColLeft))
-			|| (posColRight < mapCols && isInsideWall(e, getTileAtMapIndex(posRowTop - 1, posColRight)))))
+		if ((posRowTop - 1) >= 0 && posColRight < mapCols && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight))
 		{
-			e->setPosY((posRowTop)* tileSize);
+			e->setPosY((posRowTop + 1)* tileSize);
 		}
 		for (Entity* anotherEntity : entities)
 		{
@@ -184,8 +182,7 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 
 	if (e->getVelocityX() > 0) //right
 	{
-		if ((posColRight) < mapCols && (isInsideWall(e, getTileAtMapIndex(posRowTop, posColRight))
-			|| (posRowBottom < mapRows && isInsideWall(e, getTileAtMapIndex(posRowBottom, posColRight))))) //TODO
+		if ((posColRight) < mapCols && posRowBottom < mapRows && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight))
 		{
 			e->setPosX((posColRight) * tileSize - e->getWidth());
 		}
@@ -200,11 +197,9 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 	}
 	else if (e->getVelocityX() < 0) //left
 	{
-		if ((posColLeft - 1) >= 0 && (isInsideWall(e, getTileAtMapIndex(posRowTop, posColLeft - 1))
-			|| (posRowBottom < mapRows && isInsideWall(e, getTileAtMapIndex(posRowBottom, posColLeft - 1))))
-				|| (e->getVelocityY() < 0 && (posRowTop - 1 >= 0 && isInsideWall(e, getTileAtMapIndex(posRowTop - 1, posColLeft - 1))))) //left
+		if ((posColLeft - 1) >= 0 && posRowBottom < mapRows && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight)) //left
 		{
-			e->setPosX((posColLeft)* tileSize);
+			e->setPosX((posColLeft + 1)* tileSize);
 		}
 		for (Entity* anotherEntity : entities)
 		{
