@@ -10,11 +10,7 @@ GameModel::GameModel()
 {
 	tileSize = 32; //TODO change later so that this size adjusts based on the size of the screen/window
 	openMap("testMap");
-<<<<<<< HEAD
-	player = new Player(80, 80, 60, 80, 0, 0, 10);
-=======
-	player = new Player(64, 64, 60, 80, 0, 0, 10);
->>>>>>> origin/master
+	player = new Player(32, 32, 60, 80, 0, 0, 10);
 	addEntity(player);
 	levelHeight = mapRows * tileSize;
 	levelWidth = mapCols * tileSize;
@@ -105,14 +101,15 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 {
 	double oldX = e->getPosX();
 	double oldY = e->getPosY();
-	int posRowTop = oldY / tileSize;
-	int posRowBottom = (oldY + e->getHeight()) / tileSize;
 	int posColLeft = oldX / tileSize;
 	int posColRight = (oldX + e->getWidth()) / tileSize;
 
 	e->determineMovement(player->getPosX(), player->getPosY());
 	//=== Y MOVEMENT (UP(neg)/DOWN(pos)) ===
 	e->setPosY(e->getPosY() + (e->getVelocityY() * delta));
+	double newY = e->getPosY();
+	int posRowTop = newY / tileSize;
+	int posRowBottom = (newY + e->getHeight()) / tileSize;
 
 	if (e->getPosY() <= 0) //If movement puts past the top bound of screen, put it against the top bound instead and set velocity to zero
 	{
@@ -126,26 +123,6 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 	}
 	if (e->getVelocityY() > 0) //down
 	{
-		/*if (e->getHeight() == 50 && e->getWidth() == 50)
-		{
-			std::cout << oldY;
-			std::cout << ": ";
-			std::cout << posRowTop;
-			std::cout << ", ";
-			std::cout << oldY + e->getHeight();
-			std::cout << ", ";
-			std::cout << posRowBottom;
-			std::cout << "\n";
-			std::cout << ((oldY + e->getHeight()) / tileSize);
-			std::cout << "\n";
-			int temp = (oldY + e->getHeight()) / tileSize;
-			std::cout << temp;
-			std::cout << "\n";
-		}*/
-		if ((posRowBottom) < mapRows && posColRight < mapCols && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight))
-		{
-			e->setPosY((posRowBottom) * tileSize - e->getHeight());
-		}
 		for (Entity* anotherEntity : entities)
 		{
 			if (e != anotherEntity && isIntersectingEntity(e, anotherEntity))
@@ -154,13 +131,13 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 				//TODO Execute collision behavior (eg: damage, knockback)
 			}
 		}
+		if ((posRowBottom) < mapRows && posColRight < mapCols && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight))
+		{
+			e->setPosY((posRowBottom) * tileSize - e->getHeight());
+		}
 	}
 	else if (e->getVelocityY() < 0) //up
 	{
-		if ((posRowTop - 1) >= 0 && posColRight < mapCols && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight))
-		{
-			e->setPosY((posRowTop + 1)* tileSize);
-		}
 		for (Entity* anotherEntity : entities)
 		{
 			if (e != anotherEntity && isIntersectingEntity(e, anotherEntity))
@@ -169,10 +146,17 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 				//TODO Execute collision behavior (eg: damage, knockback)
 			}
 		}
+		if ((posRowTop) >= 0 && posColRight < mapCols && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight))
+		{
+			e->setPosY((posRowTop + 1)* tileSize);
+		}
 	}
 
 	//=== X MOVEMENT (LEFT(neg)/RIGHT(pos)) ===
 	e->setPosX(e->getPosX() + (e->getVelocityX() * delta));
+	double newX = e->getPosX();
+	posColLeft = newX / tileSize;
+	posColRight = (newX + e->getWidth()) / tileSize;
 
 	if (e->getPosX() <= 0) //If movement puts past the left bound of screen, put it against the left bound instead and set velocity to zero
 	{
@@ -187,25 +171,21 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 
 	if (e->getVelocityX() > 0) //right
 	{
-		if ((posColRight) < mapCols && posRowBottom < mapRows && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight))
+		for (Entity* anotherEntity : entities)
 		{
-			e->setPosX((posColRight) * tileSize - e->getWidth());
-		}
-		for(Entity* anotherEntity : entities)
-		{
-			if(e != anotherEntity && isIntersectingEntity(e, anotherEntity))
+			if (e != anotherEntity && isIntersectingEntity(e, anotherEntity))
 			{
 				e->setPosX(anotherEntity->getPosX() - e->getWidth());
 				//TODO Execute collision behavior (eg: damage, knockback)
 			}
 		}
+		if ((posColRight) < mapCols && posRowBottom < mapRows && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight))
+		{
+			e->setPosX((posColRight) * tileSize - e->getWidth());
+		}
 	}
 	else if (e->getVelocityX() < 0) //left
 	{
-		if ((posColLeft - 1) >= 0 && posRowBottom < mapRows && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight)) //left
-		{
-			e->setPosX((posColLeft + 1)* tileSize);
-		}
 		for (Entity* anotherEntity : entities)
 		{
 			if (e != anotherEntity && isIntersectingEntity(e, anotherEntity))
@@ -214,10 +194,14 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 				//TODO Execute collision behavior (eg: damage, knockback)
 			}
 		}
+		if ((posColLeft) >= 0 && posRowBottom < mapRows && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight)) //left
+		{
+			e->setPosX((posColLeft + 1)* tileSize);
+		}
 	}
 
 	//Safety check, make sure once we're done, the entity didnt manage to still make it inside a wall, if so, fallback on moving it back to former pos:
-	if(isInsideWall(e, getTileAtMapIndex(e->getPosY() / tileSize, e->getPosX() / tileSize)))
+	if(isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight))
 	{
 		e->setPosX(oldX);
 		e->setPosY(oldY);

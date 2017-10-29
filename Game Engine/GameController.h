@@ -13,7 +13,7 @@ public:
 private:
 	int fps = 0;
 	void gameLoop();
-	void movePlayer(const Uint8* keyStates) const;
+	void movePlayer(const Uint8* keyStates);
 	void update(double delta) const;
 	void render() const;
 	GameModel* model;
@@ -28,5 +28,7 @@ private:
 		KEY_PRESS_RIGHT,
 		KEY_PRESS_TOTAL
 	};
+	bool isUpAlreadyPressed = false;
+	bool isLeftAlreadyPressed = false;
 };
 

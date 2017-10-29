@@ -33,7 +33,7 @@ void Player::determineMovement(double playerPosX, double plaerPosY)
 		{
 			velocityX = 0.5;
 		}
-		setVelocityX(velocityX * 1.2);
+		setVelocityX(velocityX * ACCELERATION);
 		if (velocityX > max)
 		{
 			velocityX = max;
@@ -45,7 +45,7 @@ void Player::determineMovement(double playerPosX, double plaerPosY)
 		{
 			velocityX = -0.5;
 		}
-		setVelocityX(velocityX * 1.2);
+		setVelocityX(velocityX * ACCELERATION);
 		if (velocityX < max * -1)
 		{
 			velocityX = max * -1;
@@ -65,7 +65,7 @@ void Player::determineMovement(double playerPosX, double plaerPosY)
 		{
 			velocityY = 0.5;
 		}
-		setVelocityY(velocityY * 1.2);
+		setVelocityY(velocityY * ACCELERATION);
 		if (velocityY > max)
 		{
 			velocityY = max;
@@ -77,7 +77,7 @@ void Player::determineMovement(double playerPosX, double plaerPosY)
 		{
 			velocityY = -0.5;
 		}
-		setVelocityY(velocityY * 1.2);
+		setVelocityY(velocityY * ACCELERATION);
 		if(velocityY < max * -1)
 		{
 			velocityY = max * -1;

@@ -11,6 +11,7 @@ GameController::GameController(GameModel* m, GameView* v)
 	view = v;
 	model->addEntity(new Enemy(50, 40, 70, 300, 0, 0, 10));
 	model->addEntity(new Enemy(20, 20, 230, 255, 0.2, -0.5, 10));
+	
 	gameLoop();
 }
 
@@ -119,31 +120,59 @@ void GameController::gameLoop()
 	}
 }
 
-void GameController::movePlayer(const Uint8* keyStates) const
+void GameController::movePlayer(const Uint8* keyStates)
 {
-	if (keyStates[SDL_SCANCODE_UP])
+	if (keyStates[SDL_SCANCODE_UP] && keyStates[SDL_SCANCODE_DOWN])
+	{
+		if (isUpAlreadyPressed)
+		{
+			model->getPlayer()->setVerticalMovementKeyPress(1);
+		}
+		else
+		{
+			model->getPlayer()->setVerticalMovementKeyPress(-1);
+		}
+	}
+	else if (keyStates[SDL_SCANCODE_UP])
 	{
 		model->getPlayer()->setVerticalMovementKeyPress(-1);
+		isUpAlreadyPressed = true;
 	}
 	else if (keyStates[SDL_SCANCODE_DOWN])
 	{
 		model->getPlayer()->setVerticalMovementKeyPress(1);
+		isUpAlreadyPressed = false;
 	}
 	else
 	{
 		model->getPlayer()->setVerticalMovementKeyPress(0);
+		isUpAlreadyPressed = false;
 	}
-	if (keyStates[SDL_SCANCODE_LEFT])
+	if (keyStates[SDL_SCANCODE_LEFT] && keyStates[SDL_SCANCODE_RIGHT])
+	{
+		if (isLeftAlreadyPressed)
+		{
+			model->getPlayer()->setHorizontalMovementKeyPress(1);
+		}
+		else 
+		{
+			model->getPlayer()->setHorizontalMovementKeyPress(-1);
+		}
+	}
+	else if (keyStates[SDL_SCANCODE_LEFT])
 	{
 		model->getPlayer()->setHorizontalMovementKeyPress(-1);
+		isLeftAlreadyPressed = true;
 	}
 	else if (keyStates[SDL_SCANCODE_RIGHT])
 	{
 		model->getPlayer()->setHorizontalMovementKeyPress(1);
+		isLeftAlreadyPressed = false;
 	}
 	else
 	{
 		model->getPlayer()->setHorizontalMovementKeyPress(0);
+		isLeftAlreadyPressed = false;
 	}
 }
 
