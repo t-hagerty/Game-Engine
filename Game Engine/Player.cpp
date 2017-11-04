@@ -2,8 +2,9 @@
 
 
 
-Player::Player(int h, int w, double positionX, double positionY, double velX, double velY, int hp) : Character(h, w, positionX, positionY, velX, velY, hp)
+Player::Player(int h, int w, double positionX, double positionY, double velX, double velY, double hp) : Character(h, w, positionX, positionY, velX, velY, hp)
 {
+	health = hp;
 }
 
 

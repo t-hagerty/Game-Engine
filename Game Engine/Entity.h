@@ -7,6 +7,8 @@ class Entity
 public:
 	Entity(int h, int w, float positionX, float positionY, float velX, float velY);
 	virtual ~Entity();
+	void setHealth(double newHealth);
+	double getHealth();
 	void setPosX(float newX);
 	float getPosX() const;
 	void setPosY(float newY);
@@ -33,6 +35,7 @@ public:
 	virtual void determineMovement(double playerPosX, double playerPosY) = 0;
 
 protected:
+	double health;
 	int height;
 	int width;
 	float posX;

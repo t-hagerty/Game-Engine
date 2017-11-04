@@ -35,6 +35,7 @@ void GameController::render() const
 		Entity* e = model->getEntity(i);
 		view->renderEntitySprite(e, fps);
 	}
+	view->renderPlayerInfo(model->getPlayer()->getHealth());
 	view->renderUpdate();
 }
 

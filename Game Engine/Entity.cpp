@@ -21,6 +21,16 @@ Entity::~Entity()
 {
 }
 
+void Entity::setHealth(double newHealth)
+{
+	health = newHealth;
+}
+
+double Entity::getHealth()
+{
+	return health;
+}
+
 void Entity::setPosX(float newX)
 {
 	posX = newX;

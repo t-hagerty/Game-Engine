@@ -4,7 +4,7 @@ class Player :
 	public Character
 {
 public:
-	Player(int h, int w, double positionX, double positionY, double velX, double velY, int hp);
+	Player(int h, int w, double positionX, double positionY, double velX, double velY, double hp);
 	~Player();
 	void determineMovement(double playerPosX, double plaerPosY) override;
 	void setHorizontalMovementKeyPress(short direction);

@@ -1,5 +1,7 @@
 #include "GameView.h"
 #include <cstdio>
+#include <SDL_ttf.h>
+#include <sstream>
 
 /*
  * Game rendering using SDL was learned from http://lazyfoo.net/tutorials/SDL/index.php and some of the code here is currently borrowed from lessons at said site.
@@ -114,6 +116,25 @@ void GameView::renderEntitySprite(Entity* e, int frame)
 	}
 }
 
+void GameView::renderPlayerInfo(double playerHealth)
+{
+	std::stringstream s;
+	s << playerHealth;
+
+	TTF_Font* font = TTF_OpenFont("segoeui.ttf", 24);
+	SDL_Color textColor = {0, 0, 0};
+	SDL_Surface* messageSurface = TTF_RenderText_Solid(font, s.str().c_str(), textColor);
+	SDL_Texture* message = SDL_CreateTextureFromSurface(gameRenderer, messageSurface);
+
+	SDL_Rect messageRect;
+	messageRect.x = 0;
+	messageRect.y = 0;
+	messageRect.w = 100;
+	messageRect.h = 100;
+	SDL_RenderCopy(gameRenderer, message, NULL, &messageRect);
+	SDL_FreeSurface(messageSurface);
+}
+
 void GameView::positionCamera(SDL_Rect * playerBox) const
 {
 	//Center the camera over the dot
@@ -181,6 +202,12 @@ bool GameView::init()
 			//Get window surface
 			gScreenSurface = SDL_GetWindowSurface(gameWindow);
 		}
+	}
+	//Initialize SDL_ttf
+	if (TTF_Init() == -1)
+	{
+		printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
+		success = false;
 	}
 	return success;
 }

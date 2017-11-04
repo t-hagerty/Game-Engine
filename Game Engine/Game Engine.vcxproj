@@ -72,8 +72,8 @@
     <LibraryPath>E:\Visual Studio Community 2017\dev libraries\SDL2-2.0.5\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>E:\Visual Studio Community 2017\dev libraries\SDL2-2.0.5\include;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\Visual Studio Community 2017\dev libraries\SDL2-2.0.5\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>E:\Visual Studio Community 2017\dev libraries\SDL2_ttf-2.0.14\include;E:\Visual Studio Community 2017\dev libraries\SDL2-2.0.5\include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\Visual Studio Community 2017\dev libraries\SDL2_ttf-2.0.14\lib\x64;E:\Visual Studio Community 2017\dev libraries\SDL2-2.0.5\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -93,7 +93,7 @@
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
