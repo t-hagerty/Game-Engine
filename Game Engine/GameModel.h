@@ -38,7 +38,8 @@ private:
 	std::vector<Entity*> entities;
 	Player* player;
 	bool setIsSolid(int tileType);
-	void moveAnEntity(Entity* e, double delta) const;
+	void moveAnEntity(Entity* e, double delta);
+	void collideEntities(Entity* e1, Entity* e2);
 	static bool isInsideWall(Entity* entity, Tile* t);
 	bool isInsideAnyWalls(Entity* entity, int topRow, int bottomRow, int leftCol, int rightCol) const;
 	static bool isIntersectingEntity(Entity* e1, Entity* e2);

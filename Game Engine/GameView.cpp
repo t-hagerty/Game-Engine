@@ -105,7 +105,7 @@ void GameView::renderEntitySprite(Entity* e, int frame)
 	SDL_RenderCopy(gameRenderer, e->getSpriteSheet(), &spriteSheetClip, &fillRect);
 	if((e->getVelocityX() != 0 || e->getVelocityY() != 0))
 	{
-		if (frame == 0 || frame == 15 || frame == 30 || frame == 45)
+		if (e->getKnockbackTimer() == 0 && (frame == 0 || frame == 15 || frame == 30 || frame == 45))
 		{
 			e->incrementAnimationFrame();
 		}

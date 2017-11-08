@@ -97,14 +97,15 @@ bool GameModel::setIsSolid(int tileType)
 	return isSolidTable[tileType];
 }
 
-void GameModel::moveAnEntity(Entity * e, double delta) const
+void GameModel::moveAnEntity(Entity * e, double delta)
 {
 	double oldX = e->getPosX();
 	double oldY = e->getPosY();
 	int posColLeft = oldX / tileSize;
 	int posColRight = (oldX + e->getWidth()) / tileSize;
 
-	e->determineMovement(player->getPosX(), player->getPosY());
+	e->decrementTimers(delta);
+	e->determineMovement(player->getCenterPosX(), player->getCenterPosY());
 	//=== Y MOVEMENT (UP(neg)/DOWN(pos)) ===
 	e->setPosY(e->getPosY() + (e->getVelocityY() * delta));
 	double newY = e->getPosY();
@@ -128,7 +129,7 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 			if (e != anotherEntity && isIntersectingEntity(e, anotherEntity))
 			{
 				e->setPosY(anotherEntity->getPosY() - e->getHeight());
-				//TODO Execute collision behavior (eg: damage, knockback)
+				collideEntities(e, anotherEntity);
 			}
 		}
 		if ((posRowBottom) < mapRows && posColRight < mapCols && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight))
@@ -143,7 +144,7 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 			if (e != anotherEntity && isIntersectingEntity(e, anotherEntity))
 			{
 				e->setPosY(anotherEntity->getPosY() + anotherEntity->getHeight());
-				//TODO Execute collision behavior (eg: damage, knockback)
+				collideEntities(e, anotherEntity);
 			}
 		}
 		if ((posRowTop) >= 0 && posColRight < mapCols && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight))
@@ -176,7 +177,7 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 			if (e != anotherEntity && isIntersectingEntity(e, anotherEntity))
 			{
 				e->setPosX(anotherEntity->getPosX() - e->getWidth());
-				//TODO Execute collision behavior (eg: damage, knockback)
+				collideEntities(e, anotherEntity);
 			}
 		}
 		if ((posColRight) < mapCols && posRowBottom < mapRows && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight))
@@ -191,7 +192,7 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 			if (e != anotherEntity && isIntersectingEntity(e, anotherEntity))
 			{
 				e->setPosX(anotherEntity->getPosX() + anotherEntity->getWidth());
-				//TODO Execute collision behavior (eg: damage, knockback)
+				collideEntities(e, anotherEntity);
 			}
 		}
 		if ((posColLeft) >= 0 && posRowBottom < mapRows && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight)) //left
@@ -212,8 +213,46 @@ void GameModel::moveAnEntity(Entity * e, double delta) const
 		{
 			e->setPosX(oldX);
 			e->setPosY(oldY);
-			//TODO Execute collision behavior (eg: damage, knockback)
+			collideEntities(e, anotherEntity);
 		}
+	}
+}
+
+void GameModel::collideEntities(Entity * e1, Entity * e2)
+{
+	double e1Damage = e2->damageCollidedEntity();
+	if (e1->takeDamage(e1Damage))
+	{
+		//Calculate knockback:
+		float vectorX = e2->getCenterPosX() - e1->getCenterPosX();
+		float vectorY = e2->getCenterPosY() - e1->getCenterPosY();
+		double magnitude = sqrt(pow(vectorX, 2) + pow(vectorY, 2));
+		//get unit vector:
+		vectorX /= magnitude;
+		vectorY /= magnitude;
+		//multiply vector by velocity of enemy:
+		float knockbackForce = e2->getKnockbackForce();
+		vectorX *= knockbackForce;
+		vectorY *= knockbackForce;
+		e1->setVelocityX(vectorX);
+		e1->setVelocityY(vectorY);
+	}
+	double e2Damage = e1->damageCollidedEntity();
+	if (e2->takeDamage(e2Damage))
+	{
+		//Calculate knockback:
+		float vectorX = e2->getCenterPosX() - e1->getCenterPosX();
+		float vectorY = e2->getCenterPosY() - e1->getCenterPosY();
+		double magnitude = sqrt(pow(vectorX, 2) + pow(vectorY, 2));
+		//get unit vector:
+		vectorX /= magnitude;
+		vectorY /= magnitude;
+		//multiply vector by velocity of enemy:
+		float knockbackForce = e1->getKnockbackForce();
+		vectorX *= knockbackForce;
+		vectorY *= knockbackForce;
+		e2->setVelocityX(vectorX);
+		e2->setVelocityY(vectorY);
 	}
 }
 

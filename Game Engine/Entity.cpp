@@ -58,6 +58,16 @@ SDL_Rect* Entity::getCollisionBox() const
 	return collisionBox;
 }
 
+float Entity::getCenterPosX()
+{
+	return getPosX() + (getWidth() / 2);
+}
+
+float Entity::getCenterPosY()
+{
+	return getPosY() + (getHeight() / 2);
+}
+
 int Entity::getHeight() const
 {
 	return collisionBox->h;
@@ -71,14 +81,14 @@ int Entity::getWidth() const
 void Entity::setVelocityX(float newVelX)
 {
 	velocityX = newVelX;
-	if(velocityX > 0)
+	/*if(velocityX > 0)
 	{
 		spriteDirection = 1;
 	}
 	else if(velocityX < 0)
 	{
 		spriteDirection = 2;
-	}
+	}*/
 }
 
 float Entity::getVelocityX() const
@@ -89,19 +99,52 @@ float Entity::getVelocityX() const
 void Entity::setVelocityY(float newVelY)
 {
 	velocityY = newVelY;
-	if(velocityY > 0)
+	/*if(velocityY > 0)
 	{
 		spriteDirection = 0;
 	}
 	else if(velocityY < 0)
 	{
 		spriteDirection = 3;
-	}
+	}*/
 }
 
 float Entity::getVelocityY() const
 {
 	return velocityY;
+}
+
+float Entity::getKnockbackForce()
+{
+	return KNOCKBACK_FORCE;
+}
+
+void Entity::setKnockbackTimer(double time)
+{
+	knockbackTimer = time;
+	if (knockbackTimer < 0)
+	{
+		knockbackTimer = 0;
+	}
+}
+
+double Entity::getKnockbackTimer()
+{
+	return knockbackTimer;
+}
+
+void Entity::setInvulnTimer(double time)
+{
+	invulnTimer = time;
+	if (invulnTimer < 0)
+	{
+		invulnTimer = 0;
+	}
+}
+
+double Entity::getInvulnTimer()
+{
+	return invulnTimer;
 }
 
 std::string Entity::getSpriteFilePath() const
@@ -184,4 +227,31 @@ void Entity::setSpriteDirection(int newDirection)
 	{
 		spriteDirection = newDirection;
 	}
+}
+
+double Entity::takeDamage(double damage)
+{
+	if (invulnTimer == 0 && damage != 0)
+	{
+		setHealth(health - damage);
+		knockbackTimer = 10; //tied to delta/fps, 60 = 1 second timer
+		invulnTimer = 180;
+		setAnimationFrame(0);
+		return damage;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+double Entity::damageCollidedEntity()
+{
+	return 0.0;
+}
+
+void Entity::decrementTimers(double delta)
+{
+	setKnockbackTimer(knockbackTimer - delta);
+	setInvulnTimer(invulnTimer - delta);
 }

@@ -14,12 +14,19 @@ public:
 	void setPosY(float newY);
 	float getPosY() const;
 	SDL_Rect* getCollisionBox() const;
+	float getCenterPosX();
+	float getCenterPosY();
 	int getHeight() const;
 	int getWidth() const;
 	void setVelocityX(float newVelX);
 	float getVelocityX() const;
 	void setVelocityY(float newVelY);
 	float getVelocityY() const;
+	float getKnockbackForce();
+	void setKnockbackTimer(double time);
+	double getKnockbackTimer();
+	void setInvulnTimer(double time);
+	double getInvulnTimer();
 	std::string getSpriteFilePath() const;
 	SDL_Texture* getSpriteSheet() const;
 	void setSpriteSheet(SDL_Texture* newSheet);
@@ -33,6 +40,9 @@ public:
 	int getSpriteDirection() const;
 	void setSpriteDirection(int newDirection);
 	virtual void determineMovement(double playerPosX, double playerPosY) = 0;
+	double takeDamage(double damage);
+	virtual double damageCollidedEntity();
+	void decrementTimers(double delta);
 
 protected:
 	double health;
@@ -43,6 +53,9 @@ protected:
 	float velocityX; //horizontal distance per frame (per ideal frame, 1/60th of a second, 16.66... milliseconds)
 	float velocityY; //vertical distance per frame
 	const float MAX_VELOCITY = 1.5;
+	const float KNOCKBACK_FORCE = 8;
+	double knockbackTimer = 0;
+	double invulnTimer = 0;
 	SDL_Rect* collisionBox;
 	std::string spriteFilePath = "spritesheets/player_walking.bmp";
 	SDL_Texture* spriteSheet;
