@@ -231,7 +231,7 @@ void GameModel::collideEntities(Entity * e1, Entity * e2)
 		vectorX /= magnitude;
 		vectorY /= magnitude;
 		//multiply vector by velocity of enemy:
-		float knockbackForce = e2->getKnockbackForce();
+		float knockbackForce = e2->getKnockbackForce() * -1;
 		vectorX *= knockbackForce;
 		vectorY *= knockbackForce;
 		e1->setVelocityX(vectorX);

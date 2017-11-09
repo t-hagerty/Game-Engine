@@ -1,5 +1,4 @@
 #include "Player.h"
-#include <iostream>
 
 
 Player::Player(int h, int w, double positionX, double positionY, double velX, double velY, double hp) : Character(h, w, positionX, positionY, velX, velY, hp)
@@ -90,10 +89,6 @@ void Player::determineMovement(double playerPosX, double plaerPosY)
 			}
 			spriteDirection = 3; //up
 		}
-	}
-	else 
-	{
-		std::cout << "heyo";
 	}
 }
 

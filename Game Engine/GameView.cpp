@@ -122,16 +122,27 @@ void GameView::renderPlayerInfo(double playerHealth)
 	s << playerHealth;
 
 	TTF_Font* font = TTF_OpenFont("segoeui.ttf", 24);
+	if (!font)
+	{
+		printf("TTF_OpenFont Error: %s\n", TTF_GetError());
+	}
 	SDL_Color textColor = {0, 0, 0};
-	SDL_Surface* messageSurface = TTF_RenderText_Solid(font, s.str().c_str(), textColor);
-	SDL_Texture* message = SDL_CreateTextureFromSurface(gameRenderer, messageSurface);
+	SDL_Surface* messageSurface;
+	if (!(messageSurface = TTF_RenderText_Solid(font, s.str().c_str(), textColor)))
+	{
+		printf("Health text could not display. TTF Error: %s\n", TTF_GetError());
+	}
+	else
+	{
+		SDL_Texture* message = SDL_CreateTextureFromSurface(gameRenderer, messageSurface);
 
-	SDL_Rect messageRect;
-	messageRect.x = 0;
-	messageRect.y = 0;
-	messageRect.w = 100;
-	messageRect.h = 100;
-	SDL_RenderCopy(gameRenderer, message, NULL, &messageRect);
+		SDL_Rect messageRect;
+		messageRect.x = 0;
+		messageRect.y = 0;
+		messageRect.w = 100;
+		messageRect.h = 100;
+		SDL_RenderCopy(gameRenderer, message, NULL, &messageRect);
+	}
 	SDL_FreeSurface(messageSurface);
 }
 
@@ -264,5 +275,6 @@ void GameView::close()
 	SDL_DestroyWindow(gameWindow);
 	gameWindow = nullptr;
 	gameRenderer = nullptr;
+	TTF_Quit();
 	SDL_Quit();
 }
