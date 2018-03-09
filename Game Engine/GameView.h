@@ -5,6 +5,8 @@
 #include <vector>
 #include "Tile.h"
 #include "Entity.h"
+#include "Button.h"
+#include "Image.h"
 
 class GameView
 {
@@ -13,13 +15,22 @@ public:
 	~GameView();
 	int getWindowWidth() const;
 	int getWindowHeight() const;
+	void setIsPaused(bool paused);
+	bool getIsPaused();
+	std::vector<Button*> getButtons();
 	void renderClear(int red = 0xFF, int green = 0xFF, int blue = 0xFF, int alpha = 0xFF) const;
 	void renderUpdate() const;
 	void renderTileMap(std::vector<Tile*> map, int rows, int cols, int tileSize);
 	void renderRectangle(double posX, double posY, int width, int height) const; //FOR TESTING ONLY
 	void renderEntitySprite(Entity* e, int frame);
+	void renderText(std::string text, SDL_Rect* textRect);
 	void renderPlayerInfo(double playerHealth);
+	void renderButtons();
+	void renderAButton(Button* aButton);
+	void renderImage(Image* anImage);
+	void renderGUIElements();
 	void positionCamera(SDL_Rect* playerBox) const;
+	void toggleMenu();
 	void close();
 private:
 	SDL_Window* gameWindow = nullptr;
@@ -30,8 +41,10 @@ private:
 	const int WINDOW_WIDTH = 600;
 	int levelWidth;
 	int levelHeight;
+	bool isPaused = false;
 	std::vector<SDL_Texture*> tileSet;
 	bool init();
+	bool initGUI();
 	SDL_Texture* loadTexture(std::string filePath);
 	SDL_Surface* loadImage(std::string filePath) const;
 	enum textures
@@ -46,6 +59,9 @@ private:
 		GRASS,
 		BARRIER
 	};
-
+	
+	std::vector<Button*> buttons;
+	Button* menuButton;
+	Image* menuBackground;
 };
 

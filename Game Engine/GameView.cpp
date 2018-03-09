@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <SDL_ttf.h>
 #include <sstream>
+#include <functional>
 
 /*
  * Game rendering using SDL was learned from http://lazyfoo.net/tutorials/SDL/index.php and some of the code here is currently borrowed from lessons at said site.
@@ -32,6 +33,8 @@ GameView::GameView(int levelW, int levelH)
 	camera->w = WINDOW_WIDTH;
 	levelWidth = levelW;
 	levelHeight = levelH;
+
+	initGUI();
 }
 
 
@@ -51,6 +54,21 @@ int GameView::getWindowWidth() const
 int GameView::getWindowHeight() const
 {
 	return WINDOW_HEIGHT;
+}
+
+void GameView::setIsPaused(bool paused)
+{
+	isPaused = paused;
+}
+
+bool GameView::getIsPaused()
+{
+	return isPaused;
+}
+
+std::vector<Button*> GameView::getButtons()
+{
+	return buttons;
 }
 
 void GameView::renderClear(int red, int green, int blue, int alpha) const
@@ -105,7 +123,7 @@ void GameView::renderEntitySprite(Entity* e, int frame)
 	SDL_RenderCopy(gameRenderer, e->getSpriteSheet(), &spriteSheetClip, &fillRect);
 	if((e->getVelocityX() != 0 || e->getVelocityY() != 0))
 	{
-		if (e->getKnockbackTimer() == 0 && (frame == 0 || frame == 15 || frame == 30 || frame == 45))
+		if (e->getKnockbackTimer() == 0 && (frame == 0 || frame == 15 || frame == 30 || frame == 45) && !isPaused)
 		{
 			e->incrementAnimationFrame();
 		}
@@ -116,17 +134,17 @@ void GameView::renderEntitySprite(Entity* e, int frame)
 	}
 }
 
-void GameView::renderPlayerInfo(double playerHealth)
+void GameView::renderText(std::string text, SDL_Rect * textRect)
 {
 	std::stringstream s;
-	s << playerHealth;
+	s << text;
 
 	TTF_Font* font = TTF_OpenFont("segoeui.ttf", 24);
 	if (!font)
 	{
 		printf("TTF_OpenFont Error: %s\n", TTF_GetError());
 	}
-	SDL_Color textColor = {0, 0, 0};
+	SDL_Color textColor = { 0, 0, 0 };
 	SDL_Surface* messageSurface;
 	if (!(messageSurface = TTF_RenderText_Solid(font, s.str().c_str(), textColor)))
 	{
@@ -136,14 +154,63 @@ void GameView::renderPlayerInfo(double playerHealth)
 	{
 		SDL_Texture* message = SDL_CreateTextureFromSurface(gameRenderer, messageSurface);
 
-		SDL_Rect messageRect;
-		messageRect.x = 0;
-		messageRect.y = 0;
-		messageRect.w = 100;
-		messageRect.h = 100;
-		SDL_RenderCopy(gameRenderer, message, NULL, &messageRect);
+		SDL_RenderCopy(gameRenderer, message, NULL, textRect);
+		SDL_DestroyTexture(message);
 	}
 	SDL_FreeSurface(messageSurface);
+	TTF_CloseFont(font);
+}
+
+void GameView::renderPlayerInfo(double playerHealth)
+{
+	std::string s;
+	s = std::to_string((int)playerHealth);
+	SDL_Rect messageRect;
+	messageRect.x = 20;
+	messageRect.y = 0;
+	messageRect.w = 48;
+	messageRect.h = 48;
+
+	renderText(s, &messageRect);
+}
+
+void GameView::renderButtons()
+{
+	renderAButton(menuButton);
+}
+
+void GameView::renderAButton(Button * aButton)
+{
+	if (aButton->getIsVisible())
+	{
+		if (aButton->getButtonTexture() == nullptr)
+		{
+			aButton->setButtonTexture(loadTexture(aButton->getImageFilePath()));
+		}
+		SDL_Rect spriteSheetClip = { aButton->getButtonState() * aButton->getButtonImageWidth(),
+			0,
+			aButton->getButtonImageWidth(), aButton->getButtonImageHeight() };
+		SDL_RenderCopy(gameRenderer, aButton->getButtonTexture(), &spriteSheetClip, aButton->getButtonRect());
+		renderText(aButton->getButtonText(), aButton->getButtonRect());
+	}
+}
+
+void GameView::renderImage(Image * anImage)
+{
+	if (!anImage->getIsVisible())
+	{
+		return;
+	}
+	else
+	{
+		SDL_RenderCopy(gameRenderer, anImage->getTexture(), NULL, anImage->getImageRect());
+	}
+}
+
+void GameView::renderGUIElements()
+{
+	renderButtons();
+	renderImage(menuBackground);
 }
 
 void GameView::positionCamera(SDL_Rect * playerBox) const
@@ -169,6 +236,13 @@ void GameView::positionCamera(SDL_Rect * playerBox) const
 	{
 		camera->y = levelHeight - camera->h;
 	}
+}
+
+void GameView::toggleMenu()
+{
+	isPaused = !isPaused;
+	menuBackground->toggleVisibility();
+	renderUpdate();
 }
 
 bool GameView::init()
@@ -220,6 +294,30 @@ bool GameView::init()
 		printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
 		success = false;
 	}
+	return success;
+}
+
+bool GameView::initGUI()
+{
+	bool success = true;
+	double width = 50;
+	if (50 < WINDOW_WIDTH / 15)
+	{
+		width = WINDOW_WIDTH / 15;
+	}
+	double height = 20;
+	if (20 < WINDOW_HEIGHT / 15)
+	{
+		height = WINDOW_HEIGHT / 15;
+	}
+	double posX = WINDOW_WIDTH - width;
+	double posY = 0;
+	menuButton = new Button(posX, posY, width, height, "default_button.bmp", "MENU", std::bind(&GameView::toggleMenu, this));
+	menuButton->setButtonTexture(loadTexture(menuButton->getImageFilePath()));
+	buttons.push_back(menuButton);
+	menuBackground = new Image(225, 100, 150, 200, false, "menu.bmp");
+	menuBackground->setTexture(loadTexture(menuBackground->getImageFilePath())); //TODO: make this all much more graceful
+
 	return success;
 }
 

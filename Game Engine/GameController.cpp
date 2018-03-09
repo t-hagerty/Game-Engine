@@ -36,7 +36,55 @@ void GameController::render() const
 		view->renderEntitySprite(e, fps);
 	}
 	view->renderPlayerInfo(model->getPlayer()->getHealth());
+	view->renderGUIElements();
 	view->renderUpdate();
+}
+
+void GameController::mouseEventHandler(SDL_Event* e)
+{
+	//Get mouse position
+	int x, y;
+	SDL_GetMouseState(&x, &y);
+	for (Button* aButton : view->getButtons())
+	{
+		aButton->setIsMouseOver(false);
+		//Mouse is left of the button
+		if (x < aButton->getPosX())
+		{
+			break;
+		}
+		//Mouse is right of the button
+		else if (x > aButton->getPosX() + aButton->getWidth())
+		{
+			break;
+		}
+		//Mouse above the button
+		else if (y < aButton->getPosY())
+		{
+			break;
+		}
+		//Mouse below the button
+		else if (y > aButton->getPosY() + aButton->getHeight())
+		{
+			break;
+		}
+
+		switch (e->type)
+		{
+		case SDL_MOUSEMOTION:
+			aButton->setIsMouseOver(true);
+			break;
+
+		case SDL_MOUSEBUTTONDOWN:
+			aButton->setIsMouseDown(true);
+			break;
+
+		case SDL_MOUSEBUTTONUP:
+			aButton->setIsMouseUp(true);
+			aButton->triggerEvent();
+			break;
+		}
+	}
 }
 
 /*
@@ -94,19 +142,26 @@ void GameController::gameLoop()
 					break;
 				}
 			}
+			if (e.type == SDL_MOUSEMOTION || e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP)
+			{
+				mouseEventHandler(&e);
+			}
 		}
 		//keystates are updated every time SDL_Pollevent is called
 		//If we check them inside the Pollevent loop though, keystates will be handled multiple times!
 		const Uint8 *state = SDL_GetKeyboardState(NULL); //returns a pointer to array of key states when NULL is passed as parameter
 		movePlayer(state);
-
-		//update game logic/model
-		update(delta); //<- all time related values must be multiplied by delta
-		/*std::cout << "X Pos: ";
-		std::cout << model->getPlayer()->getPosX();
-		std::cout << " Y Pos: ";
-		std::cout << model->getPlayer()->getPosY();
-		std::cout << "\n";*/
+		
+		if (!view->getIsPaused())
+		{
+			//update game logic/model
+			update(delta); //<- all time related values must be multiplied by delta
+			/*std::cout << "X Pos: ";
+			std::cout << model->getPlayer()->getPosX();
+			std::cout << " Y Pos: ";
+			std::cout << model->getPlayer()->getPosY();
+			std::cout << "\n";*/
+		}
 
 		//render
 		render();

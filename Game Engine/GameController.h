@@ -16,6 +16,7 @@ private:
 	void movePlayer(const Uint8* keyStates);
 	void update(double delta) const;
 	void render() const;
+	void mouseEventHandler(SDL_Event* e);
 	GameModel* model;
 	GameView* view;
 	//Key press surfaces constants
