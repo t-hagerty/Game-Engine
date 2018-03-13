@@ -2,81 +2,15 @@
 
 
 
-Button::Button(double x, double y, double width, double height, std::string imageFilePath, std::string buttonText, EventHandler buttonEventHandler)
+Button::Button(double x, double y, double width, double height, bool visible, std::string imageFilePath, SDL_Surface* targetSurface, SDL_Renderer* targetRenderer, std::string buttonText, EventHandler buttonEventHandler)
+	: GUIElement(x, y, width, height, visible, imageFilePath, targetSurface, targetRenderer)
 {
-	buttonRect = new SDL_Rect();
-	buttonRect->x = x;
-	buttonRect->y = y;
-	buttonRect->w = width;
-	buttonRect->h = height;
-	imageFile = imageFilePath;
 	text = buttonText;
-	isVisible = true;
 	handler = buttonEventHandler;
 }
 
 Button::~Button()
 {
-}
-
-void Button::setPosX(double newPos)
-{
-	buttonRect->x = newPos;
-}
-
-double Button::getPosX()
-{
-	return buttonRect->x;
-}
-
-void Button::setPosY(double newPos)
-{
-	buttonRect->y = newPos;
-}
-
-double Button::getPosY()
-{
-	return buttonRect->y;
-}
-
-void Button::setWidth(double newWidth)
-{
-	buttonRect->w = newWidth;
-}
-
-double Button::getWidth()
-{
-	return buttonRect->w;
-}
-
-void Button::setHeight(double newHeight)
-{
-	buttonRect->h = newHeight;
-}
-
-double Button::getHeight()
-{
-	return buttonRect->h;
-}
-
-void Button::setImageFilePath(std::string newFilePath)
-{
-	imageFile = newFilePath;
-}
-
-std::string Button::getImageFilePath()
-{
-	return imageFile;
-}
-
-void Button::setButtonTexture(SDL_Texture * newTexture)
-{
-	buttonTexture = newTexture;
-}
-
-SDL_Texture * Button::getButtonTexture()
-{
-	return buttonTexture;
 }
 
 int Button::getButtonImageWidth()
@@ -97,27 +31,6 @@ void Button::setButtonText(std::string newText)
 std::string Button::getButtonText()
 {
 	return text;
-}
-
-void Button::setButtonrect(SDL_Rect * newRect)
-{
-	delete buttonRect;
-	buttonRect = newRect;
-}
-
-SDL_Rect * Button::getButtonRect()
-{
-	return buttonRect;
-}
-
-void Button::setIsVisible(bool visible)
-{
-	isVisible = visible;
-}
-
-bool Button::getIsVisible()
-{
-	return isVisible;
 }
 
 void Button::setIsMouseOver(bool mouseOver)

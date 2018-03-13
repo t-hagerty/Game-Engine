@@ -183,15 +183,11 @@ void GameView::renderAButton(Button * aButton)
 {
 	if (aButton->getIsVisible())
 	{
-		if (aButton->getButtonTexture() == nullptr)
-		{
-			aButton->setButtonTexture(loadTexture(aButton->getImageFilePath()));
-		}
 		SDL_Rect spriteSheetClip = { aButton->getButtonState() * aButton->getButtonImageWidth(),
 			0,
 			aButton->getButtonImageWidth(), aButton->getButtonImageHeight() };
-		SDL_RenderCopy(gameRenderer, aButton->getButtonTexture(), &spriteSheetClip, aButton->getButtonRect());
-		renderText(aButton->getButtonText(), aButton->getButtonRect());
+		SDL_RenderCopy(gameRenderer, aButton->getTexture(), &spriteSheetClip, aButton->getRect());
+		renderText(aButton->getButtonText(), aButton->getRect());
 	}
 }
 
@@ -203,7 +199,7 @@ void GameView::renderImage(Image * anImage)
 	}
 	else
 	{
-		SDL_RenderCopy(gameRenderer, anImage->getTexture(), NULL, anImage->getImageRect());
+		SDL_RenderCopy(gameRenderer, anImage->getTexture(), NULL, anImage->getRect());
 	}
 }
 
@@ -312,11 +308,9 @@ bool GameView::initGUI()
 	}
 	double posX = WINDOW_WIDTH - width;
 	double posY = 0;
-	menuButton = new Button(posX, posY, width, height, "default_button.bmp", "MENU", std::bind(&GameView::toggleMenu, this));
-	menuButton->setButtonTexture(loadTexture(menuButton->getImageFilePath()));
+	menuButton = new Button(posX, posY, width, height, true, "default_button.bmp", gScreenSurface, gameRenderer, "MENU", std::bind(&GameView::toggleMenu, this));
 	buttons.push_back(menuButton);
-	menuBackground = new Image(225, 100, 150, 200, false, "menu.bmp");
-	menuBackground->setTexture(loadTexture(menuBackground->getImageFilePath())); //TODO: make this all much more graceful
+	menuBackground = new Image(225, 100, 150, 200, false, "menu.bmp", gScreenSurface, gameRenderer);
 
 	return success;
 }
