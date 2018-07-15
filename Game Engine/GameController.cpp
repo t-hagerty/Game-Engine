@@ -146,6 +146,22 @@ void GameController::gameLoop()
 			{
 				mouseEventHandler(&e);
 			}
+			if (e.type == SDL_WINDOWEVENT)
+			{
+				switch (e.window.event)
+				{
+				case SDL_WINDOWEVENT_SIZE_CHANGED:
+					view->setWindowWidth(e.window.data1);
+					view->setWindowHeight(e.window.data2);
+					break;
+				case SDL_WINDOWEVENT_MINIMIZED:
+					if (!view->getIsPaused())
+					{
+						view->toggleMenu();
+					}
+					break;
+				}
+			}
 		}
 		//keystates are updated every time SDL_Pollevent is called
 		//If we check them inside the Pollevent loop though, keystates will be handled multiple times!

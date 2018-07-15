@@ -13,8 +13,12 @@ class GameView
 public:
 	GameView(int levelWidth, int levelHeight);
 	~GameView();
+	void setWindowWidth(int newWidth);
 	int getWindowWidth() const;
+	void setWindowHeight(int newHeight);
 	int getWindowHeight() const;
+	void setTextureScale(float newScale);
+	float getTextureScale();
 	void setIsPaused(bool paused);
 	bool getIsPaused();
 	std::vector<Button*> getButtons();
@@ -37,8 +41,9 @@ private:
 	SDL_Surface* gScreenSurface = nullptr;
 	SDL_Renderer* gameRenderer = nullptr;
 	SDL_Rect* camera = new SDL_Rect();
-	const int WINDOW_HEIGHT = 400;
-	const int WINDOW_WIDTH = 600;
+	int windowHeight = 400;
+	int windowWidth = 600;
+	float textureScale = 1;
 	int levelWidth;
 	int levelHeight;
 	bool isPaused = false;

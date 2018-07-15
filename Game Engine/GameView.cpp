@@ -29,31 +29,61 @@ GameView::GameView(int levelW, int levelH)
 	}
 	camera->x = 0;
 	camera->y = 0;
-	camera->h = WINDOW_HEIGHT;
-	camera->w = WINDOW_WIDTH;
+	camera->h = windowHeight;
+	camera->w = windowWidth;
 	levelWidth = levelW;
 	levelHeight = levelH;
 
 	initGUI();
+	setTextureScale(2); //TODO remove
 }
 
 
 GameView::~GameView()
 {
-	//Clear screen
-	SDL_SetRenderDrawColor(gameRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-	SDL_RenderClear(gameRenderer);
+	renderClear(0xFF, 0xFF, 0xFF, 0xFF);
 	close();
+}
+
+void GameView::setWindowWidth(int newWidth)
+{
+	windowWidth = newWidth;
+	camera->w = windowWidth;
 }
 
 int GameView::getWindowWidth() const
 {
-	return WINDOW_WIDTH;
+	return windowWidth;
+}
+
+void GameView::setWindowHeight(int newHeight)
+{
+	windowHeight = newHeight;
+	camera->h = windowHeight;
 }
 
 int GameView::getWindowHeight() const
 {
-	return WINDOW_HEIGHT;
+	return windowHeight;
+}
+
+void GameView::setTextureScale(float newScale)
+{
+	float multiplierToNewScale = newScale / textureScale;
+	/*
+	http://lazyfoo.net/tutorials/SDL/35_window_events/index.php
+	https://gamedev.stackexchange.com/questions/63156/sdl-zooming-upscaling-without-images-becoming-blurry/70697
+	https://gamedev.stackexchange.com/questions/102870/rescale-pixel-art-scenery-before-rendering-in-sdl2
+	https://stackoverflow.com/questions/28218906/sdl-draws-images-blurred-without-scaling
+	*/
+	textureScale = newScale;
+	camera->w = camera->w * textureScale;
+	camera->h = camera->h * textureScale;
+}
+
+float GameView::getTextureScale()
+{
+	return textureScale;
 }
 
 void GameView::setIsPaused(bool paused)
@@ -91,7 +121,7 @@ void GameView::renderTileMap(std::vector<Tile*> map, int rows, int cols, int til
 		if(SDL_HasIntersection(&t->getTileSpace(), camera))
 		{
 			//Set rendering space and render to screen
-			SDL_Rect renderQuad = { t->getTileSpace().x - camera->x, t->getTileSpace().y - camera->y, t->getTileSpace().w, t->getTileSpace().h };
+			SDL_Rect renderQuad = { t->getTileSpace().x * textureScale - camera->x * textureScale, t->getTileSpace().y * textureScale - camera->y * textureScale, t->getTileSpace().w * textureScale, t->getTileSpace().h * textureScale };
 
 			//Render to screen
 			SDL_RenderCopyEx(gameRenderer, tileSet.at(t->getType()), NULL, &renderQuad, 0.0, NULL, SDL_FLIP_NONE);
@@ -101,9 +131,9 @@ void GameView::renderTileMap(std::vector<Tile*> map, int rows, int cols, int til
 
 void GameView::renderRectangle(double posX, double posY, int width, int height) const
 {
-	SDL_Rect fillRect = { posX, posY, width, height};
-	fillRect.x -= camera->x;
-	fillRect.y -= camera->y;
+	SDL_Rect fillRect = { posX * textureScale, posY * textureScale, width * textureScale, height * textureScale };
+	fillRect.x -= camera->x * textureScale;
+	fillRect.y -= camera->y * textureScale;
 	SDL_SetRenderDrawColor(gameRenderer, 0x00, 0x00, 0x00, 0x00);
 	SDL_RenderFillRect(gameRenderer, &fillRect);
 }
@@ -117,9 +147,9 @@ void GameView::renderEntitySprite(Entity* e, int frame)
 	SDL_Rect spriteSheetClip = { e->getAnimationFrame() * e->getSpriteWidth(), 
 								e->getSpriteDirection() * e->getSpriteHeight(), 
 								e->getSpriteWidth(), e->getSpriteHeight() };
-	SDL_Rect fillRect = { e->getPosX(), e->getPosY(), e->getWidth(), e->getHeight() };
-	fillRect.x -= camera->x;
-	fillRect.y -= camera->y;
+	SDL_Rect fillRect = { e->getPosX() * textureScale, e->getPosY() * textureScale, e->getWidth() * textureScale, e->getHeight() * textureScale };
+	fillRect.x -= camera->x * textureScale;
+	fillRect.y -= camera->y * textureScale;
 	SDL_RenderCopy(gameRenderer, e->getSpriteSheet(), &spriteSheetClip, &fillRect);
 	if((e->getVelocityX() != 0 || e->getVelocityY() != 0))
 	{
@@ -154,6 +184,11 @@ void GameView::renderText(std::string text, SDL_Rect * textRect)
 	{
 		SDL_Texture* message = SDL_CreateTextureFromSurface(gameRenderer, messageSurface);
 
+		textRect->x *= textureScale;
+		textRect->y *= textureScale;
+		textRect->h *= textureScale;
+		textRect->w *= textureScale;
+
 		SDL_RenderCopy(gameRenderer, message, NULL, textRect);
 		SDL_DestroyTexture(message);
 	}
@@ -186,7 +221,8 @@ void GameView::renderAButton(Button * aButton)
 		SDL_Rect spriteSheetClip = { aButton->getButtonState() * aButton->getButtonImageWidth(),
 			0,
 			aButton->getButtonImageWidth(), aButton->getButtonImageHeight() };
-		SDL_RenderCopy(gameRenderer, aButton->getTexture(), &spriteSheetClip, aButton->getRect());
+		SDL_Rect renderRect = { aButton->getRect()->x * textureScale, aButton->getRect()->y * textureScale, aButton->getRect()->h * textureScale, aButton->getRect()->w * textureScale };
+		SDL_RenderCopy(gameRenderer, aButton->getTexture(), &spriteSheetClip, &renderRect);
 		renderText(aButton->getButtonText(), aButton->getRect());
 	}
 }
@@ -199,7 +235,8 @@ void GameView::renderImage(Image * anImage)
 	}
 	else
 	{
-		SDL_RenderCopy(gameRenderer, anImage->getTexture(), NULL, anImage->getRect());
+		SDL_Rect renderRect = { anImage->getRect()->x * textureScale, anImage->getRect()->y * textureScale, anImage->getRect()->h * textureScale, anImage->getRect()->w * textureScale };
+		SDL_RenderCopy(gameRenderer, anImage->getTexture(), NULL, &renderRect);
 	}
 }
 
@@ -211,26 +248,28 @@ void GameView::renderGUIElements()
 
 void GameView::positionCamera(SDL_Rect * playerBox) const
 {
-	//Center the camera over the dot
-	camera->x = (playerBox->x + playerBox->w / 2) - WINDOW_WIDTH / 2;
-	camera->y = (playerBox->y + playerBox->h / 2) - WINDOW_HEIGHT / 2;
+	//Center the camera over the player
+	camera->x = ((playerBox->x * textureScale) + (playerBox->w * textureScale) / 2) - (windowWidth * textureScale) / 2;
+	camera->y = ((playerBox->y * textureScale) + (playerBox->h * textureScale) / 2) - (windowHeight * textureScale) / 2;
+	printf("Camera x: %d Camera y: %d Camera width: %d Camera height: %d \n", camera->x, camera->y, camera->w, camera->h);
+	printf("player x: %d player y: %d player width: %d player height: %d \n", playerBox->x, playerBox->y, playerBox->w, playerBox->h);
 
 	//Keep the camera in bounds
 	if (camera->x < 0)
 	{
 		camera->x = 0;
 	}
-	else if (camera->x > levelWidth - camera->w)
+	else if (camera->x > levelWidth * textureScale - camera->w)
 	{
-		camera->x = levelWidth - camera->w;
+		camera->x = levelWidth * textureScale - camera->w;
 	}
 	if (camera->y < 0)
 	{
 		camera->y = 0;
 	}
-	else if (camera->y > levelHeight - camera->h)
+	else if (camera->y > levelHeight * textureScale - camera->h)
 	{
-		camera->y = levelHeight - camera->h;
+		camera->y = levelHeight * textureScale - camera->h;
 	}
 }
 
@@ -260,7 +299,7 @@ bool GameView::init()
 		}
 
 		//Create window
-		gameWindow = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+		gameWindow = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_SHOWN);
 		if (gameWindow == nullptr)
 		{
 			printf("Window could not be created. SDL Error: %s\n", SDL_GetError());
@@ -268,6 +307,7 @@ bool GameView::init()
 		}
 		else
 		{
+			SDL_SetWindowResizable(gameWindow, SDL_TRUE); //TODO: Remove maybe? Added for testing
 			//Create renderer for window
 			gameRenderer = SDL_CreateRenderer(gameWindow, -1, SDL_RENDERER_ACCELERATED);
 			if (gameRenderer == nullptr)
@@ -297,16 +337,16 @@ bool GameView::initGUI()
 {
 	bool success = true;
 	double width = 50;
-	if (50 < WINDOW_WIDTH / 15)
+	if (50 < windowWidth / 15)
 	{
-		width = WINDOW_WIDTH / 15;
+		width = windowWidth / 15;
 	}
 	double height = 20;
-	if (20 < WINDOW_HEIGHT / 15)
+	if (20 < windowHeight / 15)
 	{
-		height = WINDOW_HEIGHT / 15;
+		height = windowHeight / 15;
 	}
-	double posX = WINDOW_WIDTH - width;
+	double posX = windowWidth - width;
 	double posY = 0;
 	menuButton = new Button(posX, posY, width, height, true, "default_button.bmp", gScreenSurface, gameRenderer, "MENU", std::bind(&GameView::toggleMenu, this));
 	buttons.push_back(menuButton);
@@ -327,6 +367,7 @@ SDL_Texture* GameView::loadTexture(std::string filePath)
 	else
 	{
 		SDL_SetColorKey(textureImage, SDL_TRUE, SDL_MapRGB(textureImage->format, 0xFF, 0, 0xFF));
+		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
 		texture = SDL_CreateTextureFromSurface(gameRenderer, textureImage);
 		if(texture == nullptr)
 		{
