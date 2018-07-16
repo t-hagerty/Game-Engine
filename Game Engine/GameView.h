@@ -17,8 +17,8 @@ public:
 	int getWindowWidth() const;
 	void setWindowHeight(int newHeight);
 	int getWindowHeight() const;
-	void setTextureScale(float newScale);
-	float getTextureScale();
+	void setZoomScale(float newScale);
+	float getZoomScale();
 	void setIsPaused(bool paused);
 	bool getIsPaused();
 	std::vector<Button*> getButtons();
@@ -43,7 +43,7 @@ private:
 	SDL_Rect* camera = new SDL_Rect();
 	int windowHeight = 400;
 	int windowWidth = 600;
-	float textureScale = 1;
+	float zoomScale = 1;
 	int levelWidth;
 	int levelHeight;
 	bool isPaused = false;
