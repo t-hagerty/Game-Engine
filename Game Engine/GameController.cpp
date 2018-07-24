@@ -168,20 +168,17 @@ void GameController::gameLoop()
 		const Uint8 *state = SDL_GetKeyboardState(NULL); //returns a pointer to array of key states when NULL is passed as parameter
 		movePlayer(state);
 		
-		if (!view->getIsPaused())
+		//Safety check, if game hangs for a long time for some reason and delta is a large number, entities could pass right through things when game starts running again, so ignore this loop
+		if (delta <= 2.5) //about <= 15 fps
 		{
-			//update game logic/model
-			update(delta); //<- all time related values must be multiplied by delta
-			/*std::cout << "X Pos: ";
-			std::cout << model->getPlayer()->getPosX();
-			std::cout << " Y Pos: ";
-			std::cout << model->getPlayer()->getPosY();
-			std::cout << "\n";*/
+			if (!view->getIsPaused())
+			{
+				//update game logic/model
+				update(delta); //<- all time related values must be multiplied by delta
+			}
+
+			render();
 		}
-
-		//render
-		render();
-
 		//Subtract current time from time when current iteration started will give us (time updates took in ms) * -1
 		//Adding OPTIMAL_MS_PER_FRAME gives us the number of milliseconds left to delay to give us our TARGET_FPS
 		long delay = lastLoopTime - SDL_GetTicks() + OPTIMAL_MS_PER_FRAME;

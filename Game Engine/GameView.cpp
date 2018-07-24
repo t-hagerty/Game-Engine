@@ -27,13 +27,10 @@ GameView::GameView(int levelW, int levelH)
 		tileSet.insert(tileSet.end(), loadTexture("map_tiles/barrier.bmp"));
 		SDL_UpdateWindowSurface(gameWindow);
 	}
-	camera->x = 0;
-	camera->y = 0;
 	camera->h = windowHeight;
 	camera->w = windowWidth;
 	levelWidth = levelW;
 	levelHeight = levelH;
-
 	initGUI();
 }
 
@@ -46,8 +43,19 @@ GameView::~GameView()
 
 void GameView::setWindowWidth(int newWidth)
 {
-	windowWidth = newWidth;
-	camera->w = windowWidth;
+	if (windowWidth != newWidth)
+	{
+		if (zoomScale != 1)
+		{
+			camera->w += ((newWidth - windowWidth) / zoomScale);
+			//printf("New width: %d, new camera width: %d \n", newWidth, camera->w);
+		}
+		else
+		{
+			camera->w = newWidth;
+		}
+		windowWidth = newWidth;
+	}
 }
 
 int GameView::getWindowWidth() const
@@ -57,8 +65,19 @@ int GameView::getWindowWidth() const
 
 void GameView::setWindowHeight(int newHeight)
 {
-	windowHeight = newHeight;
-	camera->h = windowHeight;
+	if (windowHeight != newHeight)
+	{
+		if (zoomScale != 1)
+		{
+			camera->h += ((newHeight - windowHeight) / zoomScale);
+			//printf("New height: %d, new camera height: %d \n", newHeight, camera->h);
+		}
+		else
+		{
+			camera->h = newHeight;
+		}
+		windowHeight = newHeight;
+	}
 }
 
 int GameView::getWindowHeight() const
@@ -68,13 +87,6 @@ int GameView::getWindowHeight() const
 
 void GameView::setZoomScale(float newScale)
 {
-	float multiplierToNewScale = newScale / zoomScale;
-	/*
-	http://lazyfoo.net/tutorials/SDL/35_window_events/index.php
-	https://gamedev.stackexchange.com/questions/63156/sdl-zooming-upscaling-without-images-becoming-blurry/70697
-	https://gamedev.stackexchange.com/questions/102870/rescale-pixel-art-scenery-before-rendering-in-sdl2
-	https://stackoverflow.com/questions/28218906/sdl-draws-images-blurred-without-scaling
-	*/
 	zoomScale = newScale;
 	camera->w = camera->w / zoomScale;
 	camera->h = camera->h / zoomScale;
@@ -117,10 +129,10 @@ void GameView::renderTileMap(std::vector<Tile*> map, int rows, int cols, int til
 {
 	for (Tile* t : map)
 	{
-		if(SDL_HasIntersection(&t->getTileSpace(), camera))
+		if (SDL_HasIntersection(&t->getTileSpace(), camera))
 		{
 			//Set rendering space and render to screen
-			SDL_Rect renderQuad = { (t->getTileSpace().x  - camera->x) * zoomScale , (t->getTileSpace().y  - camera->y) * zoomScale , t->getTileSpace().w * zoomScale, t->getTileSpace().h * zoomScale };
+			SDL_Rect renderQuad = { (t->getTileSpace().x - camera->x) * zoomScale , (t->getTileSpace().y - camera->y) * zoomScale , t->getTileSpace().w * zoomScale, t->getTileSpace().h * zoomScale };
 
 			//Render to screen
 			SDL_RenderCopyEx(gameRenderer, tileSet.at(t->getType()), NULL, &renderQuad, 0.0, NULL, SDL_FLIP_NONE);
@@ -302,7 +314,7 @@ bool GameView::init()
 		}
 		else
 		{
-			SDL_SetWindowResizable(gameWindow, SDL_TRUE); //TODO: Remove maybe? Added for testing
+			//SDL_SetWindowResizable(gameWindow, SDL_TRUE);
 			//Create renderer for window
 			gameRenderer = SDL_CreateRenderer(gameWindow, -1, SDL_RENDERER_ACCELERATED);
 			if (gameRenderer == nullptr)
