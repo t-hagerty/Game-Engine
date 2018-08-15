@@ -223,7 +223,10 @@ void GameModel::moveAnEntity(Entity * e, double delta)
 
 void GameModel::collideEntities(Entity * e1, Entity * e2)
 {
-	double e1Damage = e2->damageCollidedEntity();
+	bool isE1Player = e1 == getPlayer();
+	bool isE2Player = e2 == getPlayer();
+
+	double e1Damage = e2->damageCollidedEntity(isE1Player);
 	if (e1->takeDamage(e1Damage))
 	{
 		//Calculate knockback:
@@ -240,7 +243,7 @@ void GameModel::collideEntities(Entity * e1, Entity * e2)
 		e1->setVelocityX(vectorX);
 		e1->setVelocityY(vectorY);
 	}
-	double e2Damage = e1->damageCollidedEntity();
+	double e2Damage = e1->damageCollidedEntity(isE2Player);
 	if (e2->takeDamage(e2Damage))
 	{
 		//Calculate knockback:

@@ -41,7 +41,7 @@ public:
 	void setSpriteDirection(int newDirection);
 	virtual void determineMovement(double playerPosX, double playerPosY) = 0;
 	double takeDamage(double damage);
-	virtual double damageCollidedEntity();
+	virtual double damageCollidedEntity(bool isOtherEntityPlayer);
 	void decrementTimers(double delta);
 
 protected:

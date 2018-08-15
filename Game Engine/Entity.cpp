@@ -245,7 +245,7 @@ double Entity::takeDamage(double damage)
 	}
 }
 
-double Entity::damageCollidedEntity()
+double Entity::damageCollidedEntity(bool isOtherEntityPlayer)
 {
 	return 0.0;
 }

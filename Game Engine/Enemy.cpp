@@ -99,7 +99,11 @@ void Enemy::determineMovement(double playerPosX, double playerPosY)
 	}
 }
 
-double Enemy::damageCollidedEntity()
+double Enemy::damageCollidedEntity(bool isOtherEntityPlayer)
 {
-	return 1;
+	if (isOtherEntityPlayer)
+	{
+		return 1;
+	}
+	return 0; //Not the player; don't damage other enemies
 }
