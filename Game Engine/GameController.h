@@ -17,6 +17,7 @@ private:
 	void update(double delta) const;
 	void render() const;
 	void mouseEventHandler(SDL_Event* e);
+	void restartLevel();
 	GameModel* model;
 	GameView* view;
 	//Key press surfaces constants

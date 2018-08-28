@@ -107,6 +107,11 @@ bool GameView::getIsPaused()
 	return isPaused;
 }
 
+void GameView::setRetryButton(Button * aButton)
+{
+	retryButton = aButton;
+}
+
 std::vector<Button*> GameView::getButtons()
 {
 	return buttons;
@@ -218,7 +223,13 @@ void GameView::renderPlayerInfo(double playerHealth)
 
 void GameView::renderButtons()
 {
-	renderAButton(menuButton);
+	for (Button* aButton : buttons)
+	{
+		if (aButton->getIsVisible())
+		{
+			renderAButton(aButton);
+		}
+	}
 }
 
 void GameView::renderAButton(Button * aButton)
@@ -280,11 +291,35 @@ void GameView::positionCamera(SDL_Rect * playerBox) const
 	}
 }
 
+void GameView::addButton(Button * aButton)
+{
+	buttons.push_back(aButton);
+
+}
+
+Button* GameView::addButton(double posX, double posY, double width, double height, bool isVisible, std::string filePath, std::string buttonText, std::function<void()> eventHandler)
+{
+	Button* aButton = new Button(posX, posY, width, height, isVisible, filePath, gScreenSurface, gameRenderer, buttonText, eventHandler);
+	addButton(aButton);
+	return aButton;
+}
+
 void GameView::toggleMenu()
 {
 	isPaused = !isPaused;
 	menuBackground->toggleVisibility();
 	renderUpdate();
+}
+
+void GameView::isGameOverScreen(bool isGameOver)
+{
+	setIsPaused(isGameOver);
+	retryButton->setIsVisible(isGameOver);
+}
+
+bool GameView::getIsGameOverScreen()
+{
+	return retryButton->getIsVisible();
 }
 
 bool GameView::init()
@@ -356,7 +391,7 @@ bool GameView::initGUI()
 	double posX = windowWidth - width;
 	double posY = 0;
 	menuButton = new Button(posX, posY, width, height, true, "default_button.bmp", gScreenSurface, gameRenderer, "MENU", std::bind(&GameView::toggleMenu, this));
-	buttons.push_back(menuButton);
+	addButton(menuButton);
 	menuBackground = new Image(225, 100, 150, 200, false, "menu.bmp", gScreenSurface, gameRenderer);
 
 	return success;

@@ -6,6 +6,7 @@ class Player :
 public:
 	Player(int h, int w, double positionX, double positionY, double velX, double velY, double hp);
 	~Player();
+	Entity* clone() const;
 	void determineMovement(double playerPosX, double plaerPosY) override;
 	void setHorizontalMovementKeyPress(short direction);
 	short getHorizontalMovementKeyPress() const;

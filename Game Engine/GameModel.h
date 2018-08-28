@@ -13,8 +13,10 @@ public:
 	void addEntity(Entity* newEntity);
 	void moveEntities(double delta);
 	Entity* getEntity(int index);
+	void removeEntity(Entity* e);
 	int getNumberOfEntities() const;
 	Player* getPlayer() const;
+	bool getIsGameOver();
 	int getTileSize() const;
 	int getMapRows() const;
 	int getMapCols() const;
@@ -24,6 +26,7 @@ public:
 	bool openMap();
 	bool openMap(std::string filePath);
 	bool saveMap(std::string filePath) const;
+	void resetLevel();
 private:
 	int screenWidth;
 	int screenHeight;
@@ -36,13 +39,16 @@ private:
 	int mapRows;
 	int mapCols;
 	std::vector<Entity*> entities;
+	std::vector<Entity*> entitiesInitialState; //For a game over, we have a copy of how every entity starts rather than have to reload the whole level
 	Player* player;
+	bool isGameOver = false;
 	bool setIsSolid(int tileType);
 	void moveAnEntity(Entity* e, double delta);
 	void collideEntities(Entity* e1, Entity* e2);
 	static bool isInsideWall(Entity* entity, Tile* t);
 	bool isInsideAnyWalls(Entity* entity, int topRow, int bottomRow, int leftCol, int rightCol) const;
 	static bool isIntersectingEntity(Entity* e1, Entity* e2);
+	void killEntity(Entity* e);
 	void deleteMap() const;
 	enum textures
 	{

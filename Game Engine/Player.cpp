@@ -4,11 +4,17 @@
 Player::Player(int h, int w, double positionX, double positionY, double velX, double velY, double hp) : Character(h, w, positionX, positionY, velX, velY, hp)
 {
 	health = hp;
+	spriteFilePath = "spritesheets/player_walking.bmp";
 }
 
 
 Player::~Player()
 {
+}
+
+Entity * Player::clone() const
+{
+	return new Player(*this);
 }
 
 void Player::determineMovement(double playerPosX, double plaerPosY)

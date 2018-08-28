@@ -9,6 +9,6 @@ public:
 	void setHealthPoints(int newHP);
 	int getHealthPoints() const;
 private:
-	int healthPoints;
+
 };
 

@@ -3,15 +3,15 @@
 #include "Entity.h"
 #include "Rectangle.h"
 #include "Enemy.h"
+#include "Button.h"
 
 
 GameController::GameController(GameModel* m, GameView* v)
 {
 	model = m;
 	view = v;
-	model->addEntity(new Enemy(50, 40, 70, 300, 0, 0, 10));
-	model->addEntity(new Enemy(20, 20, 230, 255, 0.2, -0.5, 10));
-	
+	view->setRetryButton(
+		view->addButton((view->getWindowWidth() / 2) - 200, (view->getWindowHeight() / 2) - 75, 400, 150, false, "default_button.bmp", "RETRY?", std::bind(&GameController::restartLevel, this)));
 	gameLoop();
 }
 
@@ -51,22 +51,22 @@ void GameController::mouseEventHandler(SDL_Event* e)
 		//Mouse is left of the button
 		if (x < aButton->getPosX())
 		{
-			break;
+			continue;
 		}
 		//Mouse is right of the button
 		else if (x > aButton->getPosX() + aButton->getWidth())
 		{
-			break;
+			continue;
 		}
 		//Mouse above the button
 		else if (y < aButton->getPosY())
 		{
-			break;
+			continue;
 		}
 		//Mouse below the button
 		else if (y > aButton->getPosY() + aButton->getHeight())
 		{
-			break;
+			continue;
 		}
 
 		switch (e->type)
@@ -85,6 +85,11 @@ void GameController::mouseEventHandler(SDL_Event* e)
 			break;
 		}
 	}
+}
+
+void GameController::restartLevel()
+{
+	model->resetLevel();
 }
 
 /*
@@ -176,7 +181,15 @@ void GameController::gameLoop()
 				//update game logic/model
 				update(delta); //<- all time related values must be multiplied by delta
 			}
-
+			if (model->getIsGameOver())
+			{
+				view->isGameOverScreen(true);
+			}
+			else if (view->getIsGameOverScreen())
+			{
+				view->isGameOverScreen(false);
+				continue; //Before I added this, knockback from death was being carried over into the retry of the level
+			}
 			render();
 		}
 		//Subtract current time from time when current iteration started will give us (time updates took in ms) * -1

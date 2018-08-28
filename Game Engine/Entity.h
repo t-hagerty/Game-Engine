@@ -7,6 +7,7 @@ class Entity
 public:
 	Entity(int h, int w, float positionX, float positionY, float velX, float velY);
 	virtual ~Entity();
+	virtual Entity* clone() const = 0;
 	void setHealth(double newHealth);
 	double getHealth();
 	void setPosX(float newX);
@@ -57,7 +58,7 @@ protected:
 	double knockbackTimer = 0;
 	double invulnTimer = 0;
 	SDL_Rect* collisionBox;
-	std::string spriteFilePath = "spritesheets/player_walking.bmp";
+	std::string spriteFilePath;
 	SDL_Texture* spriteSheet;
 	const int SPRITE_WIDTH = 32;
 	const int SPRITE_HEIGHT = 32;

@@ -7,11 +7,17 @@ Enemy::Enemy(int h, int w, double positionX, double positionY, double velX, doub
 	waitingTimer = (rand() % 75) + 45;
 	wanderingTimer = (rand() % 105) + 45;
 	wanderDirection = rand() % 4;
+	spriteFilePath = "spritesheets/enemy_walking.bmp";
 }
 
 
 Enemy::~Enemy()
 {
+}
+
+Entity * Enemy::clone() const
+{
+	return new Enemy(*this);
 }
 
 void Enemy::determineMovement(double playerPosX, double playerPosY)
