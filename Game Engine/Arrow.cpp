@@ -24,16 +24,6 @@ Arrow & Arrow::getPointerToThis()
 
 void Arrow::determineMovement(double playerPosX, double playerPosY)
 {
-	if(velocityX == 0 && velocityY == 0)
-	{
-		setHealth(0);
-	}
-	/*if ((previousPosX == posX && velocityX != 0) || (previousPosY == posY && velocityY != 0))
-	{
-		health = health - 1;
-	}
-	previousPosX = posX;
-	previousPosY = posY;*/
 }
 
 double Arrow::doDamage()

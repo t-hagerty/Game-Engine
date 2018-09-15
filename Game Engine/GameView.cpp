@@ -107,9 +107,9 @@ bool GameView::getIsPaused()
 	return isPaused;
 }
 
-void GameView::setRetryButton(Button * aButton)
+void GameView::setRetryButton(EventHandler buttonEventHandler)
 {
-	retryButton = aButton;
+	retryButton = addButton((windowWidth / 2) - 200, (windowHeight / 2) - 75, 400, 150, false, "default_button.bmp", "RETRY?", buttonEventHandler);
 }
 
 std::vector<Button*> GameView::getButtons()
@@ -297,7 +297,7 @@ void GameView::addButton(Button * aButton)
 
 }
 
-Button* GameView::addButton(double posX, double posY, double width, double height, bool isVisible, std::string filePath, std::string buttonText, std::function<void()> eventHandler)
+Button* GameView::addButton(double posX, double posY, double width, double height, bool isVisible, std::string filePath, std::string buttonText, EventHandler eventHandler)
 {
 	Button* aButton = new Button(posX, posY, width, height, isVisible, filePath, gScreenSurface, gameRenderer, buttonText, eventHandler);
 	addButton(aButton);

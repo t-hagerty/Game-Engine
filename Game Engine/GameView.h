@@ -11,6 +11,7 @@
 class GameView
 {
 public:
+	typedef std::function<void()> EventHandler;
 	GameView(int levelWidth, int levelHeight);
 	~GameView();
 	void setWindowWidth(int newWidth);
@@ -21,7 +22,7 @@ public:
 	float getZoomScale();
 	void setIsPaused(bool paused);
 	bool getIsPaused();
-	void setRetryButton(Button* aButton);
+	void setRetryButton(EventHandler buttonEventHandler);
 	std::vector<Button*> getButtons();
 	void renderClear(int red = 0xFF, int green = 0xFF, int blue = 0xFF, int alpha = 0xFF) const;
 	void renderUpdate() const;
@@ -36,7 +37,7 @@ public:
 	void renderGUIElements();
 	void positionCamera(SDL_Rect* playerBox) const;
 	void addButton(Button* aButton);
-	Button* addButton(double posX, double posY, double width, double height, bool isVisible, std::string filePath, std::string buttonText, std::function<void()> eventHandler);
+	Button* addButton(double posX, double posY, double width, double height, bool isVisible, std::string filePath, std::string buttonText, EventHandler eventHandler);
 	void toggleMenu();
 	void isGameOverScreen(bool isGameOver);
 	bool getIsGameOverScreen();

@@ -3,16 +3,13 @@
 #include "Entity.h"
 #include "Rectangle.h"
 #include "Enemy.h"
-#include "Button.h"
 
 
 GameController::GameController(GameModel* m, GameView* v)
 {
 	model = m;
 	view = v;
-	view->setRetryButton(
-		view->addButton((view->getWindowWidth() / 2) - 200, (view->getWindowHeight() / 2) - 75, 400, 150, false, "default_button.bmp", "RETRY?", std::bind(&GameController::restartLevel, this)));
-	//^ maybe decouple this and the view a bit more please? thanks. - past Tyler
+	view->setRetryButton(std::bind(&GameController::restartLevel, this));
 	gameLoop();
 }
 
