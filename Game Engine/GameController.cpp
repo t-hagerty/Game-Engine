@@ -12,6 +12,7 @@ GameController::GameController(GameModel* m, GameView* v)
 	view = v;
 	view->setRetryButton(
 		view->addButton((view->getWindowWidth() / 2) - 200, (view->getWindowHeight() / 2) - 75, 400, 150, false, "default_button.bmp", "RETRY?", std::bind(&GameController::restartLevel, this)));
+	//^ maybe decouple this and the view a bit more please? thanks. - past Tyler
 	gameLoop();
 }
 
@@ -185,7 +186,7 @@ void GameController::gameLoop()
 			{
 				view->isGameOverScreen(true);
 			}
-			else if (view->getIsGameOverScreen())
+			else if (view->getIsGameOverScreen()) //if model says it's not game over but view still says it is, we have restarted the level
 			{
 				view->isGameOverScreen(false);
 				continue; //Before I added this, knockback from death was being carried over into the retry of the level

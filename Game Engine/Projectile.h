@@ -1,16 +1,12 @@
 #pragma once
-#include "Character.h"
+#include "Entity.h"
 class Projectile :
-	public Character
+	public Entity
 {
 public:
-	Projectile(int h, int w, double positionX, double positionY, double velX, double velY, int hp);
-	~Projectile();
-	Entity* clone() const;
-	void determineMovement(double playerPosX, double playerPosY) override;
-	double damageCollidedEntity(bool isOtherEntityPlayer) override;
-private:
-	double previousPosX = -1;
-	double previousPosY = -1;
+	Projectile(int entityHeight, int entityWidth, float positionX, float positionY, float velocityX, float velocityY);
+	virtual ~Projectile();
+	
+protected:
 };
 

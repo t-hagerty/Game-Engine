@@ -102,5 +102,8 @@ int Button::getButtonState()
 
 void Button::triggerEvent()
 {
-	handler();
+	if (getIsVisible())
+	{
+		handler();
+	}
 }

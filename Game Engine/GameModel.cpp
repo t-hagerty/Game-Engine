@@ -5,6 +5,7 @@
 #include <iostream>
 #include "Player.h"
 #include "Projectile.h"
+#include "Arrow.h"
 #include "Enemy.h"
 
 
@@ -124,105 +125,116 @@ void GameModel::moveAnEntity(Entity * e, double delta)
 	double oldY = e->getPosY();
 	int posColLeft = oldX / tileSize;
 	int posColRight = (oldX + e->getWidth()) / tileSize;
+	int posRowTop = oldY / tileSize;
+	int posRowBottom = (oldY + e->getHeight()) / tileSize;
 
 	e->decrementTimers(delta);
 	e->determineMovement(player->getCenterPosX(), player->getCenterPosY());
-	//=== Y MOVEMENT (UP(neg)/DOWN(pos)) ===
-	e->setPosY(e->getPosY() + (e->getVelocityY() * delta));
-	double newY = e->getPosY();
-	int posRowTop = newY / tileSize;
-	int posRowBottom = (newY + e->getHeight()) / tileSize;
+	if (e->getVelocityY() != 0)
+	{
+		//=== Y MOVEMENT (UP(neg)/DOWN(pos)) ===
+		e->setPosY(e->getPosY() + (e->getVelocityY() * delta));
+		double newY = e->getPosY();
+		posRowTop = newY / tileSize;
+		posRowBottom = (newY + e->getHeight()) / tileSize;
 
-	if (e->getPosY() <= 0) //If movement puts past the top bound of screen, put it against the top bound instead and set velocity to zero
-	{
-		e->setPosY(0);
-		e->setVelocityY(0);
-		posRowTop = 0;
-	}
-	else if ((e->getPosY() + e->getHeight()) >= levelHeight) //If movement puts past the bottom bound of screen, put it against the bottom bound instead and set velocity to zero
-	{
-		e->setPosY(levelHeight - e->getHeight());
-		e->setVelocityY(0);
-		posRowBottom = mapRows - 1;
-	}
-	if (e->getVelocityY() > 0) //down
-	{
-		for (Entity* anotherEntity : entities)
+		if (e->getPosY() <= 0) //If movement puts past the top bound of screen, put it against the top bound instead and set velocity to zero
 		{
-			if (e != anotherEntity && isIntersectingEntity(e, anotherEntity))
+			e->setPosY(0);
+			e->setVelocityY(0);
+			posRowTop = 0;
+		}
+		else if ((e->getPosY() + e->getHeight()) >= levelHeight) //If movement puts past the bottom bound of screen, put it against the bottom bound instead and set velocity to zero
+		{
+			e->setPosY(levelHeight - e->getHeight());
+			e->setVelocityY(0);
+			posRowBottom = mapRows - 1;
+		}
+		if (e->getVelocityY() > 0) //down
+		{
+			for (Entity* anotherEntity : entities)
 			{
-				e->setPosY(anotherEntity->getPosY() - e->getHeight());
-				collideEntities(e, anotherEntity);
+				if (e != anotherEntity && isIntersectingEntity(e, anotherEntity))
+				{
+					e->setPosY(anotherEntity->getPosY() - e->getHeight());
+					e->collideWithEntity(anotherEntity);
+				}
+			}
+			if ((posRowBottom) < mapRows && posColRight < mapCols && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight))
+			{
+				e->hitWall(0);
+				e->setPosY((posRowBottom)* tileSize - e->getHeight());
 			}
 		}
-		if ((posRowBottom) < mapRows && posColRight < mapCols && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight))
+		else if (e->getVelocityY() < 0) //up
 		{
-			e->setPosY((posRowBottom) * tileSize - e->getHeight());
-		}
-	}
-	else if (e->getVelocityY() < 0) //up
-	{
-		for (Entity* anotherEntity : entities)
-		{
-			if (e != anotherEntity && isIntersectingEntity(e, anotherEntity))
+			for (Entity* anotherEntity : entities)
 			{
-				e->setPosY(anotherEntity->getPosY() + anotherEntity->getHeight());
-				collideEntities(e, anotherEntity);
+				if (e != anotherEntity && isIntersectingEntity(e, anotherEntity))
+				{
+					e->setPosY(anotherEntity->getPosY() + anotherEntity->getHeight());
+					e->collideWithEntity(anotherEntity);
+				}
+			}
+			if ((posRowTop) >= 0 && posColRight < mapCols && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight))
+			{
+				e->hitWall(3);
+				e->setPosY((posRowTop + 1)* tileSize);
 			}
 		}
-		if ((posRowTop) >= 0 && posColRight < mapCols && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight))
+	}
+	if(e->getVelocityX() != 0)
+	{
+		//=== X MOVEMENT (LEFT(neg)/RIGHT(pos)) ===
+		e->setPosX(e->getPosX() + (e->getVelocityX() * delta));
+		double newX = e->getPosX();
+		posColLeft = newX / tileSize;
+		posColRight = (newX + e->getWidth()) / tileSize;
+
+		if (e->getPosX() <= 0) //If movement puts past the left bound of screen, put it against the left bound instead and set velocity to zero
 		{
-			e->setPosY((posRowTop + 1)* tileSize);
+			e->setPosX(0);
+			e->setVelocityX(0);
+			posColLeft = 0;
 		}
-	}
-
-	//=== X MOVEMENT (LEFT(neg)/RIGHT(pos)) ===
-	e->setPosX(e->getPosX() + (e->getVelocityX() * delta));
-	double newX = e->getPosX();
-	posColLeft = newX / tileSize;
-	posColRight = (newX + e->getWidth()) / tileSize;
-
-	if (e->getPosX() <= 0) //If movement puts past the left bound of screen, put it against the left bound instead and set velocity to zero
-	{
-		e->setPosX(0);
-		e->setVelocityX(0);
-		posColLeft = 0;
-	}
-	else if ((e->getPosX() + e->getWidth()) >= levelWidth) //If movement puts past the right bound of screen, put it against the right bound instead and set velocity to zero
-	{
-		e->setPosX(levelWidth - e->getWidth());
-		e->setVelocityX(0);
-		posColRight = mapCols - 1;
-	}
-
-	if (e->getVelocityX() > 0) //right
-	{
-		for (Entity* anotherEntity : entities)
+		else if ((e->getPosX() + e->getWidth()) >= levelWidth) //If movement puts past the right bound of screen, put it against the right bound instead and set velocity to zero
 		{
-			if (e != anotherEntity && isIntersectingEntity(e, anotherEntity))
+			e->setPosX(levelWidth - e->getWidth());
+			e->setVelocityX(0);
+			posColRight = mapCols - 1;
+		}
+
+		if (e->getVelocityX() > 0) //right
+		{
+			for (Entity* anotherEntity : entities)
 			{
-				e->setPosX(anotherEntity->getPosX() - e->getWidth());
-				collideEntities(e, anotherEntity);
+				if (e != anotherEntity && isIntersectingEntity(e, anotherEntity))
+				{
+					e->setPosX(anotherEntity->getPosX() - e->getWidth());
+					e->collideWithEntity(anotherEntity);
+				}
+			}
+			if ((posColRight) < mapCols && posRowBottom < mapRows && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight))
+			{
+				e->hitWall(1);
+				e->setPosX((posColRight)* tileSize - e->getWidth());
 			}
 		}
-		if ((posColRight) < mapCols && posRowBottom < mapRows && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight))
+		else if (e->getVelocityX() < 0) //left
 		{
-			e->setPosX((posColRight) * tileSize - e->getWidth());
-		}
-	}
-	else if (e->getVelocityX() < 0) //left
-	{
-		for (Entity* anotherEntity : entities)
-		{
-			if (e != anotherEntity && isIntersectingEntity(e, anotherEntity))
+			for (Entity* anotherEntity : entities)
 			{
-				e->setPosX(anotherEntity->getPosX() + anotherEntity->getWidth());
-				collideEntities(e, anotherEntity);
+				if (e != anotherEntity && isIntersectingEntity(e, anotherEntity))
+				{
+					e->setPosX(anotherEntity->getPosX() + anotherEntity->getWidth());
+					e->collideWithEntity(anotherEntity);
+				}
 			}
-		}
-		if ((posColLeft) >= 0 && posRowBottom < mapRows && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight)) //left
-		{
-			e->setPosX((posColLeft + 1)* tileSize);
+			if ((posColLeft) >= 0 && posRowBottom < mapRows && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight)) //left
+			{
+				e->hitWall(2);
+				e->setPosX((posColLeft + 1)* tileSize);
+			}
 		}
 	}
 	//Safety check, make sure once we're done, the entity didnt manage to still make it inside a wall, if so, fallback on moving it back to former pos:
@@ -237,50 +249,26 @@ void GameModel::moveAnEntity(Entity * e, double delta)
 		{
 			e->setPosX(oldX);
 			e->setPosY(oldY);
-			collideEntities(e, anotherEntity);
+			e->collideWithEntity(anotherEntity);
 		}
 	}
 }
 
-void GameModel::collideEntities(Entity * e1, Entity * e2)
+void GameModel::knockback(Entity * knockerbacker, Entity * knockedback)
 {
-	bool isE1Player = e1 == getPlayer();
-	bool isE2Player = e2 == getPlayer();
-
-	double e1Damage = e2->damageCollidedEntity(isE1Player);
-	if (e1->takeDamage(e1Damage))
-	{
-		//Calculate knockback:
-		float vectorX = e2->getCenterPosX() - e1->getCenterPosX();
-		float vectorY = e2->getCenterPosY() - e1->getCenterPosY();
-		double magnitude = sqrt(pow(vectorX, 2) + pow(vectorY, 2));
-		//get unit vector:
-		vectorX /= magnitude;
-		vectorY /= magnitude;
-		//multiply vector by velocity of enemy:
-		float knockbackForce = e2->getKnockbackForce() * -1;
-		vectorX *= knockbackForce;
-		vectorY *= knockbackForce;
-		e1->setVelocityX(vectorX);
-		e1->setVelocityY(vectorY);
-	}
-	double e2Damage = e1->damageCollidedEntity(isE2Player);
-	if (e2->takeDamage(e2Damage))
-	{
-		//Calculate knockback:
-		float vectorX = e2->getCenterPosX() - e1->getCenterPosX();
-		float vectorY = e2->getCenterPosY() - e1->getCenterPosY();
-		double magnitude = sqrt(pow(vectorX, 2) + pow(vectorY, 2));
-		//get unit vector:
-		vectorX /= magnitude;
-		vectorY /= magnitude;
-		//multiply vector by velocity of enemy:
-		float knockbackForce = e1->getKnockbackForce();
-		vectorX *= knockbackForce;
-		vectorY *= knockbackForce;
-		e2->setVelocityX(vectorX);
-		e2->setVelocityY(vectorY);
-	}
+	//Calculate knockback:
+	float vectorX = knockerbacker->getCenterPosX() - knockedback->getCenterPosX();
+	float vectorY = knockerbacker->getCenterPosY() - knockedback->getCenterPosY();
+	double magnitude = sqrt(pow(vectorX, 2) + pow(vectorY, 2));
+	//get unit vector:
+	vectorX /= magnitude;
+	vectorY /= magnitude;
+	//multiply vector by velocity of enemy:
+	float knockbackForce = knockerbacker->getKnockbackForce() * -1;
+	vectorX *= knockbackForce;
+	vectorY *= knockbackForce;
+	knockedback->setVelocityX(vectorX);
+	knockedback->setVelocityY(vectorY);
 }
 
 bool GameModel::isInsideWall(Entity* entity, Tile * t)
@@ -298,6 +286,10 @@ bool GameModel::isInsideWall(Entity* entity, Tile * t)
 
 bool GameModel::isInsideAnyWalls(Entity * entity, int topRow, int bottomRow, int leftCol, int rightCol) const
 {
+	/*if (topRow < 0 || leftCol < 0 || bottomRow >= mapRows || rightCol >= mapCols)
+	{
+		return true;
+	}*/
 	for (int r = topRow; r <= bottomRow; r++)
 	{
 		for (int c = leftCol; c <= rightCol; c++)
@@ -365,17 +357,17 @@ bool GameModel::openMap()
 		}
 	}
 	player = new Player(32, 32, 60, 80, 0, 0, 10);
-	Projectile* arrow = new Projectile(32, 32, 300, 80, -5, 0, 1);
+	Arrow* arrow = new Arrow(32, 32, 300, 80, -5, 0);
 	Enemy* enemy1 = new Enemy(50, 40, 70, 300, 0, 0, 1);
 	Enemy* enemy2 = new Enemy(20, 20, 230, 255, 0, 0, 1);
 	addEntity(arrow);
 	addEntity(enemy1);
 	addEntity(enemy2);
 	addEntity(player);
-	entitiesInitialState.insert(entities.end(), new Player(32, 32, 60, 80, 0, 0, 10));
-	entitiesInitialState.insert(entities.end(), new Projectile(32, 32, 300, 80, -5, 0, 1));
-	entitiesInitialState.insert(entities.end(), new Enemy(50, 40, 70, 300, 0, 0, 1));
-	entitiesInitialState.insert(entities.end(), new Enemy(20, 20, 230, 255, 0, 0, 1));
+	entitiesInitialState.insert(entitiesInitialState.end(), new Player(32, 32, 60, 80, 0, 0, 10));
+	entitiesInitialState.insert(entitiesInitialState.end(), new Arrow(32, 32, 300, 80, -5, 0));
+	entitiesInitialState.insert(entitiesInitialState.end(), new Enemy(50, 40, 70, 300, 0, 0, 1));
+	entitiesInitialState.insert(entitiesInitialState.end(), new Enemy(20, 20, 230, 255, 0, 0, 1));
 	saveMap("testMap");
 	return success;
 }
@@ -415,27 +407,40 @@ bool GameModel::openMap(std::string filePath)
 			char entityType;
 			int height, width, posX, posY, velX, velY, hp;
 			SDL_RWread(file, &entityType, sizeof(char), 1);
-			SDL_RWread(file, &height, sizeof(Sint32), 1);
-			SDL_RWread(file, &width, sizeof(Sint32), 1);
-			SDL_RWread(file, &posX, sizeof(Sint32), 1);
-			SDL_RWread(file, &posY, sizeof(Sint32), 1);
-			SDL_RWread(file, &velX, sizeof(Sint32), 1);
-			SDL_RWread(file, &velY, sizeof(Sint32), 1);
-			SDL_RWread(file, &hp, sizeof(Sint32), 1);
 			Entity* anEntity;
 			switch (entityType)
 			{
 			case 'P':
+				SDL_RWread(file, &height, sizeof(Sint32), 1);
+				SDL_RWread(file, &width, sizeof(Sint32), 1);
+				SDL_RWread(file, &posX, sizeof(Sint32), 1);
+				SDL_RWread(file, &posY, sizeof(Sint32), 1);
+				SDL_RWread(file, &velX, sizeof(Sint32), 1);
+				SDL_RWread(file, &velY, sizeof(Sint32), 1);
+				SDL_RWread(file, &hp, sizeof(Sint32), 1);
 				player = new Player(height, width, posX, posY, velX, velY, hp);
 				addEntity(player);
 				entitiesInitialState.insert(entitiesInitialState.end(), new Player(height, width, posX, posY, velX, velY, hp));
 				break;
-			case 'p':
-				anEntity = new Projectile(height, width, posX, posY, velX, velY, hp);
+			case 'A':
+				SDL_RWread(file, &height, sizeof(Sint32), 1);
+				SDL_RWread(file, &width, sizeof(Sint32), 1);
+				SDL_RWread(file, &posX, sizeof(Sint32), 1);
+				SDL_RWread(file, &posY, sizeof(Sint32), 1);
+				SDL_RWread(file, &velX, sizeof(Sint32), 1);
+				SDL_RWread(file, &velY, sizeof(Sint32), 1);
+				anEntity = new Arrow(height, width, posX, posY, velX, velY);
 				addEntity(anEntity);
-				entitiesInitialState.insert(entitiesInitialState.end(), new Projectile(height, width, posX, posY, velX, velY, hp));
+				entitiesInitialState.insert(entitiesInitialState.end(), new Arrow(height, width, posX, posY, velX, velY));
 				break;
 			case 'E':
+				SDL_RWread(file, &height, sizeof(Sint32), 1);
+				SDL_RWread(file, &width, sizeof(Sint32), 1);
+				SDL_RWread(file, &posX, sizeof(Sint32), 1);
+				SDL_RWread(file, &posY, sizeof(Sint32), 1);
+				SDL_RWread(file, &velX, sizeof(Sint32), 1);
+				SDL_RWread(file, &velY, sizeof(Sint32), 1);
+				SDL_RWread(file, &hp, sizeof(Sint32), 1);
 				anEntity = new Enemy(height, width, posX, posY, velX, velY, hp);
 				addEntity(anEntity);
 				entitiesInitialState.insert(entitiesInitialState.end(), new Enemy(height, width, posX, posY, velX, velY, hp));
@@ -493,7 +498,7 @@ bool GameModel::saveMap(std::string filePath) const
 		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
 		tempInt = 10;
 		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		temp = 'p'; //projectile
+		temp = 'A'; //Arrow projectile
 		SDL_RWwrite(file, &temp, sizeof(char), 1);
 		tempInt = 32;
 		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
@@ -505,8 +510,6 @@ bool GameModel::saveMap(std::string filePath) const
 		tempInt = -5;
 		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
 		tempInt = 0;
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		tempInt = 1;
 		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
 		temp = 'E'; //enemy
 		SDL_RWwrite(file, &temp, sizeof(char), 1);

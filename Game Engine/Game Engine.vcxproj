@@ -133,6 +133,7 @@
     <ClCompile Include="GUIElement.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Arrow.cpp" />
     <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="Rectangle.cpp" />
     <ClCompile Include="Entity.cpp" />
@@ -149,6 +150,7 @@
     <ClInclude Include="GUIElement.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="Arrow.h" />
     <ClInclude Include="Projectile.h" />
     <ClInclude Include="Rectangle.h" />
     <ClInclude Include="Entity.h" />

@@ -1,6 +1,6 @@
 #include "Enemy.h"
-
-
+#include "Player.h"
+#include "Character.h"
 
 Enemy::Enemy(int h, int w, double positionX, double positionY, double velX, double velY, int hp) : Character(h, w, positionX, positionY, velX, velY, hp)
 {
@@ -18,6 +18,11 @@ Enemy::~Enemy()
 Entity * Enemy::clone() const
 {
 	return new Enemy(*this);
+}
+
+Enemy& Enemy::getPointerToThis()
+{
+	return *this;
 }
 
 void Enemy::determineMovement(double playerPosX, double playerPosY)
@@ -105,11 +110,33 @@ void Enemy::determineMovement(double playerPosX, double playerPosY)
 	}
 }
 
-double Enemy::damageCollidedEntity(bool isOtherEntityPlayer)
+double Enemy::doDamage()
 {
-	if (isOtherEntityPlayer)
-	{
-		return 1;
-	}
-	return 0; //Not the player; don't damage other enemies
+	return 1;
 }
+
+void Enemy::collideWithEntity(Entity * e)
+{
+	Player *aPlayer = dynamic_cast<Player*>(e);
+	if (aPlayer != nullptr)
+	{
+		collideWithEntity(aPlayer);
+		return;
+	}
+}
+
+void Enemy::collideWithEntity(Player * p)
+{
+	printf("enemy collides with player \n");
+	if (p->takeDamage(doDamage()))
+	{
+		knockbackAnEntity(p);
+	}
+}
+
+void Enemy::hitWall(short direction)
+{
+	Character::hitWall(direction);
+	wanderingTimer = 0; //stop walking into the wall it has just hit
+}
+

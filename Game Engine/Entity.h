@@ -8,6 +8,7 @@ public:
 	Entity(int h, int w, float positionX, float positionY, float velX, float velY);
 	virtual ~Entity();
 	virtual Entity* clone() const = 0;
+	virtual Entity& getPointerToThis() = 0;
 	void setHealth(double newHealth);
 	double getHealth();
 	void setPosX(float newX);
@@ -42,7 +43,10 @@ public:
 	void setSpriteDirection(int newDirection);
 	virtual void determineMovement(double playerPosX, double playerPosY) = 0;
 	double takeDamage(double damage);
-	virtual double damageCollidedEntity(bool isOtherEntityPlayer);
+	virtual double doDamage() = 0;
+	virtual void collideWithEntity(Entity * e) = 0;
+	virtual void hitWall(short direction) = 0; //0 = wall down, 1 = wall to the right, 2 = left, 3 = up
+	void knockbackAnEntity(Entity * e);
 	void decrementTimers(double delta);
 
 protected:

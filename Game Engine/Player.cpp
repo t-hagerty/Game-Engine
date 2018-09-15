@@ -1,9 +1,8 @@
 #include "Player.h"
-
+#include "Enemy.h"
 
 Player::Player(int h, int w, double positionX, double positionY, double velX, double velY, double hp) : Character(h, w, positionX, positionY, velX, velY, hp)
 {
-	health = hp;
 	spriteFilePath = "spritesheets/player_walking.bmp";
 }
 
@@ -15,6 +14,11 @@ Player::~Player()
 Entity * Player::clone() const
 {
 	return new Player(*this);
+}
+
+Player & Player::getPointerToThis()
+{
+	return *this;
 }
 
 void Player::determineMovement(double playerPosX, double plaerPosY)
@@ -143,3 +147,25 @@ short Player::getVerticalMovementKeyPress() const
 {
 	return verticalMovementKeyPress;
 }
+
+double Player::doDamage()
+{
+	return 0.0;
+}
+
+void Player::collideWithEntity(Entity * e)
+{
+	Enemy *anEnemy = dynamic_cast<Enemy*>(e);
+	if (anEnemy != nullptr) 
+	{
+		collideWithEntity(anEnemy);
+		return;
+	}
+}
+
+void Player::collideWithEntity(Enemy * e)
+{
+	printf("player collides with enemy \n");
+}
+
+

@@ -4,6 +4,8 @@
 #include "SDL_endian.h"
 #include "Tile.h"
 #include "Player.h"
+#include "Enemy.h"
+#include "Arrow.h"
 
 class GameModel
 {
@@ -45,6 +47,10 @@ private:
 	bool setIsSolid(int tileType);
 	void moveAnEntity(Entity* e, double delta);
 	void collideEntities(Entity* e1, Entity* e2);
+	void collideEntities(Enemy* e1, Player* e2);
+	void collideEntities(Player* e1, Enemy* e2);
+	void collideEntities(Entity* e1, Arrow* e2);
+	void knockback(Entity* knockerbacker, Entity* knockedback);
 	static bool isInsideWall(Entity* entity, Tile* t);
 	bool isInsideAnyWalls(Entity* entity, int topRow, int bottomRow, int leftCol, int rightCol) const;
 	static bool isIntersectingEntity(Entity* e1, Entity* e2);

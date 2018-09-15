@@ -2,37 +2,13 @@
 
 
 
-Projectile::Projectile(int h, int w, double positionX, double positionY, double velX, double velY, int hp) : Character(h, w, positionX, positionY, velX, velY, 2)
+Projectile::Projectile(int entityHeight, int entityWidth, float positionX, float positionY, float velocityX, float velocityY) 
+	: Entity(entityHeight, entityWidth, positionX, positionY, velocityX, velocityY)
 {
-	spriteFilePath = "spritesheets/arrow.bmp";
+	setHealth(1);
 }
 
 
 Projectile::~Projectile()
 {
-}
-
-Entity * Projectile::clone() const
-{
-	return new Projectile(*this);
-}
-
-void Projectile::determineMovement(double playerPosX, double playerPosY)
-{
-	if(velocityX == 0 && velocityY == 0)
-	{
-		setHealth(0);
-	}
-	if ((previousPosX == posX && velocityX != 0) || (previousPosY == posY && velocityY != 0))
-	{
-		health = health - 1;
-	}
-	previousPosX = posX;
-	previousPosY = posY;
-}
-
-double Projectile::damageCollidedEntity(bool isOtherEntityPlayer)
-{
-	setHealth(0);
-	return 1;
 }

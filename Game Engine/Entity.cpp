@@ -245,9 +245,21 @@ double Entity::takeDamage(double damage)
 	}
 }
 
-double Entity::damageCollidedEntity(bool isOtherEntityPlayer)
+void Entity::knockbackAnEntity(Entity * e)
 {
-	return 0.0;
+	//Calculate knockback:
+	float vectorX = getCenterPosX() - e->getCenterPosX();
+	float vectorY = getCenterPosY() - e->getCenterPosY();
+	double magnitude = sqrt(pow(vectorX, 2) + pow(vectorY, 2));
+	//get unit vector:
+	vectorX /= magnitude;
+	vectorY /= magnitude;
+	//multiply vector by velocity of enemy:
+	float knockbackForce = getKnockbackForce() * -1;
+	vectorX *= knockbackForce;
+	vectorY *= knockbackForce;
+	e->setVelocityX(vectorX);
+	e->setVelocityY(vectorY);
 }
 
 void Entity::decrementTimers(double delta)
