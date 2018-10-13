@@ -21,9 +21,23 @@ Player & Player::getPointerToThis()
 	return *this;
 }
 
-void Player::determineMovement(double playerPosX, double plaerPosY)
+void Player::determineMovement(double playerPosX, double playerPosY, std::vector<MovementEffect*> effects)
 {
-	float max = MAX_VELOCITY;
+	float acceleration = 1;
+	float deceleration = 0.5;
+	float maxVelChangeTotal = 0;
+
+	if (effects.size() != 0)
+	{
+		for (auto* effect : effects)
+		{
+			acceleration *= effect->getAccelerationMultiplier();
+			deceleration *= effect->getDecelerationMultiplier();
+			maxVelChangeTotal += effect->getMaxVelocityChange();
+		}
+	}
+
+	float max = MAX_VELOCITY + maxVelChangeTotal;
 	if (knockbackTimer == 0)
 	{
 		if (horizontalMovementKeyPress != 0 && verticalMovementKeyPress != 0) //if diagonal movement (will always be 45 degree angle)
@@ -33,7 +47,7 @@ void Player::determineMovement(double playerPosX, double plaerPosY)
 
 		if (horizontalMovementKeyPress == 0)
 		{
-			setVelocityX(velocityX / 2);
+			setVelocityX(velocityX * deceleration);
 			if (velocityX < 0.1)
 			{
 				velocityX = 0;
@@ -45,7 +59,7 @@ void Player::determineMovement(double playerPosX, double plaerPosY)
 			{
 				velocityX = 0.5;
 			}
-			setVelocityX(velocityX * ACCELERATION);
+			setVelocityX(velocityX * BASE_ACCELERATION);
 			if (velocityX > max)
 			{
 				velocityX = max;
@@ -58,7 +72,7 @@ void Player::determineMovement(double playerPosX, double plaerPosY)
 			{
 				velocityX = -0.5;
 			}
-			setVelocityX(velocityX * ACCELERATION);
+			setVelocityX(velocityX * BASE_ACCELERATION);
 			if (velocityX < max * -1)
 			{
 				velocityX = max * -1;
@@ -67,7 +81,7 @@ void Player::determineMovement(double playerPosX, double plaerPosY)
 		}
 		if (verticalMovementKeyPress == 0)
 		{
-			setVelocityY(velocityY / 2);
+			setVelocityY(velocityY * deceleration);
 			if (velocityY < 0.1)
 			{
 				velocityY = 0;
@@ -79,7 +93,7 @@ void Player::determineMovement(double playerPosX, double plaerPosY)
 			{
 				velocityY = 0.5;
 			}
-			setVelocityY(velocityY * ACCELERATION);
+			setVelocityY(velocityY * BASE_ACCELERATION);
 			if (velocityY > max)
 			{
 				velocityY = max;
@@ -92,12 +106,27 @@ void Player::determineMovement(double playerPosX, double plaerPosY)
 			{
 				velocityY = -0.5;
 			}
-			setVelocityY(velocityY * ACCELERATION);
+			setVelocityY(velocityY * BASE_ACCELERATION);
 			if (velocityY < max * -1)
 			{
 				velocityY = max * -1;
 			}
 			spriteDirection = 3; //up
+		}
+	}
+
+	if (effects.size() != 0)
+	{
+		for (auto* effect : effects)
+		{
+			if (max + abs(effect->getXChange()) > abs(velocityX))
+			{
+				velocityX += effect->getXChange();
+			}
+			if (max + abs(effect->getYChange()) > abs(velocityY))
+			{
+				velocityY += effect->getYChange();
+			}
 		}
 	}
 }
@@ -165,7 +194,7 @@ void Player::collideWithEntity(Entity * e)
 
 void Player::collideWithEntity(Enemy * e)
 {
-	printf("player collides with enemy \n");
+	
 }
 
 

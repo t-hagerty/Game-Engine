@@ -25,6 +25,12 @@ GameView::GameView(int levelW, int levelH)
 		tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_vertical.bmp"));
 		tileSet.insert(tileSet.end(), loadTexture("map_tiles/grass.bmp"));
 		tileSet.insert(tileSet.end(), loadTexture("map_tiles/barrier.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/down_treadmill.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/right_treadmill.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/left_treadmill.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/up_treadmill.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/ice.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/mud.bmp"));
 		SDL_UpdateWindowSurface(gameWindow);
 	}
 	camera->h = windowHeight;

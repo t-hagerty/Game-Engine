@@ -1,5 +1,4 @@
 #include "GameModel.h"
-#include "Rectangle.h"
 #include <SDL.h>
 #undef main
 #include <iostream>
@@ -119,6 +118,27 @@ bool GameModel::setIsSolid(int tileType)
 	return isSolidTable[tileType];
 }
 
+MovementEffect * GameModel::setTileEffect(int tileType)
+{
+	switch (tileType)
+	{
+	case DOWN_TREADMILL:
+		return downTreadmillEffect;
+	case RIGHT_TREADMILL:
+		return rightTreadmillEffect;
+	case LEFT_TREADMILL:
+		return leftTreadmillEffect;
+	case UP_TREADMILL:
+		return upTreadmillEffect;
+	case ICE:
+		return iceEffect;
+	case MUD:
+		return mudEffect;
+	default:
+		return nullptr;
+	}
+}
+
 void GameModel::moveAnEntity(Entity * e, double delta)
 {
 	double oldX = e->getPosX();
@@ -129,7 +149,31 @@ void GameModel::moveAnEntity(Entity * e, double delta)
 	int posRowBottom = (oldY + e->getHeight()) / tileSize;
 
 	e->decrementTimers(delta);
-	e->determineMovement(player->getCenterPosX(), player->getCenterPosY());
+
+	std::vector<MovementEffect*> effects = {};
+	for (int r = posRowTop; r <= posRowBottom; r++)
+	{
+		for (int c = posColLeft; c <= posColRight; c++)
+		{
+			if (r < mapRows && c < mapCols && r >= 0 && c >= 0)
+			{
+				MovementEffect* anEffect = getTileAtMapIndex(r, c)->getMovementEffect();
+				bool isUnique = true;
+				for (MovementEffect* effect : effects)
+				{
+					if (anEffect == effect)
+					{
+						isUnique = false;
+					}
+				}
+				if (anEffect != nullptr && isUnique)
+				{
+					effects.insert(effects.begin(), anEffect);
+				}
+			}
+		}
+	}
+	e->determineMovement(player->getCenterPosX(), player->getCenterPosY(), effects);
 	if (e->getVelocityY() != 0)
 	{
 		//=== Y MOVEMENT (UP(neg)/DOWN(pos)) ===
@@ -294,7 +338,7 @@ bool GameModel::isInsideAnyWalls(Entity * entity, int topRow, int bottomRow, int
 	{
 		for (int c = leftCol; c <= rightCol; c++)
 		{
-			if (isInsideWall(entity, getTileAtMapIndex(r, c)))
+			if (r < mapRows && r >= 0 && c >= 0 && c < mapCols && isInsideWall(entity, getTileAtMapIndex(r, c)))
 			{
 				return true;
 			}
@@ -328,32 +372,32 @@ bool GameModel::openMap()
 	bool success = true;
 	mapRows = 20;
     mapCols = 30;
-	int testMap[20][30] = { { 3, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0, 0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4 },
+	int testMap[20][30] = { { 3, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0, 12, 0, 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4 },
+							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 6 },
 							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 0, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 0, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
-							{ 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-							{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-							{ 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-							{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
-							{ 1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0, 0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 2 } };
+							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
+							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 0, 8, 8, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
+							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
+							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 0, 8, 8, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
+							{ 6, 0, 9, 0, 9, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
+							{ 6, 0, 9, 0, 9, 0, 9, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
+							{ 0, 0, 9, 0, 9, 0, 9, 0, 8, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0 },
+							{ 0, 0, 13, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0 },
+							{ 0, 0, 13, 0, 0, 0, 12, 0, 8, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0 },
+							{ 11, 11, 0, 0, 12, 0, 12, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0 },
+							{ 6, 0, 9, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
+							{ 6, 0, 9, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
+							{ 6, 0, 9, 0, 12, 0, 0, 13, 13, 13, 13, 0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
+							{ 6, 0, 14, 14, 14, 0, 0, 13, 13, 13, 13, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 9, 0, 0, 12, 0, 6 },
+							{ 6, 0, 14, 14, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 14, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 12, 0, 6 },
+							{ 6, 0, 14, 14, 0, 0, 10, 10, 11, 11, 0, 9, 0, 0, 13, 14, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 6 },
+							{ 1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0, 9, 0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 2 } };
 	tileMap.reserve(mapRows * mapCols);
 	for (int r = 0; r < mapRows; r++)
 	{
 		for(int c = 0; c < mapCols; c++)
 		{
-			tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, testMap[r][c], setIsSolid(testMap[r][c])));
+			tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, testMap[r][c], setIsSolid(testMap[r][c]), setTileEffect(testMap[r][c])));
 		}
 	}
 	player = new Player(32, 32, 60, 80, 0, 0, 10);
@@ -397,7 +441,7 @@ bool GameModel::openMap(std::string filePath)
 			{
 				Sint32 tempType = -1;
 				SDL_RWread(file, &tempType, sizeof(Sint32), 1);
-				tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, tempType, setIsSolid(tempType)));
+				tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, tempType, setIsSolid(tempType), setTileEffect(tempType)));
 			}
 		}
 		int numEntities = 0;

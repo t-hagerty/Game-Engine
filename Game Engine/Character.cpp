@@ -23,3 +23,5 @@ void Character::hitWall(short direction)
 		velocityX = 0;
 	}
 }
+
+

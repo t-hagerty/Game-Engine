@@ -22,7 +22,7 @@ Arrow & Arrow::getPointerToThis()
 	return *this;
 }
 
-void Arrow::determineMovement(double playerPosX, double playerPosY)
+void Arrow::determineMovement(double playerPosX, double playerPosY, std::vector<MovementEffect*> effects)
 {
 }
 
@@ -43,7 +43,6 @@ void Arrow::collideWithEntity(Entity * e)
 
 void Arrow::collideWithEntity(Character * c)
 {
-	printf("Arrow collides with character \n");
 	setHealth(0);
 	if (c->takeDamage(doDamage()))
 	{

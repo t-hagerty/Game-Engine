@@ -81,14 +81,6 @@ int Entity::getWidth() const
 void Entity::setVelocityX(float newVelX)
 {
 	velocityX = newVelX;
-	/*if(velocityX > 0)
-	{
-		spriteDirection = 1;
-	}
-	else if(velocityX < 0)
-	{
-		spriteDirection = 2;
-	}*/
 }
 
 float Entity::getVelocityX() const
@@ -99,14 +91,6 @@ float Entity::getVelocityX() const
 void Entity::setVelocityY(float newVelY)
 {
 	velocityY = newVelY;
-	/*if(velocityY > 0)
-	{
-		spriteDirection = 0;
-	}
-	else if(velocityY < 0)
-	{
-		spriteDirection = 3;
-	}*/
 }
 
 float Entity::getVelocityY() const

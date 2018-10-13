@@ -1,7 +1,6 @@
 #include "GameController.h"
 #include <iostream>
 #include "Entity.h"
-#include "Rectangle.h"
 #include "Enemy.h"
 
 
@@ -45,6 +44,10 @@ void GameController::mouseEventHandler(SDL_Event* e)
 	SDL_GetMouseState(&x, &y);
 	for (Button* aButton : view->getButtons())
 	{
+		if (!aButton->getIsVisible())
+		{
+			continue; //skip hidden buttons
+		}
 		aButton->setIsMouseOver(false);
 		//Mouse is left of the button
 		if (x < aButton->getPosX())
