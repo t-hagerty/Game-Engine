@@ -68,7 +68,13 @@ private:
 		WALL_HORIZONTAL,
 		WALL_VERTICAL,
 		GRASS,
-		BARRIER
+		BARRIER,
+		DOWN_TREADMILL,
+		RIGHT_TREADMILL,
+		LEFT_TREADMILL,
+		UP_TREADMILL,
+		ICE,
+		MUD
 	};
 	
 	std::vector<Button*> buttons;

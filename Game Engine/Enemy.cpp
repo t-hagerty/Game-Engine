@@ -25,7 +25,7 @@ Enemy& Enemy::getPointerToThis()
 	return *this;
 }
 
-void Enemy::determineMovement(double playerPosX, double playerPosY)
+void Enemy::determineMovement(double playerPosX, double playerPosY, std::vector<MovementEffect*> effects)
 {
 	if (knockbackTimer == 0)
 	{
@@ -127,7 +127,6 @@ void Enemy::collideWithEntity(Entity * e)
 
 void Enemy::collideWithEntity(Player * p)
 {
-	printf("enemy collides with player \n");
 	if (p->takeDamage(doDamage()))
 	{
 		knockbackAnEntity(p);

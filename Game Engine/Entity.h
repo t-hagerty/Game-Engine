@@ -1,6 +1,8 @@
 #pragma once
 #include <SDL.h>
 #include <string>
+#include <vector>
+#include "MovementEffect.h"
 
 class Entity
 {
@@ -41,7 +43,7 @@ public:
 	void incrementAnimationFrame();
 	int getSpriteDirection() const;
 	void setSpriteDirection(int newDirection);
-	virtual void determineMovement(double playerPosX, double playerPosY) = 0;
+	virtual void determineMovement(double playerPosX, double playerPosY, std::vector<MovementEffect*> effects) = 0;
 	double takeDamage(double damage);
 	virtual double doDamage() = 0;
 	virtual void collideWithEntity(Entity * e) = 0;

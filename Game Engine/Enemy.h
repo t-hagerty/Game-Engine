@@ -10,7 +10,7 @@ public:
 	~Enemy();
 	Entity* clone() const;
 	Enemy& getPointerToThis() override;
-	void determineMovement(double playerPosX, double playerPosY) override;
+	void determineMovement(double playerPosX, double playerPosY, std::vector<MovementEffect*> effects) override;
 	double doDamage() override;
 	void collideWithEntity(Entity* e);
 	void collideWithEntity(Player * p);
