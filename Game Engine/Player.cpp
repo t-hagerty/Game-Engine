@@ -23,8 +23,8 @@ Player & Player::getPointerToThis()
 
 void Player::determineMovement(double playerPosX, double playerPosY, std::vector<MovementEffect*> effects)
 {
-	float acceleration = 1;
-	float deceleration = 0.5;
+	float acceleration = BASE_ACCELERATION;
+	float deceleration = BASE_DECELERATION;
 	float maxVelChangeTotal = 0;
 
 	if (effects.size() != 0)
@@ -48,7 +48,7 @@ void Player::determineMovement(double playerPosX, double playerPosY, std::vector
 		if (horizontalMovementKeyPress == 0)
 		{
 			setVelocityX(velocityX * deceleration);
-			if (velocityX < 0.1)
+			if (velocityX < 0.1 && velocityX > -0.1)
 			{
 				velocityX = 0;
 			}
@@ -59,7 +59,7 @@ void Player::determineMovement(double playerPosX, double playerPosY, std::vector
 			{
 				velocityX = 0.5;
 			}
-			setVelocityX(velocityX * BASE_ACCELERATION);
+			setVelocityX(velocityX * acceleration);
 			if (velocityX > max)
 			{
 				velocityX = max;
@@ -72,7 +72,7 @@ void Player::determineMovement(double playerPosX, double playerPosY, std::vector
 			{
 				velocityX = -0.5;
 			}
-			setVelocityX(velocityX * BASE_ACCELERATION);
+			setVelocityX(velocityX * acceleration);
 			if (velocityX < max * -1)
 			{
 				velocityX = max * -1;
@@ -82,7 +82,7 @@ void Player::determineMovement(double playerPosX, double playerPosY, std::vector
 		if (verticalMovementKeyPress == 0)
 		{
 			setVelocityY(velocityY * deceleration);
-			if (velocityY < 0.1)
+			if (velocityY < 0.1 && velocityY > -0.1)
 			{
 				velocityY = 0;
 			}
@@ -93,7 +93,7 @@ void Player::determineMovement(double playerPosX, double playerPosY, std::vector
 			{
 				velocityY = 0.5;
 			}
-			setVelocityY(velocityY * BASE_ACCELERATION);
+			setVelocityY(velocityY * acceleration);
 			if (velocityY > max)
 			{
 				velocityY = max;
@@ -106,7 +106,7 @@ void Player::determineMovement(double playerPosX, double playerPosY, std::vector
 			{
 				velocityY = -0.5;
 			}
-			setVelocityY(velocityY * BASE_ACCELERATION);
+			setVelocityY(velocityY * acceleration);
 			if (velocityY < max * -1)
 			{
 				velocityY = max * -1;
