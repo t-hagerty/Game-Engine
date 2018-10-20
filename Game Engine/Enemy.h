@@ -21,5 +21,6 @@ protected:
 	short wanderDirection;
 	const float BASE_ACCELERATION = 1.2;
 	const float BASE_DECELERATION = 0.5;
+	float previousVelocity;
 };
 

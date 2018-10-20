@@ -18,6 +18,7 @@ public:
 	void setPosY(float newY);
 	float getPosY() const;
 	SDL_Rect* getCollisionBox() const;
+	SDL_Rect* getGroundHitBox() const;
 	float getCenterPosX();
 	float getCenterPosY();
 	int getHeight() const;
@@ -64,6 +65,7 @@ protected:
 	double knockbackTimer = 0;
 	double invulnTimer = 0;
 	SDL_Rect* collisionBox;
+	SDL_Rect* groundHitBox;
 	std::string spriteFilePath;
 	SDL_Texture* spriteSheet;
 	const int SPRITE_WIDTH = 32;

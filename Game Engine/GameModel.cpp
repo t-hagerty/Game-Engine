@@ -157,18 +157,21 @@ void GameModel::moveAnEntity(Entity * e, double delta)
 		{
 			if (r < mapRows && c < mapCols && r >= 0 && c >= 0)
 			{
-				MovementEffect* anEffect = getTileAtMapIndex(r, c)->getMovementEffect();
-				bool isUnique = true;
-				for (MovementEffect* effect : effects)
+				if (SDL_HasIntersection(&getTileAtMapIndex(r, c)->getTileSpace(), e->getGroundHitBox()))
 				{
-					if (anEffect == effect)
+					MovementEffect* anEffect = getTileAtMapIndex(r, c)->getMovementEffect();
+					bool isUnique = true;
+					for (MovementEffect* effect : effects)
 					{
-						isUnique = false;
+						if (anEffect == effect)
+						{
+							isUnique = false;
+						}
 					}
-				}
-				if (anEffect != nullptr && isUnique)
-				{
-					effects.insert(effects.begin(), anEffect);
+					if (anEffect != nullptr && isUnique)
+					{
+						effects.insert(effects.begin(), anEffect);
+					}
 				}
 			}
 		}
@@ -223,7 +226,7 @@ void GameModel::moveAnEntity(Entity * e, double delta)
 			if ((posRowTop) >= 0 && posColRight < mapCols && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight))
 			{
 				e->hitWall(3);
-				e->setPosY((posRowTop + 1)* tileSize);
+				e->setPosY((posRowTop + 1)* tileSize - (e->getHeight() - e->getGroundHitBox()->h));
 			}
 		}
 	}
@@ -321,7 +324,7 @@ bool GameModel::isInsideWall(Entity* entity, Tile * t)
 	{
 		return false;
 	}
-	if(SDL_HasIntersection(&t->getTileSpace(), entity->getCollisionBox()))
+	if(SDL_HasIntersection(&t->getTileSpace(), entity->getGroundHitBox()))
 	{
 		return true;
 	}
@@ -330,10 +333,6 @@ bool GameModel::isInsideWall(Entity* entity, Tile * t)
 
 bool GameModel::isInsideAnyWalls(Entity * entity, int topRow, int bottomRow, int leftCol, int rightCol) const
 {
-	/*if (topRow < 0 || leftCol < 0 || bottomRow >= mapRows || rightCol >= mapCols)
-	{
-		return true;
-	}*/
 	for (int r = topRow; r <= bottomRow; r++)
 	{
 		for (int c = leftCol; c <= rightCol; c++)

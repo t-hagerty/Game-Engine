@@ -15,6 +15,11 @@ Entity::Entity(int h, int w, float positionX, float positionY, float velX, float
 	collisionBox->y = positionY;
 	collisionBox->w = w;
 	collisionBox->h = h;
+	groundHitBox = new SDL_Rect();
+	groundHitBox->x = positionX;
+	groundHitBox->y = positionY + (h / 2);
+	groundHitBox->w = w;
+	groundHitBox->h = h / 2;
 }
 
 Entity::~Entity()
@@ -35,6 +40,7 @@ void Entity::setPosX(float newX)
 {
 	posX = newX;
 	collisionBox->x = newX;
+	groundHitBox->x = newX;
 }
 
 float Entity::getPosX() const
@@ -46,6 +52,7 @@ void Entity::setPosY(float newY)
 {
 	posY = newY;
 	collisionBox->y = newY;
+	groundHitBox->y = newY + (height / 2);
 }
 
 float Entity::getPosY() const
@@ -56,6 +63,11 @@ float Entity::getPosY() const
 SDL_Rect* Entity::getCollisionBox() const
 {
 	return collisionBox;
+}
+
+SDL_Rect * Entity::getGroundHitBox() const
+{
+	return groundHitBox;
 }
 
 float Entity::getCenterPosX()
