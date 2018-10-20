@@ -77,7 +77,7 @@ private:
 	MovementEffect* rightTreadmillEffect = new MovementEffect(1, 1, 0.4, 0);
 	MovementEffect* leftTreadmillEffect = new MovementEffect(1, 1, -0.4, 0);
 	MovementEffect* upTreadmillEffect = new MovementEffect(1, 1, 0, -0.4);
-	MovementEffect* iceEffect = new MovementEffect(0.2, 1.9, 0, 0);
+	MovementEffect* iceEffect = new MovementEffect(0.9 , 1.9, 0, 0);
 	MovementEffect* mudEffect = new MovementEffect(0.4, 1, 0, 0, -1);
 };
 

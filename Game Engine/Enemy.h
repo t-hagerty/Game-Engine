@@ -19,5 +19,7 @@ protected:
 	int wanderingTimer;
 	int waitingTimer;
 	short wanderDirection;
+	const float BASE_ACCELERATION = 1.2;
+	const float BASE_DECELERATION = 0.5;
 };
 

@@ -25,4 +25,5 @@ private:
 	short verticalMovementKeyPress = 0; // -1 for up, 0 for neither key pressed, 1 for down, should only be one of these three values
 	const float MAX_VELOCITY = 2;
 	const float BASE_ACCELERATION = 1.2;
+	const float BASE_DECELERATION = 0.5;
 };

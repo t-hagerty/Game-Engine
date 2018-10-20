@@ -27,6 +27,37 @@ Enemy& Enemy::getPointerToThis()
 
 void Enemy::determineMovement(double playerPosX, double playerPosY, std::vector<MovementEffect*> effects)
 {
+	float acceleration = BASE_ACCELERATION;
+	float deceleration = BASE_DECELERATION;
+	float maxVelChangeTotal = 0;
+
+	if (effects.size() != 0)
+	{
+		for (auto* effect : effects)
+		{
+			acceleration *= effect->getAccelerationMultiplier();
+			deceleration *= effect->getDecelerationMultiplier();
+			maxVelChangeTotal += effect->getMaxVelocityChange();
+		}
+	}
+	float max;
+	if (velocityX < 0.5 && velocityX > -0.5 && velocityY < 0.5 && velocityY > -0.5)
+	{
+		max = 0.5;
+	}
+	else
+	{
+		max = abs(velocityX);
+		if (abs(velocityX) < abs(velocityY))
+		{
+			max = abs(velocityY);
+		}
+		max *= acceleration;
+		if (max > MAX_VELOCITY + maxVelChangeTotal)
+		{
+			max = MAX_VELOCITY + maxVelChangeTotal;
+		}
+	}
 	if (knockbackTimer == 0)
 	{
 		if (sqrt(pow(posX - playerPosX, 2) + pow(posY - playerPosY, 2)) < 100)
@@ -38,8 +69,8 @@ void Enemy::determineMovement(double playerPosX, double playerPosY, std::vector<
 			vectorX /= magnitude;
 			vectorY /= magnitude;
 			//multiply vector by velocity of enemy:
-			vectorX *= MAX_VELOCITY;
-			vectorY *= MAX_VELOCITY;
+			vectorX *= max;
+			vectorY *= max;
 
 			velocityX = vectorX;
 			velocityY = vectorY;
@@ -68,8 +99,22 @@ void Enemy::determineMovement(double playerPosX, double playerPosY, std::vector<
 		}
 		else
 		{
-			velocityX = 0;
-			velocityY = 0;
+			if (velocityX > 0.5 || velocityX < -0.5)
+			{
+				velocityX *= deceleration;
+			}
+			else
+			{
+				velocityX = 0;
+			}
+			if (velocityY > 0.5 || velocityY < -0.5)
+			{
+				velocityY *= deceleration;
+			}
+			else
+			{
+				velocityY = 0;
+			}
 			if (wanderingTimer == 0)
 			{
 				if (waitingTimer == 0)
@@ -86,25 +131,39 @@ void Enemy::determineMovement(double playerPosX, double playerPosY, std::vector<
 				switch (wanderDirection)
 				{
 				case 0: //up
-					velocityY = MAX_VELOCITY * -1;
+					velocityY = max * -1;
 					spriteDirection = 3;
 					break;
 				case 1: //right
-					velocityX = MAX_VELOCITY;
+					velocityX = max;
 					spriteDirection = 1;
 					break;
 				case 2: //down
-					velocityY = MAX_VELOCITY;
+					velocityY = max;
 					spriteDirection = 0;
 					break;
 				case 3: //left
-					velocityX = MAX_VELOCITY * -1;
+					velocityX = max * -1;
 					spriteDirection = 2;
 					break;
 				default:
 					break;
 				}
 				wanderingTimer--;
+			}
+		}
+	}
+	if (effects.size() != 0)
+	{
+		for (auto* effect : effects)
+		{
+			if (max + abs(effect->getXChange()) > abs(velocityX))
+			{
+				velocityX += effect->getXChange();
+			}
+			if (max + abs(effect->getYChange()) > abs(velocityY))
+			{
+				velocityY += effect->getYChange();
 			}
 		}
 	}
