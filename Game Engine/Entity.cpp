@@ -29,6 +29,10 @@ Entity::~Entity()
 void Entity::setHealth(double newHealth)
 {
 	health = newHealth;
+	if (health < 0)
+	{
+		health = 0;
+	}
 }
 
 double Entity::getHealth()
@@ -243,19 +247,36 @@ double Entity::takeDamage(double damage)
 
 void Entity::knockbackAnEntity(Entity * e)
 {
+	////Calculate knockback:
+	//float vectorX = getCenterPosX() - e->getCenterPosX();
+	//float vectorY = getCenterPosY() - e->getCenterPosY();
+	//double magnitude = sqrt(pow(vectorX, 2) + pow(vectorY, 2));
+	////get unit vector:
+	//vectorX /= magnitude;
+	//vectorY /= magnitude;
+	////multiply vector by velocity of enemy:
+	//float knockbackForce = getKnockbackForce() * -1;
+	//vectorX *= knockbackForce;
+	//vectorY *= knockbackForce;
+	//e->setVelocityX(vectorX);
+	//e->setVelocityY(vectorY);
+	e->beKnockedBack(getCenterPosX(), getCenterPosY(), KNOCKBACK_FORCE);
+}
+
+void Entity::beKnockedBack(float knockbackPosX, float knockbackPosY, float knockbackForce)
+{
 	//Calculate knockback:
-	float vectorX = getCenterPosX() - e->getCenterPosX();
-	float vectorY = getCenterPosY() - e->getCenterPosY();
+	float vectorX = getCenterPosX() - knockbackPosX;
+	float vectorY = getCenterPosY() - knockbackPosY;
 	double magnitude = sqrt(pow(vectorX, 2) + pow(vectorY, 2));
 	//get unit vector:
 	vectorX /= magnitude;
 	vectorY /= magnitude;
 	//multiply vector by velocity of enemy:
-	float knockbackForce = getKnockbackForce() * -1;
 	vectorX *= knockbackForce;
 	vectorY *= knockbackForce;
-	e->setVelocityX(vectorX);
-	e->setVelocityY(vectorY);
+	setVelocityX(vectorX);
+	setVelocityY(vectorY);
 }
 
 void Entity::decrementTimers(double delta)

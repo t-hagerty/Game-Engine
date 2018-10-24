@@ -132,7 +132,7 @@
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="GUIElement.cpp" />
     <ClCompile Include="Image.cpp" />
-    <ClCompile Include="MovementEffect.cpp" />
+    <ClCompile Include="TileEffect.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Arrow.cpp" />
     <ClCompile Include="Projectile.cpp" />
@@ -149,7 +149,7 @@
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="GUIElement.h" />
     <ClInclude Include="Image.h" />
-    <ClInclude Include="MovementEffect.h" />
+    <ClInclude Include="TileEffect.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Arrow.h" />
     <ClInclude Include="Projectile.h" />

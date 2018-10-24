@@ -2,7 +2,7 @@
 #include <SDL.h>
 #include <string>
 #include <vector>
-#include "MovementEffect.h"
+#include "TileEffect.h"
 
 class Entity
 {
@@ -44,12 +44,13 @@ public:
 	void incrementAnimationFrame();
 	int getSpriteDirection() const;
 	void setSpriteDirection(int newDirection);
-	virtual void determineMovement(double playerPosX, double playerPosY, std::vector<MovementEffect*> effects) = 0;
+	virtual void determineMovement(double playerPosX, double playerPosY, std::vector<TileEffect*> effects) = 0;
 	double takeDamage(double damage);
 	virtual double doDamage() = 0;
 	virtual void collideWithEntity(Entity * e) = 0;
 	virtual void hitWall(short direction) = 0; //0 = wall down, 1 = wall to the right, 2 = left, 3 = up
 	void knockbackAnEntity(Entity * e);
+	void beKnockedBack(float knockbackPosX, float knockbackPosY, float knockbackForce);
 	void decrementTimers(double delta);
 
 protected:

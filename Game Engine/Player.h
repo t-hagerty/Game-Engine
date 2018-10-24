@@ -11,7 +11,7 @@ public:
 	~Player();
 	Entity* clone() const;
 	Player& getPointerToThis() override;
-	void determineMovement(double playerPosX, double playerPosY, std::vector<MovementEffect*> effects) override;
+	void determineMovement(double playerPosX, double playerPosY, std::vector<TileEffect*> effects) override;
 	void setHorizontalMovementKeyPress(short direction);
 	short getHorizontalMovementKeyPress() const;
 	void setVerticalMovementKeyPress(short direction);

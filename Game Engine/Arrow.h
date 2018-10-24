@@ -9,7 +9,7 @@ public:
 	~Arrow();
 	Entity* clone() const;
 	Arrow& getPointerToThis() override;
-	void determineMovement(double playerPosX, double playerPosY, std::vector<MovementEffect*> effects) override;
+	void determineMovement(double playerPosX, double playerPosY, std::vector<TileEffect*> effects) override;
 	double doDamage() override;
 	void collideWithEntity(Entity * e);
 	void collideWithEntity(Character * c);

@@ -25,7 +25,7 @@ Enemy& Enemy::getPointerToThis()
 	return *this;
 }
 
-void Enemy::determineMovement(double playerPosX, double playerPosY, std::vector<MovementEffect*> effects)
+void Enemy::determineMovement(double playerPosX, double playerPosY, std::vector<TileEffect*> effects)
 {
 	float acceleration = BASE_ACCELERATION;
 	float deceleration = BASE_DECELERATION;

@@ -74,7 +74,10 @@ private:
 		LEFT_TREADMILL,
 		UP_TREADMILL,
 		ICE,
-		MUD
+		MUD,
+		PIT,
+		LAVA,
+		SPIKES
 	};
 	
 	std::vector<Button*> buttons;

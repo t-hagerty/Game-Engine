@@ -21,7 +21,7 @@ Player & Player::getPointerToThis()
 	return *this;
 }
 
-void Player::determineMovement(double playerPosX, double playerPosY, std::vector<MovementEffect*> effects)
+void Player::determineMovement(double playerPosX, double playerPosY, std::vector<TileEffect*> effects)
 {
 	float acceleration = BASE_ACCELERATION;
 	float deceleration = BASE_DECELERATION;
