@@ -2,7 +2,7 @@
 #include <SDL.h>
 #include <string>
 #include <vector>
-#include "MovementEffect.h"
+#include "TileEffect.h"
 
 class Entity
 {
@@ -18,6 +18,7 @@ public:
 	void setPosY(float newY);
 	float getPosY() const;
 	SDL_Rect* getCollisionBox() const;
+	SDL_Rect* getGroundHitBox() const;
 	float getCenterPosX();
 	float getCenterPosY();
 	int getHeight() const;
@@ -43,12 +44,13 @@ public:
 	void incrementAnimationFrame();
 	int getSpriteDirection() const;
 	void setSpriteDirection(int newDirection);
-	virtual void determineMovement(double playerPosX, double playerPosY, std::vector<MovementEffect*> effects) = 0;
+	virtual void determineMovement(double playerPosX, double playerPosY, std::vector<TileEffect*> effects) = 0;
 	double takeDamage(double damage);
 	virtual double doDamage() = 0;
 	virtual void collideWithEntity(Entity * e) = 0;
 	virtual void hitWall(short direction) = 0; //0 = wall down, 1 = wall to the right, 2 = left, 3 = up
 	void knockbackAnEntity(Entity * e);
+	void beKnockedBack(float knockbackPosX, float knockbackPosY, float knockbackForce);
 	void decrementTimers(double delta);
 
 protected:
@@ -64,6 +66,7 @@ protected:
 	double knockbackTimer = 0;
 	double invulnTimer = 0;
 	SDL_Rect* collisionBox;
+	SDL_Rect* groundHitBox;
 	std::string spriteFilePath;
 	SDL_Texture* spriteSheet;
 	const int SPRITE_WIDTH = 32;

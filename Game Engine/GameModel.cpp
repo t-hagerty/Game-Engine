@@ -118,7 +118,7 @@ bool GameModel::setIsSolid(int tileType)
 	return isSolidTable[tileType];
 }
 
-MovementEffect * GameModel::setTileEffect(int tileType)
+TileEffect * GameModel::setTileEffect(int tileType)
 {
 	switch (tileType)
 	{
@@ -134,6 +134,10 @@ MovementEffect * GameModel::setTileEffect(int tileType)
 		return iceEffect;
 	case MUD:
 		return mudEffect;
+	case LAVA:
+		return lavaEffect;
+	case SPIKES:
+		return spikeEffect;
 	default:
 		return nullptr;
 	}
@@ -150,25 +154,34 @@ void GameModel::moveAnEntity(Entity * e, double delta)
 
 	e->decrementTimers(delta);
 
-	std::vector<MovementEffect*> effects = {};
+	std::vector<TileEffect*> effects = {};
 	for (int r = posRowTop; r <= posRowBottom; r++)
 	{
 		for (int c = posColLeft; c <= posColRight; c++)
 		{
 			if (r < mapRows && c < mapCols && r >= 0 && c >= 0)
 			{
-				MovementEffect* anEffect = getTileAtMapIndex(r, c)->getMovementEffect();
-				bool isUnique = true;
-				for (MovementEffect* effect : effects)
+				if (SDL_HasIntersection(getTileAtMapIndex(r, c)->getTileSpace(), e->getGroundHitBox()))
 				{
-					if (anEffect == effect)
+					Tile* current = getTileAtMapIndex(r, c);
+					TileEffect* anEffect = current->getMovementEffect();
+					bool isUnique = true;
+					for (TileEffect* effect : effects)
 					{
-						isUnique = false;
+						if (anEffect == effect)
+						{
+							isUnique = false;
+						}
 					}
-				}
-				if (anEffect != nullptr && isUnique)
-				{
-					effects.insert(effects.begin(), anEffect);
+					if (anEffect != nullptr && isUnique)
+					{
+						effects.insert(effects.begin(), anEffect);
+						if (anEffect->getDamage() > 0 && e->getInvulnTimer() == 0)
+						{
+							e->takeDamage(anEffect->getDamage());
+							e->beKnockedBack(current->getCenterPosX(), current->getCenterPosY(), anEffect->getKnockbackForce());
+						}
+					}
 				}
 			}
 		}
@@ -223,7 +236,7 @@ void GameModel::moveAnEntity(Entity * e, double delta)
 			if ((posRowTop) >= 0 && posColRight < mapCols && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight))
 			{
 				e->hitWall(3);
-				e->setPosY((posRowTop + 1)* tileSize);
+				e->setPosY((posRowTop + 1)* tileSize - (e->getHeight() - e->getGroundHitBox()->h));
 			}
 		}
 	}
@@ -321,7 +334,7 @@ bool GameModel::isInsideWall(Entity* entity, Tile * t)
 	{
 		return false;
 	}
-	if(SDL_HasIntersection(&t->getTileSpace(), entity->getCollisionBox()))
+	if(SDL_HasIntersection(t->getTileSpace(), entity->getGroundHitBox()))
 	{
 		return true;
 	}
@@ -330,10 +343,6 @@ bool GameModel::isInsideWall(Entity* entity, Tile * t)
 
 bool GameModel::isInsideAnyWalls(Entity * entity, int topRow, int bottomRow, int leftCol, int rightCol) const
 {
-	/*if (topRow < 0 || leftCol < 0 || bottomRow >= mapRows || rightCol >= mapCols)
-	{
-		return true;
-	}*/
 	for (int r = topRow; r <= bottomRow; r++)
 	{
 		for (int c = leftCol; c <= rightCol; c++)
@@ -376,15 +385,15 @@ bool GameModel::openMap()
 							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 6 },
 							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
 							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 0, 8, 8, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
+							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 0, 8, 8, 0, 0, 0, 0, 17, 0, 0, 12, 0, 6 },
 							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
 							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 0, 8, 8, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
-							{ 6, 0, 9, 0, 9, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
+							{ 6, 0, 9, 0, 9, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 8, 0, 0, 0, 0, 17, 17, 0, 0, 12, 0, 6 },
 							{ 6, 0, 9, 0, 9, 0, 9, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
 							{ 0, 0, 9, 0, 9, 0, 9, 0, 8, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0 },
-							{ 0, 0, 13, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0 },
-							{ 0, 0, 13, 0, 0, 0, 12, 0, 8, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0 },
-							{ 11, 11, 0, 0, 12, 0, 12, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0 },
+							{ 0, 0, 13, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 16, 16, 16, 0, 0, 12, 0, 0 },
+							{ 0, 0, 13, 0, 0, 0, 12, 0, 8, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 16, 16, 16, 0, 0, 12, 0, 0 },
+							{ 11, 11, 0, 0, 12, 0, 12, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 16, 16, 0, 0, 12, 0, 0 },
 							{ 6, 0, 9, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
 							{ 6, 0, 9, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
 							{ 6, 0, 9, 0, 12, 0, 0, 13, 13, 13, 13, 0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 0, 0, 0, 0, 0, 0, 12, 0, 6 },

@@ -3,7 +3,7 @@
 #include "Entity.h"
 #include "SDL_endian.h"
 #include "Tile.h"
-#include "MovementEffect.h"
+#include "TileEffect.h"
 #include "Player.h"
 #include "Enemy.h"
 #include "Arrow.h"
@@ -34,7 +34,7 @@ private:
 	int screenWidth;
 	int screenHeight;
 	int tileSize;
-	const static int NUMBER_TILE_TYPES = 15;
+	const static int NUMBER_TILE_TYPES = 18;
 	int levelWidth;
 	int levelHeight;
 	std::vector<Tile*> tileMap;
@@ -46,7 +46,7 @@ private:
 	Player* player;
 	bool isGameOver = false;
 	bool setIsSolid(int tileType);
-	MovementEffect* setTileEffect(int tileType);
+	TileEffect* setTileEffect(int tileType);
 	void moveAnEntity(Entity* e, double delta);
 	void knockback(Entity* knockerbacker, Entity* knockedback);
 	static bool isInsideWall(Entity* entity, Tile* t);
@@ -70,14 +70,19 @@ private:
 		LEFT_TREADMILL,
 		UP_TREADMILL,
 		ICE,
-		MUD
+		MUD,
+		PIT,
+		LAVA,
+		SPIKES
 	};
-	bool isSolidTable[NUMBER_TILE_TYPES] = { false, true, true, true, true, true, true, false, true, false, false, false, false, false, false };
-	MovementEffect* downTreadmillEffect = new MovementEffect(1, 1, 0, 0.4);
-	MovementEffect* rightTreadmillEffect = new MovementEffect(1, 1, 0.4, 0);
-	MovementEffect* leftTreadmillEffect = new MovementEffect(1, 1, -0.4, 0);
-	MovementEffect* upTreadmillEffect = new MovementEffect(1, 1, 0, -0.4);
-	MovementEffect* iceEffect = new MovementEffect(0.9 , 1.9, 0, 0);
-	MovementEffect* mudEffect = new MovementEffect(0.4, 1, 0, 0, -1);
+	bool isSolidTable[NUMBER_TILE_TYPES] = { false, true, true, true, true, true, true, false, true, false, false, false, false, false, false, false, false, false };
+	TileEffect* downTreadmillEffect = new TileEffect(1, 1, 0, 0.4);
+	TileEffect* rightTreadmillEffect = new TileEffect(1, 1, 0.4, 0);
+	TileEffect* leftTreadmillEffect = new TileEffect(1, 1, -0.4, 0);
+	TileEffect* upTreadmillEffect = new TileEffect(1, 1, 0, -0.4);
+	TileEffect* iceEffect = new TileEffect(0.9 , 1.9, 0, 0);
+	TileEffect* mudEffect = new TileEffect(0.4, 1, 0, 0, -1);
+	TileEffect* lavaEffect = new TileEffect(0.7, 1, 0, 0, -0.5, 0, 1);
+	TileEffect* spikeEffect = new TileEffect(1, 1, 0, 0, 0, 4, 2);
 };
 

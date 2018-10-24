@@ -2,13 +2,13 @@
 
 
 
-Tile::Tile(int x, int y, int size, int typeOfTile, bool isSolid, MovementEffect* effect)
+Tile::Tile(int x, int y, int size, int typeOfTile, bool isSolid, TileEffect* effect)
 {
-	tileSpace = { 0, 0, 0, 0 };
-	tileSpace.x = x;
-	tileSpace.y = y;
-	tileSpace.w = size;
-	tileSpace.h = size;
+	tileSpace = new SDL_Rect();
+	tileSpace->x = x;
+	tileSpace->y = y;
+	tileSpace->w = size;
+	tileSpace->h = size;
 	type = typeOfTile;
 	solid = isSolid;
 	anEffect = effect;
@@ -29,17 +29,27 @@ bool Tile::isSolid() const
 	return solid;
 }
 
-SDL_Rect Tile::getTileSpace() const
+SDL_Rect* Tile::getTileSpace() const
 {
 	return tileSpace;
 }
 
-MovementEffect * Tile::getMovementEffect()
+float Tile::getCenterPosX()
+{
+	return tileSpace->x + (tileSpace->w / 2);
+}
+
+float Tile::getCenterPosY()
+{
+	return tileSpace->y + (tileSpace->h / 2);
+}
+
+TileEffect * Tile::getMovementEffect()
 {
 	return anEffect;
 }
 
-void Tile::setMovementEffect(MovementEffect * newEffect)
+void Tile::setMovementEffect(TileEffect * newEffect)
 {
 	anEffect = newEffect;
 }

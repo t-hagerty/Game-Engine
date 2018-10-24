@@ -31,6 +31,9 @@ GameView::GameView(int levelW, int levelH)
 		tileSet.insert(tileSet.end(), loadTexture("map_tiles/up_treadmill.bmp"));
 		tileSet.insert(tileSet.end(), loadTexture("map_tiles/ice.bmp"));
 		tileSet.insert(tileSet.end(), loadTexture("map_tiles/mud.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/pit.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/lava.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/spikes.bmp"));
 		SDL_UpdateWindowSurface(gameWindow);
 	}
 	camera->h = windowHeight;
@@ -140,10 +143,10 @@ void GameView::renderTileMap(std::vector<Tile*> map, int rows, int cols, int til
 {
 	for (Tile* t : map)
 	{
-		if (SDL_HasIntersection(&t->getTileSpace(), camera))
+		if (SDL_HasIntersection(t->getTileSpace(), camera))
 		{
 			//Set rendering space and render to screen
-			SDL_Rect renderQuad = { (t->getTileSpace().x - camera->x) * zoomScale , (t->getTileSpace().y - camera->y) * zoomScale , t->getTileSpace().w * zoomScale, t->getTileSpace().h * zoomScale };
+			SDL_Rect renderQuad = { (t->getTileSpace()->x - camera->x) * zoomScale , (t->getTileSpace()->y - camera->y) * zoomScale , t->getTileSpace()->w * zoomScale, t->getTileSpace()->h * zoomScale };
 
 			//Render to screen
 			SDL_RenderCopyEx(gameRenderer, tileSet.at(t->getType()), NULL, &renderQuad, 0.0, NULL, SDL_FLIP_NONE);

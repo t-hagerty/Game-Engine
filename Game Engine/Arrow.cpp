@@ -22,7 +22,7 @@ Arrow & Arrow::getPointerToThis()
 	return *this;
 }
 
-void Arrow::determineMovement(double playerPosX, double playerPosY, std::vector<MovementEffect*> effects)
+void Arrow::determineMovement(double playerPosX, double playerPosY, std::vector<TileEffect*> effects)
 {
 }
 

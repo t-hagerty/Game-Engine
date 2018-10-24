@@ -25,7 +25,7 @@ Enemy& Enemy::getPointerToThis()
 	return *this;
 }
 
-void Enemy::determineMovement(double playerPosX, double playerPosY, std::vector<MovementEffect*> effects)
+void Enemy::determineMovement(double playerPosX, double playerPosY, std::vector<TileEffect*> effects)
 {
 	float acceleration = BASE_ACCELERATION;
 	float deceleration = BASE_DECELERATION;
@@ -41,18 +41,13 @@ void Enemy::determineMovement(double playerPosX, double playerPosY, std::vector<
 		}
 	}
 	float max;
-	if (velocityX < 0.5 && velocityX > -0.5 && velocityY < 0.5 && velocityY > -0.5)
+	if (previousVelocity < 0.5)
 	{
 		max = 0.5;
 	}
 	else
 	{
-		max = abs(velocityX);
-		if (abs(velocityX) < abs(velocityY))
-		{
-			max = abs(velocityY);
-		}
-		max *= acceleration;
+		max = acceleration * previousVelocity;
 		if (max > MAX_VELOCITY + maxVelChangeTotal)
 		{
 			max = MAX_VELOCITY + maxVelChangeTotal;
@@ -99,22 +94,6 @@ void Enemy::determineMovement(double playerPosX, double playerPosY, std::vector<
 		}
 		else
 		{
-			if (velocityX > 0.5 || velocityX < -0.5)
-			{
-				velocityX *= deceleration;
-			}
-			else
-			{
-				velocityX = 0;
-			}
-			if (velocityY > 0.5 || velocityY < -0.5)
-			{
-				velocityY *= deceleration;
-			}
-			else
-			{
-				velocityY = 0;
-			}
 			if (wanderingTimer == 0)
 			{
 				if (waitingTimer == 0)
@@ -125,6 +104,16 @@ void Enemy::determineMovement(double playerPosX, double playerPosY, std::vector<
 					return;
 				}
 				waitingTimer--;
+				if (previousVelocity > 0.5)
+				{
+					velocityX *= deceleration;
+					velocityY *= deceleration;
+				}
+				else
+				{
+					velocityX = 0;
+					velocityY = 0;
+				}
 			}
 			else
 			{
@@ -167,6 +156,7 @@ void Enemy::determineMovement(double playerPosX, double playerPosY, std::vector<
 			}
 		}
 	}
+	previousVelocity = sqrt(pow(velocityX, 2) + pow(velocityY, 2));
 }
 
 double Enemy::doDamage()

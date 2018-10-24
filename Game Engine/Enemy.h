@@ -10,7 +10,7 @@ public:
 	~Enemy();
 	Entity* clone() const;
 	Enemy& getPointerToThis() override;
-	void determineMovement(double playerPosX, double playerPosY, std::vector<MovementEffect*> effects) override;
+	void determineMovement(double playerPosX, double playerPosY, std::vector<TileEffect*> effects) override;
 	double doDamage() override;
 	void collideWithEntity(Entity* e);
 	void collideWithEntity(Player * p);
@@ -21,5 +21,6 @@ protected:
 	short wanderDirection;
 	const float BASE_ACCELERATION = 1.2;
 	const float BASE_DECELERATION = 0.5;
+	float previousVelocity;
 };
 
