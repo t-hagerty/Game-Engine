@@ -21,6 +21,8 @@ public:
 	SDL_Rect* getGroundHitBox() const;
 	float getCenterPosX();
 	float getCenterPosY();
+	float getGroundCenterPosX();
+	float getGroundCenterPosY();
 	int getHeight() const;
 	int getWidth() const;
 	void setVelocityX(float newVelX);

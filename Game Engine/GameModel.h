@@ -52,6 +52,9 @@ private:
 	static bool isInsideWall(Entity* entity, Tile* t);
 	bool isInsideAnyWalls(Entity* entity, int topRow, int bottomRow, int leftCol, int rightCol) const;
 	static bool isIntersectingEntity(Entity* e1, Entity* e2);
+	void slideIntoPit(Entity* entity, int topRow, int bottomRow, int leftCol, int rightCol);
+	bool isCompletelyOverPit(Entity* entity, int topRow, int bottomRow, int leftCol, int rightCol);
+	void fallIntoPit(Entity* e);
 	void killEntity(Entity* e);
 	void deleteMap() const;
 	enum textures
