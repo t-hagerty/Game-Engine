@@ -84,6 +84,16 @@ float Entity::getCenterPosY()
 	return getPosY() + (getHeight() / 2);
 }
 
+float Entity::getGroundCenterPosX()
+{
+	return groundHitBox->x + (groundHitBox->w / 2);
+}
+
+float Entity::getGroundCenterPosY()
+{
+	return groundHitBox->y + (groundHitBox->h / 2);
+}
+
 int Entity::getHeight() const
 {
 	return collisionBox->h;

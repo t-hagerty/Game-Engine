@@ -154,6 +154,10 @@ void GameModel::moveAnEntity(Entity * e, double delta)
 
 	e->decrementTimers(delta);
 
+	TileEffect* slideIntoPitEffect = nullptr;
+	bool isOverAPit = false;
+	float pitSlideX = 0;
+	float pitSlideY = 0;
 	std::vector<TileEffect*> effects = {};
 	for (int r = posRowTop; r <= posRowBottom; r++)
 	{
@@ -164,29 +168,60 @@ void GameModel::moveAnEntity(Entity * e, double delta)
 				if (SDL_HasIntersection(getTileAtMapIndex(r, c)->getTileSpace(), e->getGroundHitBox()))
 				{
 					Tile* current = getTileAtMapIndex(r, c);
-					TileEffect* anEffect = current->getMovementEffect();
+					TileEffect* anEffect = current->getTileEffect();
 					bool isUnique = true;
-					for (TileEffect* effect : effects)
+					if (current->isAPit())
 					{
-						if (anEffect == effect)
-						{
-							isUnique = false;
-						}
+						isOverAPit = true;
+						pitSlideX += current->getCenterPosX() - e->getGroundCenterPosX();
+						pitSlideY += current->getCenterPosY() - e->getGroundCenterPosY();
 					}
-					if (anEffect != nullptr && isUnique)
+					else
 					{
-						effects.insert(effects.begin(), anEffect);
-						if (anEffect->getDamage() > 0 && e->getInvulnTimer() == 0)
+						for (TileEffect* effect : effects)
 						{
-							e->takeDamage(anEffect->getDamage());
-							e->beKnockedBack(current->getCenterPosX(), current->getCenterPosY(), anEffect->getKnockbackForce());
+							if (anEffect == effect)
+							{
+								isUnique = false;
+							}
+						}
+						if (anEffect != nullptr && isUnique)
+						{
+							effects.insert(effects.begin(), anEffect);
+							if (anEffect->getDamage() > 0 && e->getInvulnTimer() == 0)
+							{
+								e->takeDamage(anEffect->getDamage());
+								e->beKnockedBack(current->getCenterPosX(), current->getCenterPosY(), anEffect->getKnockbackForce());
+							}
 						}
 					}
 				}
 			}
 		}
 	}
+	if (isOverAPit)
+	{
+		//pitSlideX *= 0.01;
+		//pitSlideY *= 0.01;
+		if (pitSlideX != 0)
+		{
+			pitSlideX = 1 / pitSlideX;
+		}
+		if (pitSlideY != 0)
+		{
+			pitSlideY = 1 / pitSlideY;
+		}
+		//printf("x force: %f, y force: %f \n", pitSlideX, pitSlideY);
+		slideIntoPitEffect = new TileEffect(1, 1, pitSlideX, pitSlideY);
+		effects.insert(effects.begin(), slideIntoPitEffect);
+	}
 	e->determineMovement(player->getCenterPosX(), player->getCenterPosY(), effects);
+	delete slideIntoPitEffect;
+	if (isCompletelyOverPit(e, posRowTop, posRowBottom, posColLeft, posColRight))
+	{
+		fallIntoPit(e);
+		return;
+	}
 	if (e->getVelocityY() != 0)
 	{
 		//=== Y MOVEMENT (UP(neg)/DOWN(pos)) ===
@@ -365,6 +400,40 @@ bool GameModel::isIntersectingEntity(Entity* e1, Entity* e2)
 	return false;
 }
 
+bool GameModel::isCompletelyOverPit(Entity * entity, int topRow, int bottomRow, int leftCol, int rightCol)
+{
+	for (int r = topRow; r <= bottomRow; r++)
+	{
+		for (int c = leftCol; c <= rightCol; c++)
+		{
+			if (r < mapRows && r >= 0 && c >= 0 && c < mapCols && SDL_HasIntersection(entity->getGroundHitBox(), getTileAtMapIndex(r, c)->getTileSpace()))
+			{
+				if (!getTileAtMapIndex(r, c)->isAPit())
+				{
+					return false;
+				}
+			}
+		}
+	}
+	return true;
+}
+
+void GameModel::fallIntoPit(Entity * e)
+{
+	e->takeDamage(1);
+	if (e == player)
+	{
+		e->setPosX(entitiesInitialState[0]->getPosX());
+		e->setPosY(entitiesInitialState[0]->getPosY());
+		e->setVelocityX(0);
+		e->setVelocityY(0);
+	}
+	else
+	{
+		killEntity(e);
+	}
+}
+
 void GameModel::killEntity(Entity * e)
 {
 	if (e == getPlayer())
@@ -383,11 +452,11 @@ bool GameModel::openMap()
     mapCols = 30;
 	int testMap[20][30] = { { 3, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0, 12, 0, 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4 },
 							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 0, 8, 8, 0, 0, 0, 0, 17, 0, 0, 12, 0, 6 },
+							{ 6, 0, 0, 0, 0, 0, 0, 15, 15, 0, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
+							{ 6, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 0, 0, 0, 8, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
+							{ 6, 0, 0, 0, 0, 0, 0, 0, 15, 0, 15, 0, 0, 0, 0, 8, 8, 0, 8, 8, 0, 0, 0, 0, 17, 0, 0, 12, 0, 6 },
 							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 0, 8, 8, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
+							{ 6, 0, 0, 0, 0, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 0, 8, 8, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
 							{ 6, 0, 9, 0, 9, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 8, 0, 0, 0, 0, 17, 17, 0, 0, 12, 0, 6 },
 							{ 6, 0, 9, 0, 9, 0, 9, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
 							{ 0, 0, 9, 0, 9, 0, 9, 0, 8, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0 },
@@ -406,7 +475,12 @@ bool GameModel::openMap()
 	{
 		for(int c = 0; c < mapCols; c++)
 		{
-			tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, testMap[r][c], setIsSolid(testMap[r][c]), setTileEffect(testMap[r][c])));
+			bool isPit = false;
+			if (testMap[r][c] == 15)
+			{
+				isPit = true;
+			}
+			tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, testMap[r][c], setIsSolid(testMap[r][c]), isPit, setTileEffect(testMap[r][c])));
 		}
 	}
 	player = new Player(32, 32, 60, 80, 0, 0, 10);
@@ -450,7 +524,12 @@ bool GameModel::openMap(std::string filePath)
 			{
 				Sint32 tempType = -1;
 				SDL_RWread(file, &tempType, sizeof(Sint32), 1);
-				tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, tempType, setIsSolid(tempType), setTileEffect(tempType)));
+				bool isPit = false;
+				if (tempType == 15)
+				{
+					isPit = true;
+				}
+				tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, tempType, setIsSolid(tempType), isPit, setTileEffect(tempType)));
 			}
 		}
 		int numEntities = 0;
@@ -577,7 +656,7 @@ bool GameModel::saveMap(std::string filePath) const
 		tempInt = 0;
 		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
 		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		tempInt = 1;
+		tempInt = 3;
 		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
 		SDL_RWwrite(file, &temp, sizeof(char), 1);
 		tempInt = 20;
@@ -590,7 +669,7 @@ bool GameModel::saveMap(std::string filePath) const
 		tempInt = 0;
 		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
 		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		tempInt = 1;
+		tempInt = 3;
 		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
 		//Close file handler
 		SDL_RWclose(file);
