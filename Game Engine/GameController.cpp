@@ -25,7 +25,7 @@ void GameController::render() const
 {
 	view->renderClear();
 	view->positionCamera(model->getPlayer()->getCollisionBox());
-	view->renderTileMap(model->getTileMap(), model->getMapRows(), model->getMapCols(), model->getTileSize());
+	view->renderTileMap(model->getTileMap(), model->getMapRows(), model->getMapCols(), model->getTileSize(), fps);
 
 	for(int i = 0; i < model->getNumberOfEntities(); i++)
 	{

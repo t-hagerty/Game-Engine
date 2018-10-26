@@ -139,7 +139,7 @@ void GameView::renderUpdate() const
 	SDL_RenderPresent(gameRenderer);
 }
 
-void GameView::renderTileMap(std::vector<Tile*> map, int rows, int cols, int tileSize)
+void GameView::renderTileMap(std::vector<Tile*> map, int rows, int cols, int tileSize, int frame)
 {
 	for (Tile* t : map)
 	{
@@ -147,9 +147,13 @@ void GameView::renderTileMap(std::vector<Tile*> map, int rows, int cols, int til
 		{
 			//Set rendering space and render to screen
 			SDL_Rect renderQuad = { (t->getTileSpace()->x - camera->x) * zoomScale , (t->getTileSpace()->y - camera->y) * zoomScale , t->getTileSpace()->w * zoomScale, t->getTileSpace()->h * zoomScale };
-
+			SDL_Rect textureFrameClip = { 0, t->getAnimationFrame() * t->getTextureFrameHeight(), t->getTextureFrameWidth(), t->getTextureFrameHeight() };
 			//Render to screen
-			SDL_RenderCopyEx(gameRenderer, tileSet.at(t->getType()), NULL, &renderQuad, 0.0, NULL, SDL_FLIP_NONE);
+			SDL_RenderCopyEx(gameRenderer, tileSet.at(t->getType()), &textureFrameClip, &renderQuad, 0.0, NULL, SDL_FLIP_NONE);
+		}
+		if ((frame == 0 || frame == 10 || frame == 20 || frame == 30 || frame == 40 || frame == 50) && !isPaused)
+		{
+			t->incrementAnimationFrame();
 		}
 	}
 }
