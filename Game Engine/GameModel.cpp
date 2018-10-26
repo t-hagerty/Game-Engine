@@ -173,8 +173,15 @@ void GameModel::moveAnEntity(Entity * e, double delta)
 					if (current->isAPit())
 					{
 						isOverAPit = true;
-						pitSlideX += current->getCenterPosX() - e->getGroundCenterPosX();
-						pitSlideY += current->getCenterPosY() - e->getGroundCenterPosY();
+
+						float vectorX = current->getCenterPosX() - e->getGroundCenterPosX();
+						float vectorY = current->getCenterPosY() - e->getGroundCenterPosY();
+						double magnitude = sqrt(pow(vectorX, 2) + pow(vectorY, 2));
+						//get unit vector:
+						vectorX /= magnitude;
+						vectorY /= magnitude;
+						pitSlideX += vectorX;
+						pitSlideY += vectorY;
 					}
 					else
 					{
@@ -201,17 +208,8 @@ void GameModel::moveAnEntity(Entity * e, double delta)
 	}
 	if (isOverAPit)
 	{
-		//pitSlideX *= 0.01;
-		//pitSlideY *= 0.01;
-		if (pitSlideX != 0)
-		{
-			pitSlideX = 1 / pitSlideX;
-		}
-		if (pitSlideY != 0)
-		{
-			pitSlideY = 1 / pitSlideY;
-		}
-		//printf("x force: %f, y force: %f \n", pitSlideX, pitSlideY);
+		pitSlideX *= 0.3;
+		pitSlideY *= 0.3;
 		slideIntoPitEffect = new TileEffect(1, 1, pitSlideX, pitSlideY);
 		effects.insert(effects.begin(), slideIntoPitEffect);
 	}

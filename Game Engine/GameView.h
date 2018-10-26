@@ -26,7 +26,7 @@ public:
 	std::vector<Button*> getButtons();
 	void renderClear(int red = 0xFF, int green = 0xFF, int blue = 0xFF, int alpha = 0xFF) const;
 	void renderUpdate() const;
-	void renderTileMap(std::vector<Tile*> map, int rows, int cols, int tileSize);
+	void renderTileMap(std::vector<Tile*> map, int rows, int cols, int tileSize, int frame);
 	void renderRectangle(double posX, double posY, int width, int height) const; //FOR TESTING ONLY
 	void renderEntitySprite(Entity* e, int frame);
 	void renderText(std::string text, SDL_Rect* textRect);
