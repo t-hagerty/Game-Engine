@@ -1,5 +1,7 @@
 #include "GameModel.h"
 #include "GameView.h"
+#include "EditorView.h"
+#include "EditorModel.h"
 #include "GameController.h"
 
 

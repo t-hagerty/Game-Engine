@@ -9,6 +9,8 @@ GUIElement::GUIElement(double x, double y, double width, double height, bool vis
 	rect->w = width;
 	rect->h = height;
 	isVisible = visible;
+	trgtSurface = targetSurface;
+	trgtRenderer = targetRenderer;
 	loadTexture(targetSurface, targetRenderer, imageFilePath);
 }
 
@@ -110,4 +112,55 @@ bool GUIElement::getIsVisible()
 void GUIElement::toggleVisibility()
 {
 	isVisible = !isVisible;
+}
+
+bool GUIElement::render()
+{
+	bool success = true;
+	if (!isVisible)
+	{
+		return success;
+	}
+	else if (texture == nullptr)
+	{
+		printf("Unable to render GUIElement: Missing texture!\n");
+		success = false;
+	}
+	else
+	{
+		SDL_Rect renderRect = { getPosX() , getPosY() , getWidth() , getHeight() };
+		SDL_RenderCopy(trgtRenderer, texture, NULL, &renderRect);
+	}
+	return success;
+}
+
+bool GUIElement::renderText(std::string text, SDL_Rect * textRect)
+{
+	bool success = true;
+	std::stringstream s;
+	s << text;
+
+	TTF_Font* font = TTF_OpenFont("segoeui.ttf", 24);
+	if (!font)
+	{
+		printf("TTF_OpenFont Error: %s\n", TTF_GetError());
+		return false;
+	}
+	SDL_Color textColor = { 0, 0, 0 };
+	SDL_Surface* messageSurface;
+	if (!(messageSurface = TTF_RenderText_Solid(font, s.str().c_str(), textColor)))
+	{
+		printf("GUIElement text could not display. TTF Error: %s\n", TTF_GetError());
+		success = false;
+	}
+	else
+	{
+		SDL_Texture* message = SDL_CreateTextureFromSurface(trgtRenderer, messageSurface);
+
+		SDL_RenderCopy(trgtRenderer, message, NULL, textRect);
+		SDL_DestroyTexture(message);
+	}
+	SDL_FreeSurface(messageSurface);
+	TTF_CloseFont(font);
+	return success;
 }

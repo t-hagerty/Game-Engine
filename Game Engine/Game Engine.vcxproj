@@ -128,7 +128,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Button.cpp" />
+    <ClCompile Include="ButtonMenu.cpp" />
     <ClCompile Include="Character.cpp" />
+    <ClCompile Include="EditorModel.cpp" />
+    <ClCompile Include="EditorView.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="GUIElement.cpp" />
     <ClCompile Include="Image.cpp" />
@@ -145,7 +148,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Button.h" />
+    <ClInclude Include="ButtonMenu.h" />
     <ClInclude Include="Character.h" />
+    <ClInclude Include="EditorModel.h" />
+    <ClInclude Include="EditorView.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="GUIElement.h" />
     <ClInclude Include="Image.h" />
