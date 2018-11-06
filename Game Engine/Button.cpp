@@ -100,10 +100,47 @@ int Button::getButtonState()
 	return buttonState;
 }
 
+std::function<void()> Button::getEventHandler()
+{
+	return handler;
+}
+
+void Button::setEventHandler(EventHandler newHandler)
+{
+	handler = newHandler;
+}
+
 void Button::triggerEvent()
 {
 	if (getIsVisible())
 	{
 		handler();
 	}
+}
+
+bool Button::render()
+{
+	bool success = true;
+	if (!isVisible)
+	{
+		return success;
+	}
+	else if (texture == nullptr)
+	{
+		printf("Unable to render Button: Missing texture!\n");
+		success = false;
+	}
+	else
+	{
+		SDL_Rect spriteSheetClip = { buttonState * BUTTON_IMAGE_WIDTH,
+			0,
+			BUTTON_IMAGE_WIDTH, BUTTON_IMAGE_HEIGHT };
+		SDL_Rect renderRect = { getPosX() , getPosY() , getWidth() , getHeight() };
+		SDL_RenderCopy(trgtRenderer, texture, &spriteSheetClip, &renderRect);
+		if (!renderText(getButtonText(), getRect()))
+		{
+			success = false;
+		}
+	}
+	return success;
 }

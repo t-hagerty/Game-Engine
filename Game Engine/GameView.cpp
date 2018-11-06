@@ -119,6 +119,7 @@ bool GameView::getIsPaused()
 void GameView::setRetryButton(EventHandler buttonEventHandler)
 {
 	retryButton = addButton((windowWidth / 2) - 200, (windowHeight / 2) - 75, 400, 150, false, "default_button.bmp", "RETRY?", buttonEventHandler);
+	restartButton->setEventHandler(buttonEventHandler);
 }
 
 std::vector<Button*> GameView::getButtons()
@@ -208,7 +209,7 @@ void GameView::renderText(std::string text, SDL_Rect * textRect)
 	SDL_Surface* messageSurface;
 	if (!(messageSurface = TTF_RenderText_Solid(font, s.str().c_str(), textColor)))
 	{
-		printf("Health text could not display. TTF Error: %s\n", TTF_GetError());
+		printf("Text could not display. TTF Error: %s\n", TTF_GetError());
 	}
 	else
 	{
@@ -273,8 +274,10 @@ void GameView::renderImage(Image * anImage)
 
 void GameView::renderGUIElements()
 {
-	renderButtons();
-	renderImage(menuBackground);
+	for (GUIElement* g : gui)
+	{
+		g->render();
+	}
 }
 
 void GameView::positionCamera(SDL_Rect * playerBox) const
@@ -282,8 +285,6 @@ void GameView::positionCamera(SDL_Rect * playerBox) const
 	//Center the camera over the player
 	camera->x = ((playerBox->x ) + (playerBox->w ) / 2) - (windowWidth / zoomScale ) / 2;
 	camera->y = ((playerBox->y ) + (playerBox->h ) / 2) - (windowHeight / zoomScale ) / 2;
-	//printf("Camera x: %d Camera y: %d Camera width: %d Camera height: %d \n", camera->x, camera->y, camera->w, camera->h);
-	//printf("player x: %d player y: %d player width: %d player height: %d \n", playerBox->x, playerBox->y, playerBox->w, playerBox->h);
 
 	//Keep the camera in bounds
 	if (camera->x < 0)
@@ -307,7 +308,7 @@ void GameView::positionCamera(SDL_Rect * playerBox) const
 void GameView::addButton(Button * aButton)
 {
 	buttons.push_back(aButton);
-
+	gui.push_back(aButton);
 }
 
 Button* GameView::addButton(double posX, double posY, double width, double height, bool isVisible, std::string filePath, std::string buttonText, EventHandler eventHandler)
@@ -320,7 +321,7 @@ Button* GameView::addButton(double posX, double posY, double width, double heigh
 void GameView::toggleMenu()
 {
 	isPaused = !isPaused;
-	menuBackground->toggleVisibility();
+	menu->toggleVisibility();
 	renderUpdate();
 }
 
@@ -328,6 +329,10 @@ void GameView::isGameOverScreen(bool isGameOver)
 {
 	setIsPaused(isGameOver);
 	retryButton->setIsVisible(isGameOver);
+	if (!isGameOver)
+	{
+		menu->setIsVisible(false);
+	}
 }
 
 bool GameView::getIsGameOverScreen()
@@ -405,8 +410,20 @@ bool GameView::initGUI()
 	double posY = 0;
 	menuButton = new Button(posX, posY, width, height, true, "default_button.bmp", gScreenSurface, gameRenderer, "MENU", std::bind(&GameView::toggleMenu, this));
 	addButton(menuButton);
-	menuBackground = new Image(225, 100, 150, 200, false, "menu.bmp", gScreenSurface, gameRenderer);
-
+	menu = new ButtonMenu(225, 100, 150, 200, false, "menu.bmp", gScreenSurface, gameRenderer, 150, 10, 8, 1);
+	gui.push_back(menu);
+	restartButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "RESTART", nullptr);
+	addButton(restartButton);
+	menu->addButton(restartButton);
+	settingsButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "SETTINGS", nullptr); //TODO: handler
+	addButton(settingsButton);
+	menu->addButton(settingsButton);
+	editorButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "EDITOR", nullptr); //TODO: handler
+	addButton(editorButton);
+	menu->addButton(editorButton);
+	mainMenuButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "MAIN MENU", nullptr); //TODO: handler
+	addButton(mainMenuButton);
+	menu->addButton(mainMenuButton);
 	return success;
 }
 

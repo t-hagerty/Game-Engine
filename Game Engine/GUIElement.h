@@ -1,4 +1,6 @@
 #include <SDL.h>
+#include <SDL_ttf.h>
+#include <sstream>
 #include <string>
 #pragma once
 class GUIElement
@@ -19,12 +21,16 @@ public:
 	double getWidth();
 	void setHeight(double newHeight);
 	double getHeight();
-	void setIsVisible(bool visible);
+	virtual void setIsVisible(bool visible);
 	bool getIsVisible();
-	void toggleVisibility();
-private:
+	virtual void toggleVisibility();
+	virtual bool render();
+protected:
 	SDL_Texture* texture = nullptr;
 	SDL_Rect* rect;
+	SDL_Surface* trgtSurface;
+	SDL_Renderer* trgtRenderer;
 	bool isVisible;
+	bool renderText(std::string text, SDL_Rect* textRect);
 };
 

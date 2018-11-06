@@ -21,7 +21,10 @@ public:
 	void setIsMouseUp(bool mouseUp);
 	bool getIsMouseUp();
 	int getButtonState();
+	EventHandler getEventHandler();
+	void setEventHandler(EventHandler newHandler);
 	void triggerEvent();
+	bool render() override;
 private:
 	const int BUTTON_IMAGE_WIDTH = 32;
 	const int BUTTON_IMAGE_HEIGHT = 32;
