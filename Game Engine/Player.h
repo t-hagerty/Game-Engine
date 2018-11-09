@@ -8,6 +8,7 @@ class Player :
 {
 public:
 	Player(int h, int w, double positionX, double positionY, double velX, double velY, double hp);
+	Player(const Player &p);
 	~Player();
 	Entity* clone() const;
 	Player& getPointerToThis() override;

@@ -7,6 +7,11 @@ Arrow::Arrow(int h, int w, double positionX, double positionY, double velX, doub
 	spriteFilePath = "spritesheets/arrow.bmp";
 }
 
+Arrow::Arrow(const Arrow & a) : Projectile(a.getHeight(), a.getWidth(), a.getPosX(), a.getPosY(), a.getVelocityX(), a.getVelocityY())
+{
+	spriteFilePath = "spritesheets/arrow.bmp";
+}
+
 
 Arrow::~Arrow()
 {

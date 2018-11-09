@@ -10,6 +10,14 @@ Enemy::Enemy(int h, int w, double positionX, double positionY, double velX, doub
 	spriteFilePath = "spritesheets/enemy_walking.bmp";
 }
 
+Enemy::Enemy(const Enemy &e) : Character(e.getHeight(), e.getWidth(), e.getPosX(), e.getPosY(), e.getVelocityX(), e.getVelocityY(), e.getHealth())
+{
+	waitingTimer = (rand() % 75) + 45;
+	wanderingTimer = (rand() % 105) + 45;
+	wanderDirection = rand() % 4;
+	spriteFilePath = "spritesheets/enemy_walking.bmp";
+}
+
 
 Enemy::~Enemy()
 {

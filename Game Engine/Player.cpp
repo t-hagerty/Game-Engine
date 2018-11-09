@@ -6,6 +6,11 @@ Player::Player(int h, int w, double positionX, double positionY, double velX, do
 	spriteFilePath = "spritesheets/player_walking.bmp";
 }
 
+Player::Player(const Player & p) : Character(p.getHeight(), p.getWidth(), p.getPosX(), p.getPosY(), p.getVelocityX(), p.getVelocityY(), p.getHealth())
+{
+	spriteFilePath = "spritesheets/player_walking.bmp";
+}
+
 
 Player::~Player()
 {

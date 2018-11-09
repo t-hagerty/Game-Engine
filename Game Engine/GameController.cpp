@@ -91,6 +91,7 @@ void GameController::mouseEventHandler(SDL_Event* e)
 void GameController::restartLevel()
 {
 	model->resetLevel();
+	view->setIsPaused(false);
 }
 
 /*

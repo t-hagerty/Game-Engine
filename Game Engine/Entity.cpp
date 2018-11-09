@@ -22,6 +22,26 @@ Entity::Entity(int h, int w, float positionX, float positionY, float velX, float
 	groundHitBox->h = h / 2;
 }
 
+Entity::Entity(const Entity & e)
+{
+	height = e.getHeight();
+	width = e.getWidth();
+	posX = e.getPosX();
+	posY = e.getPosY();
+	setVelocityX(e.getVelocityX());
+	setVelocityY(e.getVelocityY());
+	collisionBox = new SDL_Rect();
+	collisionBox->x = posX;
+	collisionBox->y = posY;
+	collisionBox->w = width;
+	collisionBox->h = height;
+	groundHitBox = new SDL_Rect();
+	groundHitBox->x = posX;
+	groundHitBox->y = posY + (height / 2);
+	groundHitBox->w = width;
+	groundHitBox->h = height / 2;
+}
+
 Entity::~Entity()
 {
 }
@@ -35,7 +55,7 @@ void Entity::setHealth(double newHealth)
 	}
 }
 
-double Entity::getHealth()
+double Entity::getHealth() const
 {
 	return health;
 }

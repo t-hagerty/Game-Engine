@@ -109,6 +109,10 @@ float GameView::getZoomScale()
 void GameView::setIsPaused(bool paused)
 {
 	isPaused = paused;
+	if (!isPaused)
+	{
+		menu->setIsVisible(paused);
+	}
 }
 
 bool GameView::getIsPaused()
@@ -412,7 +416,7 @@ bool GameView::initGUI()
 	addButton(menuButton);
 	menu = new ButtonMenu(225, 100, 150, 200, false, "menu.bmp", gScreenSurface, gameRenderer, 150, 10, 8, 1);
 	gui.push_back(menu);
-	restartButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "RESTART", nullptr);
+	restartButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "RESTART", nullptr); //TODO: handler doesn't work quite right
 	addButton(restartButton);
 	menu->addButton(restartButton);
 	settingsButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "SETTINGS", nullptr); //TODO: handler

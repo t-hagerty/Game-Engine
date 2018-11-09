@@ -6,6 +6,7 @@ class Arrow :
 {
 public:
 	Arrow(int h, int w, double positionX, double positionY, double velX, double velY);
+	Arrow(const Arrow &a);
 	~Arrow();
 	Entity* clone() const;
 	Arrow& getPointerToThis() override;

@@ -8,11 +8,12 @@ class Entity
 {
 public:
 	Entity(int h, int w, float positionX, float positionY, float velX, float velY);
+	Entity(const Entity &e);
 	virtual ~Entity();
 	virtual Entity* clone() const = 0;
 	virtual Entity& getPointerToThis() = 0;
 	void setHealth(double newHealth);
-	double getHealth();
+	double getHealth() const;
 	void setPosX(float newX);
 	float getPosX() const;
 	void setPosY(float newY);

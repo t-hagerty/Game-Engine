@@ -7,6 +7,7 @@ class Enemy :
 {
 public:
 	Enemy(int h, int w, double positionX, double positionY, double velX, double velY, int hp);
+	Enemy(const Enemy &e);
 	~Enemy();
 	Entity* clone() const;
 	Enemy& getPointerToThis() override;
