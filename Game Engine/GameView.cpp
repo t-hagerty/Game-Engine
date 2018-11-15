@@ -8,34 +8,34 @@
  * Game rendering using SDL was learned from http://lazyfoo.net/tutorials/SDL/index.php and some of the code here is currently borrowed from lessons at said site.
  */
 
-GameView::GameView(int levelW, int levelH)
+GameView::GameView(int levelW, int levelH, int windowW, int windowH, SDL_Window* window, SDL_Surface* screen, SDL_Renderer* renderer)
 {
-	if(!init())
-	{
-		printf("Failed to initialize\n");
-	}
-	else
-	{
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/floor.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_bottom_left_corner.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_bottom_right_corner.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_top_left_corner.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_top_right_corner.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_horizontal.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_vertical.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/grass.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/barrier.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/down_treadmill.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/right_treadmill.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/left_treadmill.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/up_treadmill.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/ice.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/mud.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/pit.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/lava.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/spikes.bmp"));
-		SDL_UpdateWindowSurface(gameWindow);
-	}
+	gameWindow = window;
+	gScreenSurface = screen;
+	gameRenderer = renderer;
+
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/floor.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_bottom_left_corner.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_bottom_right_corner.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_top_left_corner.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_top_right_corner.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_horizontal.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_vertical.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/grass.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/barrier.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/down_treadmill.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/right_treadmill.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/left_treadmill.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/up_treadmill.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/ice.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/mud.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/pit.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/lava.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/spikes.bmp"));
+	SDL_UpdateWindowSurface(gameWindow);
+
+	windowWidth = windowW;
+	windowHeight = windowH;
 	camera->h = windowHeight;
 	camera->w = windowWidth;
 	levelWidth = levelW;
@@ -47,7 +47,6 @@ GameView::GameView(int levelW, int levelH)
 GameView::~GameView()
 {
 	renderClear(0xFF, 0xFF, 0xFF, 0xFF);
-	close();
 }
 
 void GameView::setWindowWidth(int newWidth)
@@ -349,59 +348,6 @@ bool GameView::getIsGameOverScreen()
 	return retryButton->getIsVisible();
 }
 
-bool GameView::init()
-{
-	bool success = true;
-
-	//Initialize SDL
-	if (SDL_Init(SDL_INIT_VIDEO) < 0)
-	{
-		printf("SDL could not initialize. SDL Error: %s\n", SDL_GetError());
-		success = false;
-	}
-	else
-	{
-		//Set texture filtering to linear
-		if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"))
-		{
-			printf("Warning: Linear texture filtering not enabled! \n");
-		}
-
-		//Create window
-		gameWindow = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_SHOWN);
-		if (gameWindow == nullptr)
-		{
-			printf("Window could not be created. SDL Error: %s\n", SDL_GetError());
-			success = false;
-		}
-		else
-		{
-			//SDL_SetWindowResizable(gameWindow, SDL_TRUE);
-			//Create renderer for window
-			gameRenderer = SDL_CreateRenderer(gameWindow, -1, SDL_RENDERER_ACCELERATED);
-			if (gameRenderer == nullptr)
-			{
-				printf("Renderer could not be created. SDL Error: %s\n", SDL_GetError());
-				success = false;
-			}
-			else
-			{
-				//Initialize renderer color
-				SDL_SetRenderDrawColor(gameRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-			}
-			//Get window surface
-			gScreenSurface = SDL_GetWindowSurface(gameWindow);
-		}
-	}
-	//Initialize SDL_ttf
-	if (TTF_Init() == -1)
-	{
-		printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
-		success = false;
-	}
-	return success;
-}
-
 bool GameView::initGUI()
 {
 	bool success = true;
@@ -481,14 +427,4 @@ SDL_Surface * GameView::loadImage(std::string filePath) const
 		SDL_FreeSurface(loadedImage); //free memory of loadedImage
 	}
 	return optimizedImage;
-}
-
-void GameView::close()
-{	
-	SDL_DestroyRenderer(gameRenderer);
-	SDL_DestroyWindow(gameWindow);
-	gameWindow = nullptr;
-	gameRenderer = nullptr;
-	TTF_Quit();
-	SDL_Quit();
 }

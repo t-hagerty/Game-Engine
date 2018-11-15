@@ -15,6 +15,7 @@ private:
 	void update(double delta) const;
 	void render() const;
 	void mouseEventHandler(SDL_Event* e);
+	void goToTest();
 	void goToGame();
 	void goToMenu();
 	EditorModel* model;

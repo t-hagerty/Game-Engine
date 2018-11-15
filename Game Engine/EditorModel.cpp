@@ -117,14 +117,6 @@ bool EditorModel::openMap()
 			tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, testMap[r][c], setIsSolid(testMap[r][c]), isPit, nullptr));
 		}
 	}
-	player = new Player(32, 32, 60, 80, 0, 0, 10);
-	Arrow* arrow = new Arrow(32, 32, 300, 80, -5, 0);
-	Enemy* enemy1 = new Enemy(50, 40, 70, 300, 0, 0, 1);
-	Enemy* enemy2 = new Enemy(20, 20, 230, 255, 0, 0, 1);
-	addEntity(arrow);
-	addEntity(enemy1);
-	addEntity(enemy2);
-	addEntity(player);
 	saveMap("blankMap");
 	return success;
 }

@@ -2,40 +2,40 @@
 
 
 
-EditorView::EditorView(int levelW, int levelH)
+EditorView::EditorView(int levelW, int levelH, int windowW, int windowH, SDL_Window* window, SDL_Surface* screen, SDL_Renderer* renderer)
 {
-	if (!init())
-	{
-		printf("Failed to initialize\n");
-	}
-	else
-	{
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/floor.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_bottom_left_corner.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_bottom_right_corner.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_top_left_corner.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_top_right_corner.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_horizontal.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_vertical.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/grass.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/barrier.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/down_treadmill.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/right_treadmill.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/left_treadmill.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/up_treadmill.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/ice.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/mud.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/pit.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/lava.bmp"));
-		tileSet.insert(tileSet.end(), loadTexture("map_tiles/spikes.bmp"));
-		SDL_UpdateWindowSurface(gameWindow);
-	}
+	gameWindow = window;
+	gScreenSurface = screen;
+	gameRenderer = renderer;
+
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/floor.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_bottom_left_corner.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_bottom_right_corner.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_top_left_corner.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_top_right_corner.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_horizontal.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_vertical.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/grass.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/barrier.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/down_treadmill.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/right_treadmill.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/left_treadmill.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/up_treadmill.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/ice.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/mud.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/pit.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/lava.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/spikes.bmp"));
+	SDL_UpdateWindowSurface(gameWindow);
+
 	camera->x = 0;
 	camera->y = 0;
 	camera->h = windowHeight;
 	camera->w = windowWidth;
 	levelWidth = levelW;
 	levelHeight = levelH;
+	windowWidth = windowW;
+	windowHeight = windowH;
 	initGUI();
 }
 
@@ -43,7 +43,6 @@ EditorView::EditorView(int levelW, int levelH)
 EditorView::~EditorView()
 {
 	renderClear(0xFF, 0xFF, 0xFF, 0xFF);
-	close();
 }
 
 void EditorView::setWindowWidth(int newWidth)
@@ -99,6 +98,13 @@ void EditorView::setZoomScale(float newScale)
 float EditorView::getZoomScale()
 {
 	return zoomScale;
+}
+
+void EditorView::setButtonHandlers(EventHandler testButtonHandler, EventHandler gameButtonHandler, EventHandler mainMenuButtonHandler)
+{
+	testButton->setEventHandler(testButtonHandler);
+	gameButton->setEventHandler(gameButtonHandler);
+	mainMenuButton->setEventHandler(mainMenuButtonHandler);
 }
 
 std::vector<Button*> EditorView::getButtons()
@@ -226,22 +232,22 @@ void EditorView::renderGUIElements()
 
 void EditorView::moveCameraLeft()
 {
-	moveCamera(-3, 0);
+	moveCamera(-5, 0);
 }
 
 void EditorView::moveCameraRight()
 {
-	moveCamera(3, 0);
+	moveCamera(5, 0);
 }
 
 void EditorView::moveCameraUp()
 {
-	moveCamera(0, -3);
+	moveCamera(0, -5);
 }
 
 void EditorView::moveCameraDown()
 {
-	moveCamera(0, 3);
+	moveCamera(0, 5);
 }
 
 void EditorView::addButton(Button * aButton)
@@ -261,16 +267,6 @@ void EditorView::toggleMenu()
 {
 	menu->toggleVisibility();
 	renderUpdate();
-}
-
-void EditorView::close()
-{
-	SDL_DestroyRenderer(gameRenderer);
-	SDL_DestroyWindow(gameWindow);
-	gameWindow = nullptr;
-	gameRenderer = nullptr;
-	TTF_Quit();
-	SDL_Quit();
 }
 
 void EditorView::moveCamera(int xChange, int yChange)
@@ -296,59 +292,6 @@ void EditorView::moveCamera(int xChange, int yChange)
 	}
 }
 
-bool EditorView::init()
-{
-	bool success = true;
-
-	//Initialize SDL
-	if (SDL_Init(SDL_INIT_VIDEO) < 0)
-	{
-		printf("SDL could not initialize. SDL Error: %s\n", SDL_GetError());
-		success = false;
-	}
-	else
-	{
-		//Set texture filtering to linear
-		if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"))
-		{
-			printf("Warning: Linear texture filtering not enabled! \n");
-		}
-
-		//Create window
-		gameWindow = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_SHOWN);
-		if (gameWindow == nullptr)
-		{
-			printf("Window could not be created. SDL Error: %s\n", SDL_GetError());
-			success = false;
-		}
-		else
-		{
-			//SDL_SetWindowResizable(gameWindow, SDL_TRUE);
-			//Create renderer for window
-			gameRenderer = SDL_CreateRenderer(gameWindow, -1, SDL_RENDERER_ACCELERATED);
-			if (gameRenderer == nullptr)
-			{
-				printf("Renderer could not be created. SDL Error: %s\n", SDL_GetError());
-				success = false;
-			}
-			else
-			{
-				//Initialize renderer color
-				SDL_SetRenderDrawColor(gameRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-			}
-			//Get window surface
-			gScreenSurface = SDL_GetWindowSurface(gameWindow);
-		}
-	}
-	//Initialize SDL_ttf
-	if (TTF_Init() == -1)
-	{
-		printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
-		success = false;
-	}
-	return success;
-}
-
 bool EditorView::initGUI()
 {
 	bool success = true;
@@ -368,16 +311,16 @@ bool EditorView::initGUI()
 	addButton(menuButton);
 	menu = new ButtonMenu(225, 100, 150, 200, false, "menu.bmp", gScreenSurface, gameRenderer, 150, 10, 8, 1);
 	gui.push_back(menu);
-	restartButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "RESTART", nullptr); //TODO: handler doesn't work quite right
-	addButton(restartButton);
-	menu->addButton(restartButton);
-	settingsButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "SETTINGS", nullptr); //TODO: handler
+	testButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "TEST", nullptr);
+	addButton(testButton);
+	menu->addButton(testButton);
+	settingsButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "SETTINGS", nullptr);
 	addButton(settingsButton);
 	menu->addButton(settingsButton);
-	editorButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "EDITOR", nullptr); //TODO: handler
-	addButton(editorButton);
-	menu->addButton(editorButton);
-	mainMenuButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "MAIN MENU", nullptr); //TODO: handler
+	gameButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "GAME", nullptr);
+	addButton(gameButton);
+	menu->addButton(gameButton);
+	mainMenuButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "MAIN MENU", nullptr);
 	addButton(mainMenuButton);
 	menu->addButton(mainMenuButton);
 	return success;

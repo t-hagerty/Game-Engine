@@ -11,7 +11,7 @@ class EditorView
 {
 public:
 	typedef std::function<void()> EventHandler;
-	EditorView(int levelW, int levelH);
+	EditorView(int levelW, int levelH, int windowW, int windowH, SDL_Window* window, SDL_Surface* screen, SDL_Renderer* renderer);
 	~EditorView();
 	void setWindowWidth(int newWidth);
 	int getWindowWidth() const;
@@ -19,6 +19,7 @@ public:
 	int getWindowHeight() const;
 	void setZoomScale(float newScale);
 	float getZoomScale();
+	void setButtonHandlers(EventHandler retryButtonHandler, EventHandler editorButtonHandler, EventHandler mainMenuButtonHandler);
 	std::vector<Button*> getButtons();
 	void renderClear(int red = 0xFF, int green = 0xFF, int blue = 0xFF, int alpha = 0xFF) const;
 	void renderUpdate() const;
@@ -36,7 +37,6 @@ public:
 	void addButton(Button* aButton);
 	Button* addButton(double posX, double posY, double width, double height, bool isVisible, std::string filePath, std::string buttonText, EventHandler eventHandler);
 	void toggleMenu();
-	void close();
 private:
 	SDL_Window* gameWindow = nullptr;
 	SDL_Surface* gScreenSurface = nullptr;
@@ -49,7 +49,6 @@ private:
 	int levelWidth;
 	int levelHeight;
 	std::vector<SDL_Texture*> tileSet;
-	bool init();
 	bool initGUI();
 	SDL_Texture* loadTexture(std::string filePath);
 	SDL_Surface* loadImage(std::string filePath) const;
@@ -79,10 +78,11 @@ private:
 	std::vector<GUIElement*> gui;
 	Button* menuButton;
 	Button* mainMenuButton;
-	Button* editorButton;
+	Button* gameButton;
 	Button* settingsButton;
-	Button* restartButton;
+	Button* testButton;
 	Button* retryButton;
 	ButtonMenu* menu;
+	ButtonMenu* tileMenu;
 };
 

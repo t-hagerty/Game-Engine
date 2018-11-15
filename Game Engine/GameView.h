@@ -13,7 +13,7 @@ class GameView
 {
 public:
 	typedef std::function<void()> EventHandler;
-	GameView(int levelWidth, int levelHeight);
+	GameView(int levelWidth, int levelHeight, int windowW, int windowH, SDL_Window* window, SDL_Surface* screen, SDL_Renderer* renderer);
 	~GameView();
 	void setWindowWidth(int newWidth);
 	int getWindowWidth() const;
@@ -43,20 +43,18 @@ public:
 	void settingsButtonPressed();
 	void isGameOverScreen(bool isGameOver);
 	bool getIsGameOverScreen();
-	void close();
 private:
 	SDL_Window* gameWindow = nullptr;
 	SDL_Surface* gScreenSurface = nullptr;
 	SDL_Renderer* gameRenderer = nullptr;
 	SDL_Rect* camera = new SDL_Rect();
-	int windowHeight = 400;
-	int windowWidth = 600;
+	int windowHeight;
+	int windowWidth;
 	float zoomScale = 1;
 	int levelWidth;
 	int levelHeight;
 	bool isPaused = false;
 	std::vector<SDL_Texture*> tileSet;
-	bool init();
 	bool initGUI();
 	SDL_Texture* loadTexture(std::string filePath);
 	SDL_Surface* loadImage(std::string filePath) const;

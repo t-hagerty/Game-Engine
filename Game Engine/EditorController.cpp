@@ -5,6 +5,7 @@ EditorController::EditorController(EditorModel * m, EditorView * v)
 {
 	model = m;
 	view = v;
+	view->setButtonHandlers(std::bind(&EditorController::goToTest, this), std::bind(&EditorController::goToGame, this), std::bind(&EditorController::goToMenu, this));
 	gameLoop();
 }
 
@@ -52,7 +53,6 @@ void EditorController::gameLoop()
 			if (e.type == SDL_QUIT)
 			{
 				quitLoop = true;
-				view->close();
 				return;
 			}
 			//User presses a key
@@ -183,6 +183,10 @@ void EditorController::mouseEventHandler(SDL_Event * e)
 			break;
 		}
 	}
+}
+
+void EditorController::goToTest()
+{
 }
 
 void EditorController::goToGame()

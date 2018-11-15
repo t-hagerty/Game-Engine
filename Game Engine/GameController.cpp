@@ -149,7 +149,6 @@ void GameController::gameLoop()
 			if (e.type == SDL_QUIT)
 			{
 				quitLoop = true;
-				view->close();
 				return;
 			}
 			//User presses a key
