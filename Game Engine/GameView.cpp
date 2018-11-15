@@ -57,7 +57,6 @@ void GameView::setWindowWidth(int newWidth)
 		if (zoomScale != 1)
 		{
 			camera->w += ((newWidth - windowWidth) / zoomScale);
-			//printf("New width: %d, new camera width: %d \n", newWidth, camera->w);
 		}
 		else
 		{
@@ -120,10 +119,12 @@ bool GameView::getIsPaused()
 	return isPaused;
 }
 
-void GameView::setRetryButton(EventHandler buttonEventHandler)
+void GameView::setButtonHandlers(EventHandler retryButtonHandler, EventHandler editorButtonHandler, EventHandler mainMenuButtonHandler)
 {
-	retryButton = addButton((windowWidth / 2) - 200, (windowHeight / 2) - 75, 400, 150, false, "default_button.bmp", "RETRY?", buttonEventHandler);
-	restartButton->setEventHandler(buttonEventHandler);
+	retryButton = addButton((windowWidth / 2) - 200, (windowHeight / 2) - 75, 400, 150, false, "default_button.bmp", "RETRY?", retryButtonHandler);
+	restartButton->setEventHandler(retryButtonHandler);
+	editorButton->setEventHandler(editorButtonHandler);
+	mainMenuButton->setEventHandler(mainMenuButtonHandler);
 }
 
 std::vector<Button*> GameView::getButtons()
@@ -329,6 +330,10 @@ void GameView::toggleMenu()
 	renderUpdate();
 }
 
+void GameView::settingsButtonPressed()
+{
+}
+
 void GameView::isGameOverScreen(bool isGameOver)
 {
 	setIsPaused(isGameOver);
@@ -416,16 +421,16 @@ bool GameView::initGUI()
 	addButton(menuButton);
 	menu = new ButtonMenu(225, 100, 150, 200, false, "menu.bmp", gScreenSurface, gameRenderer, 150, 10, 8, 1);
 	gui.push_back(menu);
-	restartButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "RESTART", nullptr); //TODO: handler doesn't work quite right
+	restartButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "RESTART", nullptr);
 	addButton(restartButton);
 	menu->addButton(restartButton);
-	settingsButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "SETTINGS", nullptr); //TODO: handler
+	settingsButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "SETTINGS", std::bind(&GameView::settingsButtonPressed, this));
 	addButton(settingsButton);
 	menu->addButton(settingsButton);
-	editorButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "EDITOR", nullptr); //TODO: handler
+	editorButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "EDITOR", nullptr);
 	addButton(editorButton);
 	menu->addButton(editorButton);
-	mainMenuButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "MAIN MENU", nullptr); //TODO: handler
+	mainMenuButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "MAIN MENU", nullptr);
 	addButton(mainMenuButton);
 	menu->addButton(mainMenuButton);
 	return success;

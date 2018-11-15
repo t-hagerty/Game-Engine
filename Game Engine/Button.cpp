@@ -112,7 +112,7 @@ void Button::setEventHandler(EventHandler newHandler)
 
 void Button::triggerEvent()
 {
-	if (getIsVisible())
+	if (getIsVisible() && handler != nullptr)
 	{
 		handler();
 	}

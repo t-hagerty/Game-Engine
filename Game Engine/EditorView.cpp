@@ -2,11 +2,430 @@
 
 
 
-EditorView::EditorView()
+EditorView::EditorView(int levelW, int levelH)
 {
+	if (!init())
+	{
+		printf("Failed to initialize\n");
+	}
+	else
+	{
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/floor.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_bottom_left_corner.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_bottom_right_corner.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_top_left_corner.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_top_right_corner.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_horizontal.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_vertical.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/grass.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/barrier.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/down_treadmill.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/right_treadmill.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/left_treadmill.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/up_treadmill.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/ice.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/mud.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/pit.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/lava.bmp"));
+		tileSet.insert(tileSet.end(), loadTexture("map_tiles/spikes.bmp"));
+		SDL_UpdateWindowSurface(gameWindow);
+	}
+	camera->x = 0;
+	camera->y = 0;
+	camera->h = windowHeight;
+	camera->w = windowWidth;
+	levelWidth = levelW;
+	levelHeight = levelH;
+	initGUI();
 }
 
 
 EditorView::~EditorView()
 {
+	renderClear(0xFF, 0xFF, 0xFF, 0xFF);
+	close();
+}
+
+void EditorView::setWindowWidth(int newWidth)
+{
+	if (windowWidth != newWidth)
+	{
+		if (zoomScale != 1)
+		{
+			camera->w += ((newWidth - windowWidth) / zoomScale);
+		}
+		else
+		{
+			camera->w = newWidth;
+		}
+		windowWidth = newWidth;
+	}
+}
+
+int EditorView::getWindowWidth() const
+{
+	return windowWidth;
+}
+
+void EditorView::setWindowHeight(int newHeight)
+{
+	if (windowHeight != newHeight)
+	{
+		if (zoomScale != 1)
+		{
+			camera->h += ((newHeight - windowHeight) / zoomScale);
+			//printf("New height: %d, new camera height: %d \n", newHeight, camera->h);
+		}
+		else
+		{
+			camera->h = newHeight;
+		}
+		windowHeight = newHeight;
+	}
+}
+
+int EditorView::getWindowHeight() const
+{
+	return windowHeight;
+}
+
+void EditorView::setZoomScale(float newScale)
+{
+	zoomScale = newScale;
+	camera->w = camera->w / zoomScale;
+	camera->h = camera->h / zoomScale;
+}
+
+float EditorView::getZoomScale()
+{
+	return zoomScale;
+}
+
+std::vector<Button*> EditorView::getButtons()
+{
+	return buttons;
+}
+
+void EditorView::renderClear(int red, int green, int blue, int alpha) const
+{
+	//Clear screen
+	SDL_SetRenderDrawColor(gameRenderer, red, green, blue, alpha);
+	SDL_RenderClear(gameRenderer);
+}
+
+void EditorView::renderUpdate() const
+{
+	//Update screen
+	SDL_RenderPresent(gameRenderer);
+}
+
+void EditorView::renderTileMap(std::vector<Tile*> map, int rows, int cols, int tileSize, int frame)
+{
+	for (Tile* t : map)
+	{
+		if (SDL_HasIntersection(t->getTileSpace(), camera))
+		{
+			//Set rendering space and render to screen
+			SDL_Rect renderQuad = { (t->getTileSpace()->x - camera->x) * zoomScale , (t->getTileSpace()->y - camera->y) * zoomScale , t->getTileSpace()->w * zoomScale, t->getTileSpace()->h * zoomScale };
+			SDL_Rect textureFrameClip = { 0, t->getAnimationFrame() * t->getTextureFrameHeight(), t->getTextureFrameWidth(), t->getTextureFrameHeight() };
+			//Render to screen
+			SDL_RenderCopyEx(gameRenderer, tileSet.at(t->getType()), &textureFrameClip, &renderQuad, 0.0, NULL, SDL_FLIP_NONE);
+		}
+		if (frame == 0 || frame == 10 || frame == 20 || frame == 30 || frame == 40 || frame == 50)
+		{
+			t->incrementAnimationFrame();
+		}
+	}
+}
+
+void EditorView::renderEntitySprite(Entity * e, int frame)
+{
+	if (e->getSpriteSheet() == nullptr)
+	{
+		e->setSpriteSheet(loadTexture(e->getSpriteFilePath()));
+	}
+	if (SDL_HasIntersection(e->getCollisionBox(), camera))
+	{
+		SDL_Rect spriteSheetClip = { 0, 0, e->getSpriteWidth(), e->getSpriteHeight() };
+		SDL_Rect fillRect = { (e->getPosX() - camera->x) * zoomScale, (e->getPosY() - camera->y) * zoomScale , e->getWidth() * zoomScale , e->getHeight() * zoomScale };
+		SDL_RenderCopy(gameRenderer, e->getSpriteSheet(), &spriteSheetClip, &fillRect);
+	}
+}
+
+void EditorView::renderText(std::string text, SDL_Rect * textRect)
+{
+	std::stringstream s;
+	s << text;
+
+	TTF_Font* font = TTF_OpenFont("segoeui.ttf", 24);
+	if (!font)
+	{
+		printf("TTF_OpenFont Error: %s\n", TTF_GetError());
+	}
+	SDL_Color textColor = { 0, 0, 0 };
+	SDL_Surface* messageSurface;
+	if (!(messageSurface = TTF_RenderText_Solid(font, s.str().c_str(), textColor)))
+	{
+		printf("Text could not display. TTF Error: %s\n", TTF_GetError());
+	}
+	else
+	{
+		SDL_Texture* message = SDL_CreateTextureFromSurface(gameRenderer, messageSurface);
+
+		SDL_RenderCopy(gameRenderer, message, NULL, textRect);
+		SDL_DestroyTexture(message);
+	}
+	SDL_FreeSurface(messageSurface);
+	TTF_CloseFont(font);
+}
+
+void EditorView::renderButtons()
+{
+	for (Button* aButton : buttons)
+	{
+		if (aButton->getIsVisible())
+		{
+			renderAButton(aButton);
+		}
+	}
+}
+
+void EditorView::renderAButton(Button * aButton)
+{
+	if (aButton->getIsVisible())
+	{
+		SDL_Rect spriteSheetClip = { aButton->getButtonState() * aButton->getButtonImageWidth(),
+			0,
+			aButton->getButtonImageWidth(), aButton->getButtonImageHeight() };
+		SDL_Rect renderRect = { aButton->getRect()->x , aButton->getRect()->y , aButton->getRect()->w , aButton->getRect()->h };
+		SDL_RenderCopy(gameRenderer, aButton->getTexture(), &spriteSheetClip, &renderRect);
+		renderText(aButton->getButtonText(), aButton->getRect());
+	}
+}
+
+void EditorView::renderImage(Image * anImage)
+{
+	if (!anImage->getIsVisible())
+	{
+		return;
+	}
+	else
+	{
+		SDL_Rect renderRect = { anImage->getRect()->x , anImage->getRect()->y , anImage->getRect()->w , anImage->getRect()->h };
+		SDL_RenderCopy(gameRenderer, anImage->getTexture(), NULL, &renderRect);
+	}
+}
+
+void EditorView::renderGUIElements()
+{
+	for (GUIElement* g : gui)
+	{
+		g->render();
+	}
+}
+
+void EditorView::moveCameraLeft()
+{
+	moveCamera(-3, 0);
+}
+
+void EditorView::moveCameraRight()
+{
+	moveCamera(3, 0);
+}
+
+void EditorView::moveCameraUp()
+{
+	moveCamera(0, -3);
+}
+
+void EditorView::moveCameraDown()
+{
+	moveCamera(0, 3);
+}
+
+void EditorView::addButton(Button * aButton)
+{
+	buttons.push_back(aButton);
+	gui.push_back(aButton);
+}
+
+Button * EditorView::addButton(double posX, double posY, double width, double height, bool isVisible, std::string filePath, std::string buttonText, EventHandler eventHandler)
+{
+	Button* aButton = new Button(posX, posY, width, height, isVisible, filePath, gScreenSurface, gameRenderer, buttonText, eventHandler);
+	addButton(aButton);
+	return aButton;
+}
+
+void EditorView::toggleMenu()
+{
+	menu->toggleVisibility();
+	renderUpdate();
+}
+
+void EditorView::close()
+{
+	SDL_DestroyRenderer(gameRenderer);
+	SDL_DestroyWindow(gameWindow);
+	gameWindow = nullptr;
+	gameRenderer = nullptr;
+	TTF_Quit();
+	SDL_Quit();
+}
+
+void EditorView::moveCamera(int xChange, int yChange)
+{
+	camera->x += xChange;
+	camera->y += yChange;
+	//Keep the camera in bounds
+	if (camera->x < 0)
+	{
+		camera->x = 0;
+	}
+	else if (camera->x > levelWidth - camera->w)
+	{
+		camera->x = levelWidth - camera->w;
+	}
+	if (camera->y < 0)
+	{
+		camera->y = 0;
+	}
+	else if (camera->y > levelHeight - camera->h)
+	{
+		camera->y = levelHeight - camera->h;
+	}
+}
+
+bool EditorView::init()
+{
+	bool success = true;
+
+	//Initialize SDL
+	if (SDL_Init(SDL_INIT_VIDEO) < 0)
+	{
+		printf("SDL could not initialize. SDL Error: %s\n", SDL_GetError());
+		success = false;
+	}
+	else
+	{
+		//Set texture filtering to linear
+		if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"))
+		{
+			printf("Warning: Linear texture filtering not enabled! \n");
+		}
+
+		//Create window
+		gameWindow = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowWidth, windowHeight, SDL_WINDOW_SHOWN);
+		if (gameWindow == nullptr)
+		{
+			printf("Window could not be created. SDL Error: %s\n", SDL_GetError());
+			success = false;
+		}
+		else
+		{
+			//SDL_SetWindowResizable(gameWindow, SDL_TRUE);
+			//Create renderer for window
+			gameRenderer = SDL_CreateRenderer(gameWindow, -1, SDL_RENDERER_ACCELERATED);
+			if (gameRenderer == nullptr)
+			{
+				printf("Renderer could not be created. SDL Error: %s\n", SDL_GetError());
+				success = false;
+			}
+			else
+			{
+				//Initialize renderer color
+				SDL_SetRenderDrawColor(gameRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+			}
+			//Get window surface
+			gScreenSurface = SDL_GetWindowSurface(gameWindow);
+		}
+	}
+	//Initialize SDL_ttf
+	if (TTF_Init() == -1)
+	{
+		printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
+		success = false;
+	}
+	return success;
+}
+
+bool EditorView::initGUI()
+{
+	bool success = true;
+	double width = 50;
+	if (50 < windowWidth / 15)
+	{
+		width = windowWidth / 15;
+	}
+	double height = 20;
+	if (20 < windowHeight / 15)
+	{
+		height = windowHeight / 15;
+	}
+	double posX = windowWidth - width;
+	double posY = 0;
+	menuButton = new Button(posX, posY, width, height, true, "default_button.bmp", gScreenSurface, gameRenderer, "MENU", std::bind(&EditorView::toggleMenu, this));
+	addButton(menuButton);
+	menu = new ButtonMenu(225, 100, 150, 200, false, "menu.bmp", gScreenSurface, gameRenderer, 150, 10, 8, 1);
+	gui.push_back(menu);
+	restartButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "RESTART", nullptr); //TODO: handler doesn't work quite right
+	addButton(restartButton);
+	menu->addButton(restartButton);
+	settingsButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "SETTINGS", nullptr); //TODO: handler
+	addButton(settingsButton);
+	menu->addButton(settingsButton);
+	editorButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "EDITOR", nullptr); //TODO: handler
+	addButton(editorButton);
+	menu->addButton(editorButton);
+	mainMenuButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "MAIN MENU", nullptr); //TODO: handler
+	addButton(mainMenuButton);
+	menu->addButton(mainMenuButton);
+	return success;
+}
+
+SDL_Texture * EditorView::loadTexture(std::string filePath)
+{
+	SDL_Texture* texture = nullptr;
+
+	SDL_Surface* textureImage = loadImage(filePath);
+	if (textureImage == nullptr)
+	{
+		printf("Unable to load image %s. SDL Error: %s\n", filePath.c_str(), SDL_GetError());
+	}
+	else
+	{
+		SDL_SetColorKey(textureImage, SDL_TRUE, SDL_MapRGB(textureImage->format, 0xFF, 0, 0xFF));
+		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
+		texture = SDL_CreateTextureFromSurface(gameRenderer, textureImage);
+		if (texture == nullptr)
+		{
+			printf("Unable to create texture from %s. SDL Error: %s\n", filePath.c_str(), SDL_GetError());
+		}
+
+		SDL_FreeSurface(textureImage);
+	}
+
+	return texture;
+}
+
+SDL_Surface * EditorView::loadImage(std::string filePath) const
+{
+	SDL_Surface* optimizedImage = nullptr;
+
+	SDL_Surface* loadedImage = SDL_LoadBMP(filePath.c_str());
+	if (loadedImage == nullptr)
+	{
+		printf("Unable to load image %s. SDL Error: %s\n", filePath.c_str(), SDL_GetError());
+	}
+	else
+	{
+		optimizedImage = SDL_ConvertSurface(loadedImage, gScreenSurface->format, 0); //convert to image on surface to pixel format of the game's screen surface for optimization
+		if (optimizedImage == nullptr)
+		{
+			printf("Unable to optimize image %s. SDL Error: %s\n", filePath.c_str(), SDL_GetError());
+		}
+
+		SDL_FreeSurface(loadedImage); //free memory of loadedImage
+	}
+	return optimizedImage;
 }

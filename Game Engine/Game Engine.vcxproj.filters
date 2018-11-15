@@ -78,6 +78,9 @@
     <ClCompile Include="ButtonMenu.cpp">
       <Filter>Source Files\View</Filter>
     </ClCompile>
+    <ClCompile Include="EditorController.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameController.h">
@@ -129,6 +132,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ButtonMenu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EditorController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

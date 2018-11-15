@@ -130,6 +130,7 @@
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="ButtonMenu.cpp" />
     <ClCompile Include="Character.cpp" />
+    <ClCompile Include="EditorController.cpp" />
     <ClCompile Include="EditorModel.cpp" />
     <ClCompile Include="EditorView.cpp" />
     <ClCompile Include="Enemy.cpp" />
@@ -150,6 +151,7 @@
     <ClInclude Include="Button.h" />
     <ClInclude Include="ButtonMenu.h" />
     <ClInclude Include="Character.h" />
+    <ClInclude Include="EditorController.h" />
     <ClInclude Include="EditorModel.h" />
     <ClInclude Include="EditorView.h" />
     <ClInclude Include="Enemy.h" />

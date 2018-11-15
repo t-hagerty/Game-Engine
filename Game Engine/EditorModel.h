@@ -36,6 +36,7 @@ private:
 	int mapCols;
 	std::vector<Entity*> entities;
 	Player* player;
+	bool setIsSolid(int tileType);
 	static bool isInsideWall(Entity* entity, Tile* t);
 	bool isInsideAnyWalls(Entity* entity, int topRow, int bottomRow, int leftCol, int rightCol) const;
 	static bool isIntersectingEntity(Entity* e1, Entity* e2);
@@ -61,5 +62,6 @@ private:
 		LAVA,
 		SPIKES
 	};
+	bool isSolidTable[NUMBER_TILE_TYPES] = { false, true, true, true, true, true, true, false, true, false, false, false, false, false, false, false, false, false };
 };
 

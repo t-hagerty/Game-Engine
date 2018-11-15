@@ -1,28 +1,24 @@
 #pragma once
-#include "GameModel.h"
-#include "GameView.h"
+#include "EditorModel.h"
+#include "EditorView.h"
 #include <SDL.h>
-#undef main
-
-class GameController
+class EditorController
 {
 public:
-	GameController(GameModel* m, GameView* v);
-	~GameController();
+	EditorController(EditorModel* m, EditorView* v);
+	~EditorController();
 	SDL_Event e;
 	int getExitCondition();
 private:
 	int fps = 0;
 	void gameLoop();
-	void movePlayer(const Uint8* keyStates);
 	void update(double delta) const;
 	void render() const;
 	void mouseEventHandler(SDL_Event* e);
-	void restartLevel();
-	void goToEditor();
+	void goToGame();
 	void goToMenu();
-	GameModel* model;
-	GameView* view;
+	EditorModel* model;
+	EditorView* view;
 	//Key press surfaces constants
 	enum KeyPresses
 	{

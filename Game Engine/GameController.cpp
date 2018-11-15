@@ -8,12 +8,17 @@ GameController::GameController(GameModel* m, GameView* v)
 {
 	model = m;
 	view = v;
-	view->setRetryButton(std::bind(&GameController::restartLevel, this));
+	view->setButtonHandlers(std::bind(&GameController::restartLevel, this), std::bind(&GameController::goToEditor, this), std::bind(&GameController::goToMenu, this));
 	gameLoop();
 }
 
 GameController::~GameController()
 {
+}
+
+int GameController::getExitCondition()
+{
+	return exitCondition;
 }
 
 void GameController::update(double delta) const
@@ -94,6 +99,18 @@ void GameController::restartLevel()
 	view->setIsPaused(false);
 }
 
+void GameController::goToEditor()
+{
+	exitCondition = EDITOR;
+	quitLoop = true;
+}
+
+void GameController::goToMenu()
+{
+	exitCondition = MAIN_MENU;
+	quitLoop = true;
+}
+
 /*
  *Partially adapted from a wonderful game loop tutorial at http://www.java-gaming.org/index.php?topic=24220.0
 */
@@ -103,10 +120,9 @@ void GameController::gameLoop()
 	long lastLoopTime = SDL_GetTicks(); //SDL_GetTicks() returns a value in milliseconds
 	const int TARGET_FPS = 60;
 	const int OPTIMAL_MS_PER_FRAME = 1000 / TARGET_FPS; //1000 milliseconds in a second, divide by the target frames per second gives optimal milliseconds per frame
-	bool quit = false;
 
 	//game loop
-	while( !quit)
+	while( !quitLoop)
 	{
 		long now = SDL_GetTicks();
 		long updateLength = now - lastLoopTime;
@@ -132,7 +148,7 @@ void GameController::gameLoop()
 			//User requests quit
 			if (e.type == SDL_QUIT)
 			{
-				quit = true;
+				quitLoop = true;
 				view->close();
 				return;
 			}
@@ -143,7 +159,7 @@ void GameController::gameLoop()
 				switch (e.key.keysym.sym)
 				{
 				case SDLK_s:
-					model->saveMap("testMap");
+					//model->saveMap("testMap");
 					break;
 				default:
 					break;

@@ -6,11 +6,12 @@
 #include "Entity.h"
 #include "Button.h"
 #include "Image.h"
+#include "ButtonMenu.h"
 class EditorView
 {
 public:
 	typedef std::function<void()> EventHandler;
-	EditorView();
+	EditorView(int levelW, int levelH);
 	~EditorView();
 	void setWindowWidth(int newWidth);
 	int getWindowWidth() const;
@@ -28,16 +29,20 @@ public:
 	void renderAButton(Button* aButton);
 	void renderImage(Image* anImage);
 	void renderGUIElements();
-	void positionCamera(SDL_Rect* playerBox) const;
+	void moveCameraLeft();
+	void moveCameraRight();
+	void moveCameraUp();
+	void moveCameraDown();
 	void addButton(Button* aButton);
 	Button* addButton(double posX, double posY, double width, double height, bool isVisible, std::string filePath, std::string buttonText, EventHandler eventHandler);
 	void toggleMenu();
 	void close();
 private:
-	SDL_Window* editorWindow = nullptr;
-	SDL_Surface* eScreenSurface = nullptr;
-	SDL_Renderer* editorRenderer = nullptr;
+	SDL_Window* gameWindow = nullptr;
+	SDL_Surface* gScreenSurface = nullptr;
+	SDL_Renderer* gameRenderer = nullptr;
 	SDL_Rect* camera = new SDL_Rect();
+	void moveCamera(int xChange, int yChange);
 	int windowHeight = 400;
 	int windowWidth = 600;
 	float zoomScale = 1;
@@ -71,7 +76,13 @@ private:
 	};
 
 	std::vector<Button*> buttons;
+	std::vector<GUIElement*> gui;
 	Button* menuButton;
-	Image* menuBackground;
+	Button* mainMenuButton;
+	Button* editorButton;
+	Button* settingsButton;
+	Button* restartButton;
+	Button* retryButton;
+	ButtonMenu* menu;
 };
 

@@ -23,7 +23,7 @@ public:
 	float getZoomScale();
 	void setIsPaused(bool paused);
 	bool getIsPaused();
-	void setRetryButton(EventHandler buttonEventHandler);
+	void setButtonHandlers(EventHandler retryButtonHandler, EventHandler editorButtonHandler, EventHandler mainMenuButtonHandler);
 	std::vector<Button*> getButtons();
 	void renderClear(int red = 0xFF, int green = 0xFF, int blue = 0xFF, int alpha = 0xFF) const;
 	void renderUpdate() const;
@@ -40,6 +40,7 @@ public:
 	void addButton(Button* aButton);
 	Button* addButton(double posX, double posY, double width, double height, bool isVisible, std::string filePath, std::string buttonText, EventHandler eventHandler);
 	void toggleMenu();
+	void settingsButtonPressed();
 	void isGameOverScreen(bool isGameOver);
 	bool getIsGameOverScreen();
 	void close();
