@@ -8,7 +8,4 @@ Projectile::Projectile(int entityHeight, int entityWidth, float positionX, float
 	setHealth(1);
 }
 
-
-Projectile::~Projectile()
-{
-}
+Projectile::~Projectile() {}

@@ -43,6 +43,15 @@ EditorView::EditorView(int levelW, int levelH, int windowW, int windowH, SDL_Win
 EditorView::~EditorView()
 {
 	renderClear(0xFF, 0xFF, 0xFF, 0xFF);
+	delete camera;
+	for (GUIElement* g : gui)
+	{
+		delete g;
+	}
+	/*for (SDL_Texture* t : tileSet)
+	{
+		delete t;
+	}*/
 }
 
 void EditorView::setWindowWidth(int newWidth)
@@ -132,7 +141,7 @@ void EditorView::renderTileMap(std::vector<Tile*> map, int rows, int cols, int t
 		if (SDL_HasIntersection(t->getTileSpace(), camera))
 		{
 			//Set rendering space and render to screen
-			SDL_Rect renderQuad = { (t->getTileSpace()->x - camera->x) * zoomScale , (t->getTileSpace()->y - camera->y) * zoomScale , t->getTileSpace()->w * zoomScale, t->getTileSpace()->h * zoomScale };
+			SDL_Rect renderQuad = { ((t->getTileSpace()->x - camera->x) * zoomScale) + selectionMenuWidth, (t->getTileSpace()->y - camera->y) * zoomScale , t->getTileSpace()->w * zoomScale, t->getTileSpace()->h * zoomScale };
 			SDL_Rect textureFrameClip = { 0, t->getAnimationFrame() * t->getTextureFrameHeight(), t->getTextureFrameWidth(), t->getTextureFrameHeight() };
 			//Render to screen
 			SDL_RenderCopyEx(gameRenderer, tileSet.at(t->getType()), &textureFrameClip, &renderQuad, 0.0, NULL, SDL_FLIP_NONE);
@@ -160,6 +169,10 @@ void EditorView::renderEntitySprite(Entity * e, int frame)
 
 void EditorView::renderText(std::string text, SDL_Rect * textRect)
 {
+	if (text == "")
+	{
+		return;
+	}
 	std::stringstream s;
 	s << text;
 
@@ -323,6 +336,9 @@ bool EditorView::initGUI()
 	mainMenuButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "MAIN MENU", nullptr);
 	addButton(mainMenuButton);
 	menu->addButton(mainMenuButton);
+	selectionMenu = new ButtonMenu(0, 0, selectionMenuWidth, windowHeight, true, "menu.bmp", gScreenSurface, gameRenderer, 32, 10, 10, 3);
+	populateSelectionMenu(); //adding the buttons to the selection menu halves the fps for some reason
+	gui.push_back(selectionMenu); 
 	return success;
 }
 
@@ -371,4 +387,22 @@ SDL_Surface * EditorView::loadImage(std::string filePath) const
 		SDL_FreeSurface(loadedImage); //free memory of loadedImage
 	}
 	return optimizedImage;
+}
+
+void EditorView::populateSelectionMenu()
+{
+	for (SDL_Texture* t : tileSet)
+	{
+		Button* b = new Button(0, 0, 32, 32, true, "default_button.bmp", gScreenSurface, gameRenderer, " ", nullptr);
+		b->setTexture(t);
+		addButton(b);
+		selectionMenu->addButton(b);
+	}
+	//for (int i = 0; i < 10; i++)
+	//{
+	//	Button* b = new Button(0, 0, 32, 32, true, "default_button.bmp", gScreenSurface, gameRenderer, " ", nullptr);
+	//	b->setTexture(tileSet[i]);
+	//	addButton(b);
+	//	selectionMenu->addButton(b);
+	//}
 }

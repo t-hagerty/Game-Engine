@@ -47,6 +47,15 @@ GameView::GameView(int levelW, int levelH, int windowW, int windowH, SDL_Window*
 GameView::~GameView()
 {
 	renderClear(0xFF, 0xFF, 0xFF, 0xFF);
+	delete camera;
+	for (GUIElement* g : gui)
+	{
+		delete g;
+	}
+	/*for (SDL_Texture* t : tileSet)
+	{
+		delete t;
+	}*/
 }
 
 void GameView::setWindowWidth(int newWidth)
@@ -201,6 +210,10 @@ void GameView::renderEntitySprite(Entity* e, int frame)
 
 void GameView::renderText(std::string text, SDL_Rect * textRect)
 {
+	if (text == "")
+	{
+		return;
+	}
 	std::stringstream s;
 	s << text;
 

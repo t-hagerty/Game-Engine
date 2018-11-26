@@ -14,9 +14,7 @@ GUIElement::GUIElement(double x, double y, double width, double height, bool vis
 	loadTexture(targetSurface, targetRenderer, imageFilePath);
 }
 
-GUIElement::~GUIElement()
-{
-}
+GUIElement::~GUIElement() {}
 
 bool GUIElement::loadTexture(SDL_Surface* targetSurface, SDL_Renderer* targetRenderer, std::string filePath)
 {
@@ -137,6 +135,10 @@ bool GUIElement::render()
 bool GUIElement::renderText(std::string text, SDL_Rect * textRect)
 {
 	bool success = true;
+	if (text == "")
+	{
+		return success;
+	}
 	std::stringstream s;
 	s << text;
 

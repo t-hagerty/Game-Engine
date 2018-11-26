@@ -42,9 +42,7 @@ Entity::Entity(const Entity & e)
 	groundHitBox->h = height / 2;
 }
 
-Entity::~Entity()
-{
-}
+Entity::~Entity() {}
 
 void Entity::setHealth(double newHealth)
 {

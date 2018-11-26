@@ -19,6 +19,7 @@ Tile::Tile(int x, int y, int size, int typeOfTile, bool isSolid, bool isAPit, Ti
 
 Tile::~Tile()
 {
+	delete tileSpace;
 }
 
 int Tile::getType() const

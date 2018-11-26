@@ -10,5 +10,7 @@ Image::Image(double x, double y, double width, double height, bool visible, std:
 
 Image::~Image()
 {
+	//delete texture;
+	delete rect;
 }
 

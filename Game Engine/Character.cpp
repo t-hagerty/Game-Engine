@@ -7,11 +7,6 @@ Character::Character(int h, int w, double positionX, double positionY, double ve
 	health = hp;
 }
 
-
-Character::~Character()
-{
-}
-
 void Character::hitWall(short direction)
 {
 	if (direction == 0 || direction == 3)
@@ -24,4 +19,4 @@ void Character::hitWall(short direction)
 	}
 }
 
-
+Character::~Character() {}

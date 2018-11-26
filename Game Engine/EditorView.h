@@ -83,6 +83,9 @@ private:
 	Button* testButton;
 	Button* retryButton;
 	ButtonMenu* menu;
-	ButtonMenu* tileMenu;
+	ButtonMenu* selectionMenu;
+	int selectionMenuWidth = 126;
+	int selection = -1;
+	void populateSelectionMenu();
 };
 

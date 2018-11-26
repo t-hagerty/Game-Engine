@@ -21,6 +21,9 @@ Enemy::Enemy(const Enemy &e) : Character(e.getHeight(), e.getWidth(), e.getPosX(
 
 Enemy::~Enemy()
 {
+	delete collisionBox;
+	delete groundHitBox;
+	//delete spriteSheet;
 }
 
 Entity * Enemy::clone() const

@@ -21,6 +21,12 @@ ButtonMenu::ButtonMenu(double x, double y, double width, double height, bool vis
 
 ButtonMenu::~ButtonMenu()
 {
+	/*for (Button* b : buttons)
+	{
+		delete b;
+	}*/
+	delete rect;
+	//delete texture;
 }
 
 int ButtonMenu::getMaxButtonHeight()

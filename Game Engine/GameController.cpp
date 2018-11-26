@@ -77,18 +77,16 @@ void GameController::mouseEventHandler(SDL_Event* e)
 
 		switch (e->type)
 		{
-		case SDL_MOUSEMOTION:
-			aButton->setIsMouseOver(true);
-			break;
-
 		case SDL_MOUSEBUTTONDOWN:
 			aButton->setIsMouseDown(true);
-			break;
-
+			return;
+		case SDL_MOUSEMOTION:
+			aButton->setIsMouseOver(true);
+			return;
 		case SDL_MOUSEBUTTONUP:
 			aButton->setIsMouseUp(true);
 			aButton->triggerEvent();
-			break;
+			return;
 		}
 	}
 }

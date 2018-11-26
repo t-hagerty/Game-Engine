@@ -5,7 +5,7 @@ class Projectile :
 {
 public:
 	Projectile(int entityHeight, int entityWidth, float positionX, float positionY, float velocityX, float velocityY);
-	virtual ~Projectile();
+	virtual ~Projectile() = 0;
 	
 protected:
 };

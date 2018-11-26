@@ -5,7 +5,7 @@ class Character :
 {
 public:
 	Character(int h, int w, double positionX, double positionY, double velX, double velY, double hp);
-	virtual ~Character();
+	virtual ~Character() = 0;
 	void hitWall(short direction) override;
 protected:
 

@@ -15,6 +15,9 @@ Arrow::Arrow(const Arrow & a) : Projectile(a.getHeight(), a.getWidth(), a.getPos
 
 Arrow::~Arrow()
 {
+	delete collisionBox;
+	delete groundHitBox;
+	//delete spriteSheet;
 }
 
 Entity * Arrow::clone() const

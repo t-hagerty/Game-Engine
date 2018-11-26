@@ -11,6 +11,8 @@ Button::Button(double x, double y, double width, double height, bool visible, st
 
 Button::~Button()
 {
+	delete rect;
+	//delete texture;
 }
 
 int Button::getButtonImageWidth()

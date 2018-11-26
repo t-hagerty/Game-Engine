@@ -14,6 +14,9 @@ Player::Player(const Player & p) : Character(p.getHeight(), p.getWidth(), p.getP
 
 Player::~Player()
 {
+	delete collisionBox;
+	delete groundHitBox;
+	//delete spriteSheet;
 }
 
 Entity * Player::clone() const

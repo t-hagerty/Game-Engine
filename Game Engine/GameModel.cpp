@@ -19,6 +19,23 @@ GameModel::GameModel()
 
 GameModel::~GameModel()
 {
+	deleteMap();
+	delete downTreadmillEffect;
+	delete rightTreadmillEffect;
+	delete leftTreadmillEffect;
+	delete upTreadmillEffect;
+	delete iceEffect;
+	delete mudEffect;
+	delete lavaEffect;
+	delete spikeEffect;
+	for (Entity* e : entities)
+	{
+		delete e;
+	}
+	for (Entity* e : entitiesInitialState)
+	{
+		delete e;
+	}
 }
 
 void GameModel::addEntity(Entity * newEntity)

@@ -13,6 +13,7 @@ EditorModel::EditorModel()
 
 EditorModel::~EditorModel()
 {
+	deleteMap();
 }
 
 void EditorModel::addEntity(Entity * newEntity)
