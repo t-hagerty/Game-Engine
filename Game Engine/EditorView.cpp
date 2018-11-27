@@ -48,10 +48,10 @@ EditorView::~EditorView()
 	{
 		delete g;
 	}
-	/*for (SDL_Texture* t : tileSet)
+	for (SDL_Texture* t : tileSet)
 	{
-		delete t;
-	}*/
+		SDL_DestroyTexture(t);
+	}
 }
 
 void EditorView::setWindowWidth(int newWidth)

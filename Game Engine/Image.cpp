@@ -10,7 +10,7 @@ Image::Image(double x, double y, double width, double height, bool visible, std:
 
 Image::~Image()
 {
-	//delete texture;
+	SDL_DestroyTexture(texture);
 	delete rect;
 }
 

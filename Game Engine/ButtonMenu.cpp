@@ -26,7 +26,7 @@ ButtonMenu::~ButtonMenu()
 		delete b;
 	}*/
 	delete rect;
-	//delete texture;
+	SDL_DestroyTexture(texture);
 }
 
 int ButtonMenu::getMaxButtonHeight()

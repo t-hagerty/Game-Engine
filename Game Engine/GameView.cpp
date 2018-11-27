@@ -52,10 +52,10 @@ GameView::~GameView()
 	{
 		delete g;
 	}
-	/*for (SDL_Texture* t : tileSet)
+	for (SDL_Texture* t : tileSet)
 	{
-		delete t;
-	}*/
+		SDL_DestroyTexture(t);
+	}
 }
 
 void GameView::setWindowWidth(int newWidth)

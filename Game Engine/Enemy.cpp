@@ -23,7 +23,7 @@ Enemy::~Enemy()
 {
 	delete collisionBox;
 	delete groundHitBox;
-	//delete spriteSheet;
+	SDL_DestroyTexture(spriteSheet);
 }
 
 Entity * Enemy::clone() const

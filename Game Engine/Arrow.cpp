@@ -17,7 +17,7 @@ Arrow::~Arrow()
 {
 	delete collisionBox;
 	delete groundHitBox;
-	//delete spriteSheet;
+	SDL_DestroyTexture(spriteSheet);
 }
 
 Entity * Arrow::clone() const
