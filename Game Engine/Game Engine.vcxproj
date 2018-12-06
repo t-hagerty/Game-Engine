@@ -135,6 +135,7 @@
     <ClCompile Include="EditorView.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="GUIElement.cpp" />
+    <ClCompile Include="HealthBar.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="TileEffect.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -156,6 +157,7 @@
     <ClInclude Include="EditorView.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="GUIElement.h" />
+    <ClInclude Include="HealthBar.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="TileEffect.h" />
     <ClInclude Include="Player.h" />

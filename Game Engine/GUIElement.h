@@ -31,6 +31,5 @@ protected:
 	SDL_Surface* trgtSurface;
 	SDL_Renderer* trgtRenderer;
 	bool isVisible;
-	bool renderText(std::string text, SDL_Rect* textRect);
 };
 

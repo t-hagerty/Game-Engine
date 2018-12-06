@@ -29,11 +29,12 @@ private:
 	const int BUTTON_IMAGE_WIDTH = 32;
 	const int BUTTON_IMAGE_HEIGHT = 32;
 	std::string text;
+	SDL_Texture* textTexture;
 	bool isMouseOver;
 	bool isMouseDown;
 	bool isMouseUp;
 	int buttonState = 0; //spritesheet 0 = default, 1 = mouseover, 2 = mousedown, 3 = mouseup
 	EventHandler handler;
-	
+	bool makeButtonTextTexture();
 };
 

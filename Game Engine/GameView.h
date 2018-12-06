@@ -8,6 +8,7 @@
 #include "Button.h"
 #include "Image.h"
 #include "ButtonMenu.h"
+#include "HealthBar.h"
 
 class GameView
 {
@@ -88,5 +89,6 @@ private:
 	Button* restartButton;
 	Button* retryButton;
 	ButtonMenu* menu;
+	HealthBar* hpBar;
 };
 

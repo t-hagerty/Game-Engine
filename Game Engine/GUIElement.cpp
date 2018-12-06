@@ -126,43 +126,7 @@ bool GUIElement::render()
 	}
 	else
 	{
-		SDL_Rect renderRect = { getPosX() , getPosY() , getWidth() , getHeight() };
-		SDL_RenderCopy(trgtRenderer, texture, NULL, &renderRect);
+		SDL_RenderCopy(trgtRenderer, texture, NULL, rect);
 	}
-	return success;
-}
-
-bool GUIElement::renderText(std::string text, SDL_Rect * textRect)
-{
-	bool success = true;
-	if (text == "")
-	{
-		return success;
-	}
-	std::stringstream s;
-	s << text;
-
-	TTF_Font* font = TTF_OpenFont("segoeui.ttf", 24);
-	if (!font)
-	{
-		printf("TTF_OpenFont Error: %s\n", TTF_GetError());
-		return false;
-	}
-	SDL_Color textColor = { 0, 0, 0 };
-	SDL_Surface* messageSurface;
-	if (!(messageSurface = TTF_RenderText_Solid(font, s.str().c_str(), textColor)))
-	{
-		printf("GUIElement text could not display. TTF Error: %s\n", TTF_GetError());
-		success = false;
-	}
-	else
-	{
-		SDL_Texture* message = SDL_CreateTextureFromSurface(trgtRenderer, messageSurface);
-
-		SDL_RenderCopy(trgtRenderer, message, NULL, textRect);
-		SDL_DestroyTexture(message);
-	}
-	SDL_FreeSurface(messageSurface);
-	TTF_CloseFont(font);
 	return success;
 }

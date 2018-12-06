@@ -241,15 +241,13 @@ void GameView::renderText(std::string text, SDL_Rect * textRect)
 
 void GameView::renderPlayerInfo(double playerHealth)
 {
-	std::string s;
-	s = std::to_string((int)playerHealth);
-	SDL_Rect messageRect;
-	messageRect.x = 20;
-	messageRect.y = 0;
-	messageRect.w = 48;
-	messageRect.h = 48;
-
-	renderText(s, &messageRect);
+	if (hpBar == nullptr)
+	{
+		hpBar = new HealthBar(0, 0, 160, 32, true, "menu.bmp", gScreenSurface, gameRenderer, playerHealth);
+		gui.push_back(hpBar);
+	}
+	hpBar->update(playerHealth);
+	hpBar->render();
 }
 
 void GameView::renderButtons()
