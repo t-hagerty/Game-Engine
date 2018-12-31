@@ -75,9 +75,29 @@ int EditorModel::getLevelHeight() const
 	return levelHeight;
 }
 
+void EditorModel::setSelectedTileType(int newType)
+{
+	if (newType >= 0 && newType < NUMBER_TILE_TYPES)
+	{
+		selectedTileType = newType;
+	}
+}
+
+int EditorModel::getSelectedTileType()
+{
+	return selectedTileType;
+}
+
 std::vector<Tile*> EditorModel::getTileMap() const
 {
 	return tileMap;
+}
+
+void EditorModel::clickTile(int x, int y)
+{
+	int col = x / tileSize;
+	int row = y / tileSize;
+	replaceTile(row, col, new Tile(col * tileSize, row * tileSize, tileSize, selectedTileType, setIsSolid(selectedTileType), ((selectedTileType == 15) ? true : false), nullptr));
 }
 
 bool EditorModel::openMap()
@@ -110,12 +130,7 @@ bool EditorModel::openMap()
 	{
 		for (int c = 0; c < mapCols; c++)
 		{
-			bool isPit = false;
-			if (testMap[r][c] == 15)
-			{
-				isPit = true;
-			}
-			tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, testMap[r][c], setIsSolid(testMap[r][c]), isPit, nullptr));
+			tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, testMap[r][c], setIsSolid(testMap[r][c]), ((testMap[r][c] == 15) ? true : false), nullptr));
 		}
 	}
 	saveMap("blankMap");
@@ -285,6 +300,13 @@ bool EditorModel::saveMap(std::string filePath) const
 Tile * EditorModel::getTileAtMapIndex(int row, int col) const
 {
 	return tileMap.at((row*mapCols) + col);
+}
+
+void EditorModel::replaceTile(int row, int col, Tile * newTile)
+{
+	Tile* temp = getTileAtMapIndex(row, col);
+	tileMap.at((row*mapCols) + col) = newTile;
+	delete temp;
 }
 
 bool EditorModel::setIsSolid(int tileType)

@@ -2,6 +2,7 @@
 #include <SDL.h>
 #include <string>
 #include <vector>
+#include <tuple>
 #include "Tile.h"
 #include "Entity.h"
 #include "Button.h"
@@ -10,7 +11,7 @@
 class EditorView
 {
 public:
-	typedef std::function<void()> EventHandler;
+	typedef std::function<void(int)> EventHandler;
 	EditorView(int levelW, int levelH, int windowW, int windowH, SDL_Window* window, SDL_Surface* screen, SDL_Renderer* renderer);
 	~EditorView();
 	void setWindowWidth(int newWidth);
@@ -19,6 +20,8 @@ public:
 	int getWindowHeight() const;
 	void setZoomScale(float newScale);
 	float getZoomScale();
+	bool isPaused();
+	std::tuple<int, int> convertScreenCoordsToModel(int mouseX, int mouseY);
 	void setButtonHandlers(EventHandler retryButtonHandler, EventHandler editorButtonHandler, EventHandler mainMenuButtonHandler);
 	std::vector<Button*> getButtons();
 	void renderClear(int red = 0xFF, int green = 0xFF, int blue = 0xFF, int alpha = 0xFF) const;
@@ -36,6 +39,7 @@ public:
 	void moveCameraDown();
 	void addButton(Button* aButton);
 	Button* addButton(double posX, double posY, double width, double height, bool isVisible, std::string filePath, std::string buttonText, EventHandler eventHandler);
+	void setSelectionButtonHandlers(EventHandler handler);
 	void toggleMenu();
 private:
 	SDL_Window* gameWindow = nullptr;
@@ -85,7 +89,6 @@ private:
 	ButtonMenu* menu;
 	ButtonMenu* selectionMenu;
 	int selectionMenuWidth = 126;
-	int selection = -1;
 	void populateSelectionMenu();
 };
 

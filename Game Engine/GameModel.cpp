@@ -490,12 +490,7 @@ bool GameModel::openMap()
 	{
 		for(int c = 0; c < mapCols; c++)
 		{
-			bool isPit = false;
-			if (testMap[r][c] == 15)
-			{
-				isPit = true;
-			}
-			tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, testMap[r][c], setIsSolid(testMap[r][c]), isPit, setTileEffect(testMap[r][c])));
+			tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, testMap[r][c], setIsSolid(testMap[r][c]), ((testMap[r][c] == 15) ? true : false), setTileEffect(testMap[r][c])));
 		}
 	}
 	player = new Player(32, 32, 60, 80, 0, 0, 10);

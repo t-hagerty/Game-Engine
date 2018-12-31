@@ -6,7 +6,7 @@ class ButtonMenu :
 	public GUIElement
 {
 public:
-	typedef std::function<void()> EventHandler;
+	typedef std::function<void(int)> EventHandler;
 	ButtonMenu(double x, double y, double width, double height, bool visible, std::string imageFilePath, SDL_Surface* targetSurface, SDL_Renderer* targetRenderer,
 		int maxBttnHght, int wMargin, int hMargin, int numCols);
 	ButtonMenu(double x, double y, double width, double height, bool visible, std::string imageFilePath, SDL_Surface* targetSurface, SDL_Renderer* targetRenderer,

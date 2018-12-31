@@ -7,7 +7,7 @@ class Button :
 	public GUIElement
 {
 public:
-	typedef std::function<void()> EventHandler;
+	typedef std::function<void(int)> EventHandler;
 	Button(double x, double y, double width, double height, bool visible, std::string imageFilePath = "default_button.bmp", SDL_Surface* targetSurface = nullptr, SDL_Renderer* targetRenderer = nullptr, std::string buttonText = "", EventHandler buttonEventHandler = NULL);
 	~Button();
 	int getButtonImageWidth();
@@ -24,6 +24,8 @@ public:
 	EventHandler getEventHandler();
 	void setEventHandler(EventHandler newHandler);
 	void triggerEvent();
+	void setEventArg(int newArg);
+	int getEventArg();
 	bool render() override;
 private:
 	const int BUTTON_IMAGE_WIDTH = 32;
@@ -35,6 +37,7 @@ private:
 	bool isMouseUp;
 	int buttonState = 0; //spritesheet 0 = default, 1 = mouseover, 2 = mousedown, 3 = mouseup
 	EventHandler handler;
+	int eventArgument = 0;
 	bool makeButtonTextTexture();
 };
 

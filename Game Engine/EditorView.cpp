@@ -109,6 +109,18 @@ float EditorView::getZoomScale()
 	return zoomScale;
 }
 
+bool EditorView::isPaused()
+{
+	return ((menu->getIsVisible()) ? true : false);
+}
+
+std::tuple<int, int> EditorView::convertScreenCoordsToModel(int mouseX, int mouseY)
+{
+	int resultX = mouseX - selectionMenu->getWidth() + camera->x;
+	int resultY = mouseY + camera->y;
+	return std::make_tuple(resultX, resultY);
+}
+
 void EditorView::setButtonHandlers(EventHandler testButtonHandler, EventHandler gameButtonHandler, EventHandler mainMenuButtonHandler)
 {
 	testButton->setEventHandler(testButtonHandler);
@@ -276,6 +288,14 @@ Button * EditorView::addButton(double posX, double posY, double width, double he
 	return aButton;
 }
 
+void EditorView::setSelectionButtonHandlers(EventHandler handler)
+{
+	for (Button* b : selectionMenu->getButtons())
+	{
+		b->setEventHandler(handler);
+	}
+}
+
 void EditorView::toggleMenu()
 {
 	menu->toggleVisibility();
@@ -391,18 +411,12 @@ SDL_Surface * EditorView::loadImage(std::string filePath) const
 
 void EditorView::populateSelectionMenu()
 {
-	for (SDL_Texture* t : tileSet)
+	for (int i = 0; i < static_cast<int>(tileSet.size()); i++)
 	{
 		Button* b = new Button(0, 0, 32, 32, true, "default_button.bmp", gScreenSurface, gameRenderer, " ", nullptr);
-		b->setTexture(t);
+		b->setTexture(tileSet[i]);
+		b->setEventArg(i);
 		addButton(b);
 		selectionMenu->addButton(b);
 	}
-	//for (int i = 0; i < 10; i++)
-	//{
-	//	Button* b = new Button(0, 0, 32, 32, true, "default_button.bmp", gScreenSurface, gameRenderer, " ", nullptr);
-	//	b->setTexture(tileSet[i]);
-	//	addButton(b);
-	//	selectionMenu->addButton(b);
-	//}
 }

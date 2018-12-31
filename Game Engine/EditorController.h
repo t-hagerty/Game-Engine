@@ -18,6 +18,7 @@ private:
 	void goToTest();
 	void goToGame();
 	void goToMenu();
+	void setTileSelection(int selection);
 	EditorModel* model;
 	EditorView* view;
 	//Key press surfaces constants
@@ -32,6 +33,7 @@ private:
 	};
 	bool isUpAlreadyPressed = false;
 	bool isLeftAlreadyPressed = false;
+	bool isMouseBeingDragged = false;
 	enum ExitConditions
 	{
 		QUIT,

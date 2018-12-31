@@ -3,9 +3,12 @@
 
 EditorController::EditorController(EditorModel * m, EditorView * v)
 {
+	using namespace std::placeholders; //for the _1 argument placeholder below
 	model = m;
 	view = v;
 	view->setButtonHandlers(std::bind(&EditorController::goToTest, this), std::bind(&EditorController::goToGame, this), std::bind(&EditorController::goToMenu, this));
+	view->setSelectionButtonHandlers(std::bind(&EditorModel::setSelectedTileType, model, _1));
+	//view->setSelectionButtonHandlers(std::bind(&EditorController::setTileSelection, this, _1));
 	gameLoop();
 }
 
@@ -178,8 +181,19 @@ void EditorController::mouseEventHandler(SDL_Event * e)
 		case SDL_MOUSEBUTTONUP:
 			aButton->setIsMouseUp(true);
 			aButton->triggerEvent();
+			isMouseBeingDragged = false;
 			return;
 		}
+	}
+	if ((e->type == SDL_MOUSEBUTTONDOWN || (isMouseBeingDragged && e->type == SDL_MOUSEMOTION)) && !view->isPaused())
+	{
+		isMouseBeingDragged = true;
+		std::tuple<int, int> modelCoords = view->convertScreenCoordsToModel(x, y);
+		model->clickTile(std::get<0>(modelCoords), std::get<1>(modelCoords));
+	}
+	else if (e->type == SDL_MOUSEBUTTONUP)
+	{
+		isMouseBeingDragged = false;
 	}
 }
 
@@ -197,4 +211,9 @@ void EditorController::goToMenu()
 {
 	exitCondition = MAIN_MENU;
 	quitLoop = true;
+}
+
+void EditorController::setTileSelection(int selection)
+{
+	model->setSelectedTileType(selection);
 }

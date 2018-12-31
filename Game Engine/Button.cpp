@@ -105,7 +105,7 @@ int Button::getButtonState()
 	return buttonState;
 }
 
-std::function<void()> Button::getEventHandler()
+std::function<void(int)> Button::getEventHandler()
 {
 	return handler;
 }
@@ -119,8 +119,18 @@ void Button::triggerEvent()
 {
 	if (getIsVisible() && handler != nullptr)
 	{
-		handler();
+		handler(eventArgument);
 	}
+}
+
+void Button::setEventArg(int newArg)
+{
+	eventArgument = newArg;
+}
+
+int Button::getEventArg()
+{
+	return eventArgument;
 }
 
 bool Button::makeButtonTextTexture()

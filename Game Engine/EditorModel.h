@@ -21,7 +21,10 @@ public:
 	int getMapCols() const;
 	int getLevelWidth() const;
 	int getLevelHeight() const;
+	void setSelectedTileType(int newType);
+	int getSelectedTileType();
 	std::vector<Tile*> getTileMap() const;
+	void clickTile(int x, int y); // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	bool openMap();
 	bool openMap(std::string filePath);
 	bool saveMap(std::string filePath) const;
@@ -32,10 +35,12 @@ private:
 	int levelHeight;
 	std::vector<Tile*> tileMap;
 	Tile* getTileAtMapIndex(int row, int col) const;
+	void replaceTile(int row, int col, Tile* newTile);
 	int mapRows;
 	int mapCols;
 	std::vector<Entity*> entities;
 	Player* player;
+	int selectedTileType = 0;
 	bool setIsSolid(int tileType);
 	static bool isInsideWall(Entity* entity, Tile* t);
 	bool isInsideAnyWalls(Entity* entity, int topRow, int bottomRow, int leftCol, int rightCol) const;

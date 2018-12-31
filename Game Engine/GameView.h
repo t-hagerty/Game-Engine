@@ -13,7 +13,7 @@
 class GameView
 {
 public:
-	typedef std::function<void()> EventHandler;
+	typedef std::function<void(int)> EventHandler;
 	GameView(int levelWidth, int levelHeight, int windowW, int windowH, SDL_Window* window, SDL_Surface* screen, SDL_Renderer* renderer);
 	~GameView();
 	void setWindowWidth(int newWidth);

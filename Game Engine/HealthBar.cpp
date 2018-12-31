@@ -44,11 +44,6 @@ void HealthBar::update(double currentHealth)
 	{
 		hearts[i]->setAnimationFrame(0);
 	}
-	for (int j = 0; j < numberHearts; j++)
-	{
-		printf("Heart %d on frame %d", j, hearts[j]->getAnimationFrame());
-	}
-	printf("\n");
 	prevHealth = currentHealth;
 }
 
