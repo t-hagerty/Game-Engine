@@ -74,6 +74,7 @@ void GameModel::removeEntity(Entity * e)
 	{
 		if (e == getEntity(i))
 		{
+			delete e;
 			entities.erase(entities.begin() + i);
 			return;
 		}
@@ -457,7 +458,6 @@ void GameModel::killEntity(Entity * e)
 		return;
 	}
 	removeEntity(e);
-	delete e;
 }
 
 bool GameModel::openMap()
@@ -490,7 +490,7 @@ bool GameModel::openMap()
 	{
 		for(int c = 0; c < mapCols; c++)
 		{
-			tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, testMap[r][c], setIsSolid(testMap[r][c]), ((testMap[r][c] == 15) ? true : false), setTileEffect(testMap[r][c])));
+			tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, testMap[r][c], setIsSolid(testMap[r][c]), ((testMap[r][c] == PIT) ? true : false), setTileEffect(testMap[r][c])));
 		}
 	}
 	player = new Player(32, 32, 60, 80, 0, 0, 10);
@@ -534,12 +534,7 @@ bool GameModel::openMap(std::string filePath)
 			{
 				Sint32 tempType = -1;
 				SDL_RWread(file, &tempType, sizeof(Sint32), 1);
-				bool isPit = false;
-				if (tempType == 15)
-				{
-					isPit = true;
-				}
-				tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, tempType, setIsSolid(tempType), isPit, setTileEffect(tempType)));
+				tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, tempType, setIsSolid(tempType), ((tempType == PIT) ? true : false), setTileEffect(tempType)));
 			}
 		}
 		int numEntities = 0;

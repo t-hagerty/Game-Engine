@@ -26,6 +26,9 @@ EditorView::EditorView(int levelW, int levelH, int windowW, int windowH, SDL_Win
 	tileSet.insert(tileSet.end(), loadTexture("map_tiles/pit.bmp"));
 	tileSet.insert(tileSet.end(), loadTexture("map_tiles/lava.bmp"));
 	tileSet.insert(tileSet.end(), loadTexture("map_tiles/spikes.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("spritesheets/player_walking.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("spritesheets/enemy_walking.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("spritesheets/arrow.bmp"));
 	SDL_UpdateWindowSurface(gameWindow);
 
 	camera->x = 0;
@@ -174,7 +177,7 @@ void EditorView::renderEntitySprite(Entity * e, int frame)
 	if (SDL_HasIntersection(e->getCollisionBox(), camera))
 	{
 		SDL_Rect spriteSheetClip = { 0, 0, e->getSpriteWidth(), e->getSpriteHeight() };
-		SDL_Rect fillRect = { (e->getPosX() - camera->x) * zoomScale, (e->getPosY() - camera->y) * zoomScale , e->getWidth() * zoomScale , e->getHeight() * zoomScale };
+		SDL_Rect fillRect = { ((e->getPosX() - camera->x) * zoomScale) + selectionMenuWidth, (e->getPosY() - camera->y) * zoomScale , e->getWidth() * zoomScale , e->getHeight() * zoomScale };
 		SDL_RenderCopy(gameRenderer, e->getSpriteSheet(), &spriteSheetClip, &fillRect);
 	}
 }

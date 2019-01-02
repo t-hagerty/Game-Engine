@@ -39,6 +39,7 @@ void EditorModel::removeEntity(Entity * e)
 	{
 		if (e == getEntity(i))
 		{
+			delete e;
 			entities.erase(entities.begin() + i);
 			return;
 		}
@@ -77,7 +78,7 @@ int EditorModel::getLevelHeight() const
 
 void EditorModel::setSelectedTileType(int newType)
 {
-	if (newType >= 0 && newType < NUMBER_TILE_TYPES)
+	if (newType >= 0 && newType < NUMBER_TILE_TYPES + 3)
 	{
 		selectedTileType = newType;
 	}
@@ -97,7 +98,111 @@ void EditorModel::clickTile(int x, int y)
 {
 	int col = x / tileSize;
 	int row = y / tileSize;
-	replaceTile(row, col, new Tile(col * tileSize, row * tileSize, tileSize, selectedTileType, setIsSolid(selectedTileType), ((selectedTileType == 15) ? true : false), nullptr));
+	if (col < 0 || row < 0)
+	{
+		return;
+	}
+	switch (selectedTileType)
+	{
+	case 18:
+	{
+		if (getTileAtMapIndex(row, col)->isSolid() || getTileAtMapIndex(row, col)->getType() == PIT)
+		{
+			break;
+		}
+		if (player == nullptr)
+		{
+			player = new Player(tileSize, tileSize, col * tileSize, row * tileSize, 0, 0, 10);
+			for (Entity* e : entities)
+			{
+				if (SDL_HasIntersection(e->getGroundHitBox(), player->getGroundHitBox()))
+				{
+					removeEntity(e);
+					break;
+				}
+			}
+			addEntity(player);
+		}
+		else
+		{
+			player->setPosX(col * tileSize);
+			player->setPosY(row * tileSize);
+			for (Entity* e : entities)
+			{
+				if (SDL_HasIntersection(e->getGroundHitBox(), player->getGroundHitBox()) && e != player)
+				{
+					removeEntity(e);
+					break;
+				}
+			}
+		}
+		break;
+	}
+	case 19:
+	{
+		if (getTileAtMapIndex(row, col)->isSolid() || getTileAtMapIndex(row, col)->getType() == PIT)
+		{
+			break;
+		}
+		Enemy* enemy = new Enemy(tileSize, tileSize, col * tileSize, row * tileSize, 0, 0, 3);
+		for (Entity* e : entities)
+		{
+			if (SDL_HasIntersection(e->getGroundHitBox(), enemy->getGroundHitBox()))
+			{
+				if (e == player)
+				{
+					player = nullptr;
+				}
+				removeEntity(e);
+				break;
+			}
+		}
+		addEntity(enemy);
+		break;
+	}
+	case 20:
+	{
+		if (getTileAtMapIndex(row, col)->isSolid())
+		{
+			break;
+		}
+		Arrow* arrow = new Arrow(tileSize, tileSize, col*tileSize, row*tileSize, 0, 0);
+		for (Entity* e : entities)
+		{
+			if (SDL_HasIntersection(e->getGroundHitBox(), arrow->getGroundHitBox()))
+			{
+				if (e == player)
+				{
+					player = nullptr;
+				}
+				removeEntity(e);
+				break;
+			}
+		}
+		addEntity(arrow);
+		break;
+	}
+	default:
+	{
+		Tile* newTile = new Tile(col * tileSize, row * tileSize, tileSize, selectedTileType, setIsSolid(selectedTileType), ((selectedTileType == PIT) ? true : false), nullptr);
+		replaceTile(row, col, newTile);
+		if (setIsSolid(selectedTileType) || ((selectedTileType == PIT) ? true : false))
+		{
+			for (Entity* e : entities)
+			{
+				if (SDL_HasIntersection(e->getGroundHitBox(), newTile->getTileSpace()))
+				{
+					if (e == player)
+					{
+						player = nullptr;
+					}
+					removeEntity(e);
+				}
+			}
+		}
+		break;
+	}
+	}
 }
 
 bool EditorModel::openMap()
@@ -130,7 +235,7 @@ bool EditorModel::openMap()
 	{
 		for (int c = 0; c < mapCols; c++)
 		{
-			tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, testMap[r][c], setIsSolid(testMap[r][c]), ((testMap[r][c] == 15) ? true : false), nullptr));
+			tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, testMap[r][c], setIsSolid(testMap[r][c]), ((testMap[r][c] == PIT) ? true : false), nullptr));
 		}
 	}
 	saveMap("blankMap");
@@ -162,12 +267,7 @@ bool EditorModel::openMap(std::string filePath)
 			{
 				Sint32 tempType = -1;
 				SDL_RWread(file, &tempType, sizeof(Sint32), 1);
-				bool isPit = false;
-				if (tempType == 15)
-				{
-					isPit = true;
-				}
-				tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, tempType, setIsSolid(tempType), isPit, nullptr));
+				tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, tempType, setIsSolid(tempType), ((tempType == PIT) ? true : false), nullptr));
 			}
 		}
 		int numEntities = 0;
