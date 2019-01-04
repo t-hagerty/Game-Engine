@@ -18,7 +18,6 @@ private:
 	void goToTest();
 	void goToGame();
 	void goToMenu();
-	void setTileSelection(int selection);
 	EditorModel* model;
 	EditorView* view;
 	//Key press surfaces constants
@@ -43,5 +42,6 @@ private:
 	};
 	int exitCondition = QUIT;
 	bool quitLoop = false; //For terminating the game loop
+	void highlightCurrentSelection();
 };
 

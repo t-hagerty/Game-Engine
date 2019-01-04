@@ -26,6 +26,10 @@ EditorView::EditorView(int levelW, int levelH, int windowW, int windowH, SDL_Win
 	tileSet.insert(tileSet.end(), loadTexture("map_tiles/pit.bmp"));
 	tileSet.insert(tileSet.end(), loadTexture("map_tiles/lava.bmp"));
 	tileSet.insert(tileSet.end(), loadTexture("map_tiles/spikes.bmp"));
+	for (int i = 0; i < tileSet.size(); i++)
+	{
+		tileAnimationSynchronizer.insert(tileAnimationSynchronizer.end(), new Tile(0, 0, 0, i, false, false, nullptr));
+	}
 	tileSet.insert(tileSet.end(), loadTexture("spritesheets/player_walking.bmp"));
 	tileSet.insert(tileSet.end(), loadTexture("spritesheets/enemy_walking.bmp"));
 	tileSet.insert(tileSet.end(), loadTexture("spritesheets/arrow.bmp"));
@@ -151,19 +155,19 @@ void EditorView::renderUpdate() const
 
 void EditorView::renderTileMap(std::vector<Tile*> map, int rows, int cols, int tileSize, int frame)
 {
+	if (frame == 0 || frame == 10 || frame == 20 || frame == 30 || frame == 40 || frame == 50)
+	{
+		incrementTileAnimationSynchronizer();
+	}
 	for (Tile* t : map)
 	{
 		if (SDL_HasIntersection(t->getTileSpace(), camera))
 		{
 			//Set rendering space and render to screen
 			SDL_Rect renderQuad = { ((t->getTileSpace()->x - camera->x) * zoomScale) + selectionMenuWidth, (t->getTileSpace()->y - camera->y) * zoomScale , t->getTileSpace()->w * zoomScale, t->getTileSpace()->h * zoomScale };
-			SDL_Rect textureFrameClip = { 0, t->getAnimationFrame() * t->getTextureFrameHeight(), t->getTextureFrameWidth(), t->getTextureFrameHeight() };
+			SDL_Rect textureFrameClip = { 0, getAnimationFrameForTile(t->getType()) * t->getTextureFrameHeight(), t->getTextureFrameWidth(), t->getTextureFrameHeight() };
 			//Render to screen
 			SDL_RenderCopyEx(gameRenderer, tileSet.at(t->getType()), &textureFrameClip, &renderQuad, 0.0, NULL, SDL_FLIP_NONE);
-		}
-		if (frame == 0 || frame == 10 || frame == 20 || frame == 30 || frame == 40 || frame == 50)
-		{
-			t->incrementAnimationFrame();
 		}
 	}
 }
@@ -314,9 +318,9 @@ void EditorView::moveCamera(int xChange, int yChange)
 	{
 		camera->x = 0;
 	}
-	else if (camera->x > levelWidth - camera->w)
+	else if (camera->x > levelWidth - camera->w + selectionMenuWidth)
 	{
-		camera->x = levelWidth - camera->w;
+		camera->x = levelWidth - camera->w + selectionMenuWidth;
 	}
 	if (camera->y < 0)
 	{
@@ -410,6 +414,23 @@ SDL_Surface * EditorView::loadImage(std::string filePath) const
 		SDL_FreeSurface(loadedImage); //free memory of loadedImage
 	}
 	return optimizedImage;
+}
+
+int EditorView::getAnimationFrameForTile(int type)
+{
+	if (type < tileAnimationSynchronizer.size())
+	{
+		return tileAnimationSynchronizer[type]->getAnimationFrame();
+	}
+	return 0;
+}
+
+void EditorView::incrementTileAnimationSynchronizer()
+{
+	for (Tile* t : tileAnimationSynchronizer)
+	{
+		t->incrementAnimationFrame();
+	}
 }
 
 void EditorView::populateSelectionMenu()

@@ -7,6 +7,9 @@ Button::Button(double x, double y, double width, double height, bool visible, st
 {
 	setButtonText(buttonText);
 	handler = buttonEventHandler;
+	int textureWidth = 32;
+	SDL_QueryTexture(texture, NULL, NULL, &textureWidth, NULL);
+	numberFrames = textureWidth / BUTTON_IMAGE_WIDTH;
 }
 
 Button::~Button()
@@ -43,11 +46,11 @@ void Button::setIsMouseOver(bool mouseOver)
 	isMouseOver = mouseOver;
 	if (mouseOver)
 	{
-		buttonState = 1;
+		setButtonState(1);
 	}
 	else
 	{
-		buttonState = 0;
+		setButtonState(0);
 	}
 }
 
@@ -69,7 +72,7 @@ void Button::setIsMouseDown(bool mouseDown)
 	}
 	if (isMouseDown)
 	{
-		buttonState = 2;
+		setButtonState(2);
 	}
 }
 
@@ -91,7 +94,7 @@ void Button::setIsMouseUp(bool mouseUp)
 	}
 	if (isMouseUp)
 	{
-		buttonState = 3;
+		setButtonState(3);
 	}
 }
 
@@ -100,9 +103,35 @@ bool Button::getIsMouseUp()
 	return isMouseUp;
 }
 
+void Button::setButtonState(int newState)
+{
+	if (newState < numberFrames)
+	{
+		buttonState = newState;
+	}
+}
+
 int Button::getButtonState()
 {
 	return buttonState;
+}
+
+void Button::setTexture(SDL_Texture * newTexture)
+{
+	texture = newTexture;
+	int textureWidth = 32;
+	SDL_QueryTexture(texture, NULL, NULL, &textureWidth, NULL);
+	numberFrames = textureWidth / BUTTON_IMAGE_WIDTH;
+}
+
+void Button::setIsHighlighted(bool highlighted)
+{
+	isHighlighted = highlighted;
+}
+
+bool Button::getIsHighlighted()
+{
+	return isHighlighted;
 }
 
 std::function<void(int)> Button::getEventHandler()
@@ -180,6 +209,12 @@ bool Button::render()
 	}
 	else
 	{
+		if (isHighlighted)
+		{
+			SDL_Rect fillRect = { rect->x - 2, rect->y - 2, rect->w + 4, rect->h + 4};
+			SDL_SetRenderDrawColor(trgtRenderer, 0x00, 0x00, 0x00, 0x00);
+			SDL_RenderFillRect(trgtRenderer, &fillRect);
+		}
 		SDL_Rect spriteSheetClip = { buttonState * BUTTON_IMAGE_WIDTH,
 			0,
 			BUTTON_IMAGE_WIDTH, BUTTON_IMAGE_HEIGHT };

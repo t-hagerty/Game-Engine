@@ -134,6 +134,7 @@
     <ClCompile Include="EditorModel.cpp" />
     <ClCompile Include="EditorView.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="GameView_LevelTest.cpp" />
     <ClCompile Include="GUIElement.cpp" />
     <ClCompile Include="HealthBar.cpp" />
     <ClCompile Include="Image.cpp" />
@@ -156,6 +157,7 @@
     <ClInclude Include="EditorModel.h" />
     <ClInclude Include="EditorView.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="GameView_LevelTest.h" />
     <ClInclude Include="GUIElement.h" />
     <ClInclude Include="HealthBar.h" />
     <ClInclude Include="Image.h" />

@@ -20,7 +20,11 @@ public:
 	bool getIsMouseDown();
 	void setIsMouseUp(bool mouseUp);
 	bool getIsMouseUp();
+	void setButtonState(int newState);
 	int getButtonState();
+	void setTexture(SDL_Texture* newTexture) override;
+	void setIsHighlighted(bool highlighted);
+	bool getIsHighlighted();
 	EventHandler getEventHandler();
 	void setEventHandler(EventHandler newHandler);
 	void triggerEvent();
@@ -30,14 +34,16 @@ public:
 private:
 	const int BUTTON_IMAGE_WIDTH = 32;
 	const int BUTTON_IMAGE_HEIGHT = 32;
+	int numberFrames;
 	std::string text;
 	SDL_Texture* textTexture;
 	bool isMouseOver;
 	bool isMouseDown;
 	bool isMouseUp;
+	bool isHighlighted = false;
 	int buttonState = 0; //spritesheet 0 = default, 1 = mouseover, 2 = mousedown, 3 = mouseup
 	EventHandler handler;
-	int eventArgument = 0;
+	int eventArgument = -1;
 	bool makeButtonTextTexture();
 };
 

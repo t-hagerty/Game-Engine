@@ -50,6 +50,7 @@ private:
 	int windowHeight = 400;
 	int windowWidth = 600;
 	float zoomScale = 1;
+	int animationFrame = 0;
 	int levelWidth;
 	int levelHeight;
 	std::vector<SDL_Texture*> tileSet;
@@ -77,7 +78,9 @@ private:
 		LAVA,
 		SPIKES
 	};
-
+	int getAnimationFrameForTile(int type);
+	void incrementTileAnimationSynchronizer();
+	std::vector<Tile*> tileAnimationSynchronizer;
 	std::vector<Button*> buttons;
 	std::vector<GUIElement*> gui;
 	Button* menuButton;

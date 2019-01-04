@@ -182,6 +182,7 @@ void EditorController::mouseEventHandler(SDL_Event * e)
 			aButton->setIsMouseUp(true);
 			aButton->triggerEvent();
 			isMouseBeingDragged = false;
+			highlightCurrentSelection();
 			return;
 		}
 	}
@@ -213,7 +214,18 @@ void EditorController::goToMenu()
 	quitLoop = true;
 }
 
-void EditorController::setTileSelection(int selection)
+void EditorController::highlightCurrentSelection()
 {
-	model->setSelectedTileType(selection);
+	int current = model->getSelectedTileType();
+	for (Button* b : view->getButtons())
+	{
+		if (b->getEventArg() == current)
+		{
+			b->setIsHighlighted(true);
+		}
+		else
+		{
+			b->setIsHighlighted(false);
+		}
+	}
 }
