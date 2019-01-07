@@ -4,6 +4,10 @@
 #include "Enemy.h"
 
 
+GameController::GameController()
+{
+}
+
 GameController::GameController(GameModel* m, GameView* v)
 {
 	model = m;

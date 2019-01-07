@@ -84,8 +84,11 @@
     <ClCompile Include="HealthBar.cpp">
       <Filter>Source Files\View</Filter>
     </ClCompile>
+    <ClCompile Include="GameController_LevelTest.cpp">
+      <Filter>Source Files\Controller</Filter>
+    </ClCompile>
     <ClCompile Include="GameView_LevelTest.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\View</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -147,6 +150,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GameView_LevelTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameController_LevelTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

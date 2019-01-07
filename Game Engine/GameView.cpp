@@ -58,6 +58,16 @@ GameView::~GameView()
 	}
 }
 
+int GameView::getLevelWidth()
+{
+	return levelWidth;
+}
+
+int GameView::getLevelHeight()
+{
+	return levelHeight;
+}
+
 void GameView::setWindowWidth(int newWidth)
 {
 	if (windowWidth != newWidth)
@@ -99,6 +109,21 @@ void GameView::setWindowHeight(int newHeight)
 int GameView::getWindowHeight() const
 {
 	return windowHeight;
+}
+
+SDL_Window * GameView::getWindow()
+{
+	return gameWindow;
+}
+
+SDL_Surface * GameView::getSurface()
+{
+	return gScreenSurface;
+}
+
+SDL_Renderer * GameView::getRenderer()
+{
+	return gameRenderer;
 }
 
 void GameView::setZoomScale(float newScale)

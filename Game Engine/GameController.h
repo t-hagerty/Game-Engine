@@ -7,11 +7,12 @@
 class GameController
 {
 public:
+	GameController();
 	GameController(GameModel* m, GameView* v);
 	~GameController();
 	SDL_Event e;
 	int getExitCondition();
-private:
+protected:
 	int fps = 0;
 	void gameLoop();
 	void movePlayer(const Uint8* keyStates);
@@ -20,7 +21,7 @@ private:
 	void mouseEventHandler(SDL_Event* e);
 	void restartLevel();
 	void goToEditor();
-	void goToMenu();
+	virtual void goToMenu();
 	GameModel* model;
 	GameView* view;
 	//Key press surfaces constants

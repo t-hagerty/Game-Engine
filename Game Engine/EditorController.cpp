@@ -1,4 +1,7 @@
 #include "EditorController.h"
+#include "GameController_LevelTest.h"
+#include "GameView_LevelTest.h"
+#include "GameModel.h"
 #include <iostream>
 
 EditorController::EditorController(EditorModel * m, EditorView * v)
@@ -200,6 +203,32 @@ void EditorController::mouseEventHandler(SDL_Event * e)
 
 void EditorController::goToTest()
 {
+	int router = EDITOR;
+	if (model->getPlayer() == nullptr)
+	{
+		//TODO pop up some warning dialog to tell user they cant test without a player
+		return;
+	}
+	GameModel* testLevel = new GameModel(model->getTileMap(), model->getMapRows(), model->getMapCols(), model->getEntities());
+	GameView_LevelTest* testView = new GameView_LevelTest(view->getLevelWidth(), view->getLevelHeight(), view->getWindowWidth(), view->getWindowHeight(),
+		view->getWindow(), view->getSurface(), view->getRenderer());
+	GameController_LevelTest* testController = new GameController_LevelTest(testLevel, testView);
+	router = testController->getExitCondition();
+	delete testLevel;
+	delete testView;
+	delete testController;
+	switch (router)
+	{
+	case EDITOR:
+		view->toggleMenu();
+		break;
+	case MAIN_MENU:
+		goToMenu();
+		break;
+	default:
+		goToMenu();
+		break;
+	}
 }
 
 void EditorController::goToGame()

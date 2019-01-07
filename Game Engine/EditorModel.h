@@ -14,8 +14,10 @@ public:
 	~EditorModel();
 	void addEntity(Entity* newEntity);
 	Entity* getEntity(int index);
+	std::vector<Entity*> getEntities();
 	void removeEntity(Entity* e);
 	int getNumberOfEntities() const;
+	Player* getPlayer() const;
 	int getTileSize() const;
 	int getMapRows() const;
 	int getMapCols() const;
@@ -24,7 +26,7 @@ public:
 	void setSelectedTileType(int newType);
 	int getSelectedTileType();
 	std::vector<Tile*> getTileMap() const;
-	void clickTile(int x, int y); // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	void clickTile(int x, int y);
 	bool openMap();
 	bool openMap(std::string filePath);
 	bool saveMap(std::string filePath) const;

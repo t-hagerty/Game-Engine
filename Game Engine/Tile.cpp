@@ -16,10 +16,29 @@ Tile::Tile(int x, int y, int size, int typeOfTile, bool isSolid, bool isAPit, Ti
 	textureFrames = setNumberFrames();
 }
 
+Tile::Tile(const Tile & t)
+{
+	tileSpace = new SDL_Rect();
+	tileSpace->x = t.getTileSpace()->x;
+	tileSpace->y = t.getTileSpace()->y;
+	tileSpace->w = t.getTileSpace()->w;
+	tileSpace->h = t.getTileSpace()->h;
+	type = t.getType();
+	solid = t.isSolid();
+	pit = t.isAPit();
+	anEffect = nullptr;
+	textureFrames = setNumberFrames();
+}
+
 
 Tile::~Tile()
 {
 	delete tileSpace;
+}
+
+Tile * Tile::clone() const
+{
+	return new Tile(*this);
 }
 
 int Tile::getType() const

@@ -14,10 +14,15 @@ public:
 	typedef std::function<void(int)> EventHandler;
 	EditorView(int levelW, int levelH, int windowW, int windowH, SDL_Window* window, SDL_Surface* screen, SDL_Renderer* renderer);
 	~EditorView();
+	int getLevelWidth();
+	int getLevelHeight();
 	void setWindowWidth(int newWidth);
 	int getWindowWidth() const;
 	void setWindowHeight(int newHeight);
 	int getWindowHeight() const;
+	SDL_Window* getWindow();
+	SDL_Surface* getSurface();
+	SDL_Renderer* getRenderer();
 	void setZoomScale(float newScale);
 	float getZoomScale();
 	bool isPaused();

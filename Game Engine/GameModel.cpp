@@ -16,6 +16,29 @@ GameModel::GameModel()
 	levelWidth = mapCols * tileSize;
 }
 
+GameModel::GameModel(std::vector<Tile*> map, int rows, int cols, std::vector<Entity*> levelEntities)
+{
+	mapRows = rows;
+	mapCols = cols;
+	tileSize = 32; 
+	for (Tile* t : map)
+	{
+		tileMap.insert(tileMap.end(), t->clone());
+		tileMap.back()->setTileEffect(setTileEffect(t->getType()));
+	}
+	for (auto* e : levelEntities)
+	{
+		addEntity(e->clone());
+	}
+	player = dynamic_cast<Player*>(entities[0]);
+	for (auto* e : entities)
+	{
+		entitiesInitialState.insert(entitiesInitialState.end(), e->clone());
+	}
+	levelHeight = mapRows * tileSize;
+	levelWidth = mapCols * tileSize;
+}
+
 
 GameModel::~GameModel()
 {

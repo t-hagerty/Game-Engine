@@ -33,6 +33,11 @@ Entity * EditorModel::getEntity(int index)
 	}
 }
 
+std::vector<Entity*> EditorModel::getEntities()
+{
+	return entities;
+}
+
 void EditorModel::removeEntity(Entity * e)
 {
 	for (int i = 0; i < static_cast<int>(entities.size()); i++)
@@ -49,6 +54,11 @@ void EditorModel::removeEntity(Entity * e)
 int EditorModel::getNumberOfEntities() const
 {
 	return entities.size();
+}
+
+Player * EditorModel::getPlayer() const
+{
+	return player;
 }
 
 int EditorModel::getTileSize() const
@@ -121,7 +131,8 @@ void EditorModel::clickTile(int x, int y)
 					break;
 				}
 			}
-			addEntity(player);
+			entities.insert(entities.begin(), player);
+			//addEntity(player);
 		}
 		else
 		{

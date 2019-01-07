@@ -59,6 +59,20 @@ EditorView::~EditorView()
 	{
 		SDL_DestroyTexture(t);
 	}
+	for (Tile* t : tileAnimationSynchronizer)
+	{
+		delete t;
+	}
+}
+
+int EditorView::getLevelWidth()
+{
+	return levelWidth;
+}
+
+int EditorView::getLevelHeight()
+{
+	return levelHeight;
 }
 
 void EditorView::setWindowWidth(int newWidth)
@@ -102,6 +116,21 @@ void EditorView::setWindowHeight(int newHeight)
 int EditorView::getWindowHeight() const
 {
 	return windowHeight;
+}
+
+SDL_Window * EditorView::getWindow()
+{
+	return gameWindow;
+}
+
+SDL_Surface * EditorView::getSurface()
+{
+	return gScreenSurface;
+}
+
+SDL_Renderer * EditorView::getRenderer()
+{
+	return gameRenderer;
 }
 
 void EditorView::setZoomScale(float newScale)

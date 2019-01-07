@@ -12,6 +12,7 @@ class GameModel
 {
 public:
 	GameModel();
+	GameModel(std::vector<Tile*> map,int rows, int cols, std::vector<Entity*> levelEntities);
 	~GameModel();
 	void addEntity(Entity* newEntity);
 	void moveEntities(double delta);

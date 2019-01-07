@@ -16,15 +16,20 @@ public:
 	typedef std::function<void(int)> EventHandler;
 	GameView(int levelWidth, int levelHeight, int windowW, int windowH, SDL_Window* window, SDL_Surface* screen, SDL_Renderer* renderer);
 	~GameView();
+	int getLevelWidth();
+	int getLevelHeight();
 	void setWindowWidth(int newWidth);
 	int getWindowWidth() const;
 	void setWindowHeight(int newHeight);
 	int getWindowHeight() const;
+	SDL_Window* getWindow();
+	SDL_Surface* getSurface();
+	SDL_Renderer* getRenderer();
 	void setZoomScale(float newScale);
 	float getZoomScale();
 	void setIsPaused(bool paused);
 	bool getIsPaused();
-	void setButtonHandlers(EventHandler retryButtonHandler, EventHandler editorButtonHandler, EventHandler mainMenuButtonHandler);
+	virtual void setButtonHandlers(EventHandler retryButtonHandler, EventHandler editorButtonHandler, EventHandler mainMenuButtonHandler);
 	std::vector<Button*> getButtons();
 	void renderClear(int red = 0xFF, int green = 0xFF, int blue = 0xFF, int alpha = 0xFF) const;
 	void renderUpdate() const;
@@ -44,7 +49,7 @@ public:
 	void settingsButtonPressed();
 	void isGameOverScreen(bool isGameOver);
 	bool getIsGameOverScreen();
-private:
+protected:
 	SDL_Window* gameWindow = nullptr;
 	SDL_Surface* gScreenSurface = nullptr;
 	SDL_Renderer* gameRenderer = nullptr;
@@ -56,7 +61,7 @@ private:
 	int levelHeight;
 	bool isPaused = false;
 	std::vector<SDL_Texture*> tileSet;
-	bool initGUI();
+	virtual bool initGUI();
 	SDL_Texture* loadTexture(std::string filePath);
 	SDL_Surface* loadImage(std::string filePath) const;
 	enum textures
