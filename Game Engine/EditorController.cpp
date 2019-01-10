@@ -189,7 +189,7 @@ void EditorController::mouseEventHandler(SDL_Event * e)
 			return;
 		}
 	}
-	if ((e->type == SDL_MOUSEBUTTONDOWN || (isMouseBeingDragged && e->type == SDL_MOUSEMOTION)) && !view->isPaused())
+	if ((e->type == SDL_MOUSEBUTTONDOWN || (isMouseBeingDragged && e->type == SDL_MOUSEMOTION)) && !view->getIsPaused())
 	{
 		isMouseBeingDragged = true;
 		std::tuple<int, int> modelCoords = view->convertScreenCoordsToModel(x, y);
