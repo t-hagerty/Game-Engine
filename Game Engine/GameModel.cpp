@@ -2,16 +2,12 @@
 #include <SDL.h>
 #undef main
 #include <iostream>
-#include "Player.h"
-#include "Projectile.h"
-#include "Arrow.h"
-#include "Enemy.h"
-
+#include "Model.h"
 
 GameModel::GameModel()
 {
-	tileSize = 32; //TODO change later so that this size adjusts based on the size of the screen/window
-	openMap("testMap");
+	tileSize = 32;
+	Model::openMap("testMap"); //temp
 	levelHeight = mapRows * tileSize;
 	levelWidth = mapCols * tileSize;
 }
@@ -42,7 +38,6 @@ GameModel::GameModel(std::vector<Tile*> map, int rows, int cols, std::vector<Ent
 
 GameModel::~GameModel()
 {
-	deleteMap();
 	delete downTreadmillEffect;
 	delete rightTreadmillEffect;
 	delete leftTreadmillEffect;
@@ -51,23 +46,15 @@ GameModel::~GameModel()
 	delete mudEffect;
 	delete lavaEffect;
 	delete spikeEffect;
-	for (Entity* e : entities)
-	{
-		delete e;
-	}
 	for (Entity* e : entitiesInitialState)
 	{
 		delete e;
 	}
 }
 
-void GameModel::addEntity(Entity * newEntity)
-{
-	entities.insert(entities.end(), newEntity);
-}
-
 void GameModel::moveEntities(double delta)
 {
+	//printf("Player x: %f player y: %f \n", player->getPosX(), player->getPosY());
 	for (auto* e : entities)
 	{
 		if (e->getHealth() <= 0)
@@ -79,84 +66,9 @@ void GameModel::moveEntities(double delta)
 	}
 }
 
-Entity * GameModel::getEntity(int index)
-{
-	if(index < static_cast<int>(entities.size()))
-	{
-		return entities.at(index);
-	}
-	else
-	{
-		return nullptr;
-	}
-}
-
-void GameModel::removeEntity(Entity * e)
-{
-	for (int i = 0; i < static_cast<int>(entities.size()); i++)
-	{
-		if (e == getEntity(i))
-		{
-			delete e;
-			entities.erase(entities.begin() + i);
-			return;
-		}
-	}
-}
-
-int GameModel::getNumberOfEntities() const
-{
-	return entities.size();
-}
-
-Player * GameModel::getPlayer() const
-{
-	return player;
-}
-
 bool GameModel::getIsGameOver()
 {
 	return isGameOver;
-}
-
-int GameModel::getTileSize() const
-{
-	return tileSize;
-}
-
-int GameModel::getMapRows() const
-{
-	return mapRows;
-}
-
-int GameModel::getMapCols() const
-{
-	return mapCols;
-}
-
-int GameModel::getLevelWidth() const
-{
-	return levelWidth;
-}
-
-int GameModel::getLevelHeight() const
-{
-	return levelHeight;
-}
-
-std::vector<Tile*> GameModel::getTileMap() const
-{
-	return tileMap;
-}
-
-Tile * GameModel::getTileAtMapIndex(int row, int col) const
-{
-	return tileMap.at((row*mapCols) + col);
-}
-
-bool GameModel::setIsSolid(int tileType)
-{
-	return isSolidTable[tileType];
 }
 
 TileEffect * GameModel::setTileEffect(int tileType)
@@ -274,6 +186,7 @@ void GameModel::moveAnEntity(Entity * e, double delta)
 			e->setPosY(0);
 			e->setVelocityY(0);
 			posRowTop = 0;
+
 		}
 		else if ((e->getPosY() + e->getHeight()) >= levelHeight) //If movement puts past the bottom bound of screen, put it against the bottom bound instead and set velocity to zero
 		{
@@ -402,43 +315,6 @@ void GameModel::knockback(Entity * knockerbacker, Entity * knockedback)
 	knockedback->setVelocityY(vectorY);
 }
 
-bool GameModel::isInsideWall(Entity* entity, Tile * t)
-{
-	if(!t->isSolid())
-	{
-		return false;
-	}
-	if(SDL_HasIntersection(t->getTileSpace(), entity->getGroundHitBox()))
-	{
-		return true;
-	}
-	return false;
-}
-
-bool GameModel::isInsideAnyWalls(Entity * entity, int topRow, int bottomRow, int leftCol, int rightCol) const
-{
-	for (int r = topRow; r <= bottomRow; r++)
-	{
-		for (int c = leftCol; c <= rightCol; c++)
-		{
-			if (r < mapRows && r >= 0 && c >= 0 && c < mapCols && isInsideWall(entity, getTileAtMapIndex(r, c)))
-			{
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
-bool GameModel::isIntersectingEntity(Entity* e1, Entity* e2)
-{
-	if (SDL_HasIntersection(e1->getCollisionBox(), e2->getCollisionBox()))
-	{
-		return true;
-	}
-	return false;
-}
-
 bool GameModel::isCompletelyOverPit(Entity * entity, int topRow, int bottomRow, int leftCol, int rightCol)
 {
 	for (int r = topRow; r <= bottomRow; r++)
@@ -520,10 +396,10 @@ bool GameModel::openMap()
 	Arrow* arrow = new Arrow(32, 32, 300, 80, -5, 0);
 	Enemy* enemy1 = new Enemy(50, 40, 70, 300, 0, 0, 1);
 	Enemy* enemy2 = new Enemy(20, 20, 230, 255, 0, 0, 1);
+	addEntity(player);
 	addEntity(arrow);
 	addEntity(enemy1);
 	addEntity(enemy2);
-	addEntity(player);
 	entitiesInitialState.insert(entitiesInitialState.end(), new Player(32, 32, 60, 80, 0, 0, 10));
 	entitiesInitialState.insert(entitiesInitialState.end(), new Arrow(32, 32, 300, 80, -5, 0));
 	entitiesInitialState.insert(entitiesInitialState.end(), new Enemy(50, 40, 70, 300, 0, 0, 1));
@@ -532,193 +408,11 @@ bool GameModel::openMap()
 	return success;
 }
 
-bool GameModel::openMap(std::string filePath)
+void GameModel::addEntityFromFile(Entity * e)
 {
-	bool success = true;
-
-	SDL_RWops* file = SDL_RWFromFile(filePath.c_str(), "r+b");
-	if(file == nullptr)
-	{
-		printf("Warning: Unable to open file! SDL Error: %s\n", SDL_GetError());
-		success = false;
-		openMap(); //Will be handled better in the future, for now, just load the default map
-	}
-	else
-	{
-		//Load data
-		printf("Reading file...!\n");
-		SDL_RWread(file, &mapRows, sizeof(Sint32), 1); //read number of rows of saved map
-		SDL_RWread(file, &mapCols, sizeof(Sint32), 1); //read number of cols of saved map
-
-		tileMap.reserve(mapRows * mapCols);
-		for (int r = 0; r < mapRows; r++)
-		{
-			for (int c = 0; c < mapCols; c++)
-			{
-				Sint32 tempType = -1;
-				SDL_RWread(file, &tempType, sizeof(Sint32), 1);
-				tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, tempType, setIsSolid(tempType), ((tempType == PIT) ? true : false), setTileEffect(tempType)));
-			}
-		}
-		int numEntities = 0;
-		SDL_RWread(file, &numEntities, sizeof(Sint32), 1);
-		for (int i = 1; i <= numEntities; i++)
-		{
-			char entityType;
-			int height, width, posX, posY, velX, velY, hp;
-			SDL_RWread(file, &entityType, sizeof(char), 1);
-			Entity* anEntity;
-			switch (entityType)
-			{
-			case 'P':
-				SDL_RWread(file, &height, sizeof(Sint32), 1);
-				SDL_RWread(file, &width, sizeof(Sint32), 1);
-				SDL_RWread(file, &posX, sizeof(Sint32), 1);
-				SDL_RWread(file, &posY, sizeof(Sint32), 1);
-				SDL_RWread(file, &velX, sizeof(Sint32), 1);
-				SDL_RWread(file, &velY, sizeof(Sint32), 1);
-				SDL_RWread(file, &hp, sizeof(Sint32), 1);
-				player = new Player(height, width, posX, posY, velX, velY, hp);
-				addEntity(player);
-				entitiesInitialState.insert(entitiesInitialState.end(), new Player(height, width, posX, posY, velX, velY, hp));
-				break;
-			case 'A':
-				SDL_RWread(file, &height, sizeof(Sint32), 1);
-				SDL_RWread(file, &width, sizeof(Sint32), 1);
-				SDL_RWread(file, &posX, sizeof(Sint32), 1);
-				SDL_RWread(file, &posY, sizeof(Sint32), 1);
-				SDL_RWread(file, &velX, sizeof(Sint32), 1);
-				SDL_RWread(file, &velY, sizeof(Sint32), 1);
-				anEntity = new Arrow(height, width, posX, posY, velX, velY);
-				addEntity(anEntity);
-				entitiesInitialState.insert(entitiesInitialState.end(), new Arrow(height, width, posX, posY, velX, velY));
-				break;
-			case 'E':
-				SDL_RWread(file, &height, sizeof(Sint32), 1);
-				SDL_RWread(file, &width, sizeof(Sint32), 1);
-				SDL_RWread(file, &posX, sizeof(Sint32), 1);
-				SDL_RWread(file, &posY, sizeof(Sint32), 1);
-				SDL_RWread(file, &velX, sizeof(Sint32), 1);
-				SDL_RWread(file, &velY, sizeof(Sint32), 1);
-				SDL_RWread(file, &hp, sizeof(Sint32), 1);
-				anEntity = new Enemy(height, width, posX, posY, velX, velY, hp);
-				addEntity(anEntity);
-				entitiesInitialState.insert(entitiesInitialState.end(), new Enemy(height, width, posX, posY, velX, velY, hp));
-				break;
-			default:
-				SDL_RWclose(file);
-				printf("Error: Encountered unexpected file input of entity type %c from file %s \n", entityType, filePath);
-				return false;
-				break;
-			}
-		}
-		//Close file handler
-		SDL_RWclose(file);
-	}
-
-	return success;
+	addEntity(e);
+	entitiesInitialState.insert(entitiesInitialState.end(), e->clone());
 }
-
-bool GameModel::saveMap(std::string filePath) const
-{
-	//Likely temporary and can be removed once a level editor is implemented
-	bool success = true;
-
-	SDL_RWops* file = SDL_RWFromFile(filePath.c_str(), "w+b");
-	SDL_RWwrite(file, &mapRows, sizeof(Sint32), 1);
-	SDL_RWwrite(file, &mapCols, sizeof(Sint32), 1);
-	if (file != nullptr)
-	{
-		//Save data
-		for (int r = 0; r < mapRows; r++)
-		{
-			for(int c = 0; c < mapCols; c++)
-			{
-				int tempType = tileMap[(r*mapCols) + c]->getType();
-				SDL_RWwrite(file, &tempType, sizeof(Sint32), 1);
-			}
-		}
-		/*
-		* TEMPORARY MANUALLY WRITING SAVE DATA FOR TEST ENTITIES
-		* I know it's awful, but once there's a level editor it'll be deleted anyways so I did it the easy but bad way.
-		*/
-		char temp = 'P'; //player
-		int tempInt = 4;
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1); //number of entities
-		SDL_RWwrite(file, &temp, sizeof(char), 1);
-		tempInt = 32;
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		tempInt = 60;
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		tempInt = 80;
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		tempInt = 0;
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		tempInt = 10;
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		temp = 'A'; //Arrow projectile
-		SDL_RWwrite(file, &temp, sizeof(char), 1);
-		tempInt = 32;
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		tempInt = 300;
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		tempInt = 80;
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		tempInt = -5;
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		tempInt = 0;
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		temp = 'E'; //enemy
-		SDL_RWwrite(file, &temp, sizeof(char), 1);
-		tempInt = 50;
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		tempInt = 40;
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		tempInt = 70;
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		tempInt = 300;
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		tempInt = 0;
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		tempInt = 3;
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		SDL_RWwrite(file, &temp, sizeof(char), 1);
-		tempInt = 20;
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		tempInt = 230;
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		tempInt = 255;
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		tempInt = 0;
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		tempInt = 3;
-		SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
-		//Close file handler
-		SDL_RWclose(file);
-	}
-	else
-	{
-		printf("Error: Unable to save file! %s\n", SDL_GetError());
-		success = false;
-	}
-
-	return success;
-}
-
-void GameModel::deleteMap() const
-{
-	for (int i = 0; i < mapRows*mapCols; ++i) 
-	{
-		delete tileMap[i];
-	}
-}
-
 
 void GameModel::resetLevel()
 {
