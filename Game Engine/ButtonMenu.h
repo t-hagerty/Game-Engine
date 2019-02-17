@@ -7,8 +7,8 @@ class ButtonMenu :
 {
 public:
 	typedef std::function<void(int)> EventHandler;
-	ButtonMenu(double x, double y, double width, double height, bool visible, std::string imageFilePath, SDL_Surface* targetSurface, SDL_Renderer* targetRenderer,
-		int maxBttnHght, int wMargin, int hMargin, int numCols);
+	ButtonMenu(double x = 0, double y = 0, double width = 0, double height = 0, bool visible = false, std::string imageFilePath = "menu.bmp", SDL_Surface* targetSurface = nullptr, SDL_Renderer* targetRenderer =  nullptr,
+		int maxBttnHght = 0, int wMargin = 0, int hMargin = 0, int numCols = 0);
 	ButtonMenu(double x, double y, double width, double height, bool visible, std::string imageFilePath, SDL_Surface* targetSurface, SDL_Renderer* targetRenderer,
 		int maxBttnHght, int wMargin, int hMargin, int numCols, std::vector<Button*> buttonsInMenu);
 	~ButtonMenu();

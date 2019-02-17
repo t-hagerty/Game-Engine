@@ -51,6 +51,11 @@ bool Tile::isSolid() const
 	return solid;
 }
 
+bool Tile::isSolid()
+{
+	return solid;
+}
+
 bool Tile::isAPit() const
 {
 	return pit;
@@ -134,6 +139,8 @@ int Tile::setNumberFrames() const
 	case 12:
 		return 8;
 	case 16:
+		return 8;
+	case 18:
 		return 8;
 	default:
 		return 1;

@@ -52,12 +52,17 @@ void Model::removeEntity(Entity * e)
 
 int Model::getNumberOfEntities() const
 {
-	return entities.size();
+	return (int)entities.size();
 }
 
 Player * Model::getPlayer() const
 {
 	return player;
+}
+
+ExitTile * Model::getExit() const
+{
+	return exit;
 }
 
 int Model::getTileSize() const
@@ -115,7 +120,20 @@ bool Model::openMap(std::string filePath)
 			{
 				Sint32 tempType = -1;
 				SDL_RWread(file, &tempType, sizeof(Sint32), 1);
-				tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, tempType, setIsSolid(tempType), ((tempType == PIT) ? true : false), setTileEffect(tempType)));
+				
+				if (tempType == DOOR || tempType == LADDER)
+				{
+					bool tempLocked;
+					Sint32 tempDirection = -1;
+					SDL_RWread(file, &tempLocked, sizeof(bool), 1);
+					SDL_RWread(file, &tempDirection, sizeof(Sint32), 1);
+					exit = new ExitTile(c * tileSize, r * tileSize, tileSize, tempType, setIsSolid(tempType), ((tempType == PIT) ? true : false), setTileEffect(tempType), tempLocked, tempDirection);
+					tileMap.push_back(exit);
+				}
+				else
+				{
+					tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, tempType, setIsSolid(tempType), ((tempType == PIT) ? true : false), setTileEffect(tempType)));
+				}
 			}
 		}
 		int numEntities = 0;
@@ -194,7 +212,18 @@ bool Model::saveMap(std::string filePath) const
 			for (int c = 0; c < mapCols; c++)
 			{
 				int tempType = tileMap[(r*mapCols) + c]->getType();
-				SDL_RWwrite(file, &tempType, sizeof(Sint32), 1);
+				if (tempType == DOOR || tempType == LADDER)
+				{
+					bool tempLocked = dynamic_cast<ExitTile*>(tileMap[(r*mapCols) + c])->getIsLocked();
+					Sint32 tempDirection = dynamic_cast<ExitTile*>(tileMap[(r*mapCols) + c])->getExitDirection();
+					SDL_RWwrite(file, &tempType, sizeof(Sint32), 1);
+					SDL_RWwrite(file, &tempLocked, sizeof(bool), 1);
+					SDL_RWwrite(file, &tempDirection, sizeof(Sint32), 1);
+				}
+				else
+				{
+					SDL_RWwrite(file, &tempType, sizeof(Sint32), 1);
+				}
 			}
 		}
 		char temp = 'P'; //player

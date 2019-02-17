@@ -71,6 +71,11 @@ bool GameModel::getIsGameOver()
 	return isGameOver;
 }
 
+bool GameModel::getIsLevelWon()
+{
+	return isLevelWon;
+}
+
 TileEffect * GameModel::setTileEffect(int tileType)
 {
 	switch (tileType)
@@ -109,6 +114,7 @@ void GameModel::moveAnEntity(Entity * e, double delta)
 
 	TileEffect* slideIntoPitEffect = nullptr;
 	bool isOverAPit = false;
+	bool isOverAnExit = false;
 	float pitSlideX = 0;
 	float pitSlideY = 0;
 	std::vector<TileEffect*> effects = {};
@@ -129,14 +135,14 @@ void GameModel::moveAnEntity(Entity * e, double delta)
 
 						float vectorX = current->getCenterPosX() - e->getGroundCenterPosX();
 						float vectorY = current->getCenterPosY() - e->getGroundCenterPosY();
-						double magnitude = sqrt(pow(vectorX, 2) + pow(vectorY, 2));
+						float magnitude = sqrt(pow(vectorX, 2) + pow(vectorY, 2));
 						//get unit vector:
 						vectorX /= magnitude;
 						vectorY /= magnitude;
 						pitSlideX += vectorX;
 						pitSlideY += vectorY;
 					}
-					else
+					else //add tile's effects, if any
 					{
 						for (TileEffect* effect : effects)
 						{
@@ -161,8 +167,8 @@ void GameModel::moveAnEntity(Entity * e, double delta)
 	}
 	if (isOverAPit)
 	{
-		pitSlideX *= 0.3;
-		pitSlideY *= 0.3;
+		pitSlideX *= 0.3f;
+		pitSlideY *= 0.3f;
 		slideIntoPitEffect = new TileEffect(1, 1, pitSlideX, pitSlideY);
 		effects.insert(effects.begin(), slideIntoPitEffect);
 	}
@@ -171,6 +177,11 @@ void GameModel::moveAnEntity(Entity * e, double delta)
 	if (isCompletelyOverPit(e, posRowTop, posRowBottom, posColLeft, posColRight))
 	{
 		fallIntoPit(e);
+		return;
+	}
+	if (isCompletelyOverExit(e, posRowTop, posRowBottom, posColLeft, posColRight))
+	{
+		winLevel();
 		return;
 	}
 	if (e->getVelocityY() != 0)
@@ -303,7 +314,7 @@ void GameModel::knockback(Entity * knockerbacker, Entity * knockedback)
 	//Calculate knockback:
 	float vectorX = knockerbacker->getCenterPosX() - knockedback->getCenterPosX();
 	float vectorY = knockerbacker->getCenterPosY() - knockedback->getCenterPosY();
-	double magnitude = sqrt(pow(vectorX, 2) + pow(vectorY, 2));
+	float magnitude = sqrt(pow(vectorX, 2) + pow(vectorY, 2));
 	//get unit vector:
 	vectorX /= magnitude;
 	vectorY /= magnitude;
@@ -324,6 +335,25 @@ bool GameModel::isCompletelyOverPit(Entity * entity, int topRow, int bottomRow, 
 			if (r < mapRows && r >= 0 && c >= 0 && c < mapCols && SDL_HasIntersection(entity->getGroundHitBox(), getTileAtMapIndex(r, c)->getTileSpace()))
 			{
 				if (!getTileAtMapIndex(r, c)->isAPit())
+				{
+					return false;
+				}
+			}
+		}
+	}
+	return true;
+}
+
+bool GameModel::isCompletelyOverExit(Entity * entity, int topRow, int bottomRow, int leftCol, int rightCol)
+{
+	for (int r = topRow; r <= bottomRow; r++)
+	{
+		for (int c = leftCol; c <= rightCol; c++)
+		{
+			if (r < mapRows && r >= 0 && c >= 0 && c < mapCols && SDL_HasIntersection(entity->getGroundHitBox(), getTileAtMapIndex(r, c)->getTileSpace()))
+			{
+				short type = getTileAtMapIndex(r, c)->getType();
+				if (type != DOOR && type != LADDER)
 				{
 					return false;
 				}
@@ -359,12 +389,18 @@ void GameModel::killEntity(Entity * e)
 	removeEntity(e);
 }
 
+void GameModel::winLevel()
+{
+	isLevelWon = true;
+	
+}
+
 bool GameModel::openMap()
 {
 	bool success = true;
 	mapRows = 20;
     mapCols = 30;
-	int testMap[20][30] = { { 3, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0, 12, 0, 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4 },
+	int testMap[20][30] = { { 3, 5, 5, 5, 5, 5, 18, 5, 5, 5, 5, 5, 0, 0, 12, 0, 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4 },
 							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 6 },
 							{ 6, 0, 0, 0, 0, 0, 0, 15, 15, 0, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
 							{ 6, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 0, 0, 0, 8, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
@@ -389,7 +425,14 @@ bool GameModel::openMap()
 	{
 		for(int c = 0; c < mapCols; c++)
 		{
-			tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, testMap[r][c], setIsSolid(testMap[r][c]), ((testMap[r][c] == PIT) ? true : false), setTileEffect(testMap[r][c])));
+			if (testMap[r][c] == DOOR)
+			{
+				tileMap.push_back(new ExitTile(c * tileSize, r * tileSize, tileSize, testMap[r][c], false, false, nullptr, false, 0));
+			}
+			else
+			{
+				tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, testMap[r][c], setIsSolid(testMap[r][c]), ((testMap[r][c] == PIT) ? true : false), setTileEffect(testMap[r][c])));
+			}
 		}
 	}
 	player = new Player(32, 32, 60, 80, 0, 0, 10);
@@ -429,4 +472,5 @@ void GameModel::resetLevel()
 	}
 	player = static_cast<Player*>(entities[0]); //According to save file format, player should always end up as first in the array so this is safe-ish
 	isGameOver = false;
+	isLevelWon = false;
 }

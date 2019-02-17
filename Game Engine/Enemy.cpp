@@ -70,7 +70,7 @@ void Enemy::determineMovement(double playerPosX, double playerPosY, std::vector<
 		{
 			float vectorX = playerPosX - getCenterPosX();
 			float vectorY = playerPosY - getCenterPosY();
-			double magnitude = sqrt(pow(vectorX, 2) + pow(vectorY, 2));
+			float magnitude = sqrt(pow(vectorX, 2) + pow(vectorY, 2));
 			//get unit vector:
 			vectorX /= magnitude;
 			vectorY /= magnitude;

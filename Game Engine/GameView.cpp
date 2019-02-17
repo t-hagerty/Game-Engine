@@ -71,6 +71,7 @@ void GameView::isGameOverScreen(bool isGameOver)
 {
 	setIsPaused(isGameOver);
 	retryButton->setIsVisible(isGameOver);
+	menuButton->setIsVisible(!isGameOver);
 	if (!isGameOver)
 	{
 		menu->setIsVisible(false);
@@ -80,6 +81,23 @@ void GameView::isGameOverScreen(bool isGameOver)
 bool GameView::getIsGameOverScreen()
 {
 	return retryButton->getIsVisible();
+}
+
+void GameView::isLevelWonScreen(bool isLevelWon)
+{
+	setIsPaused(isLevelWon);
+	retryButton->setIsVisible(isLevelWon);
+	levelWinMessage->setIsVisible(isLevelWon);
+	menuButton->setIsVisible(!isLevelWon);
+	if (!isLevelWon)
+	{
+		menu->setIsVisible(false);
+	}
+}
+
+bool GameView::getIsLevelWonScreen()
+{
+	return levelWinMessage->getIsVisible();
 }
 
 bool GameView::initGUI()
@@ -113,5 +131,7 @@ bool GameView::initGUI()
 	mainMenuButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "MAIN MENU", nullptr);
 	addButton(mainMenuButton);
 	menu->addButton(mainMenuButton);
+	levelWinMessage = new Image((windowWidth / 2) - 200, 25, 400, 100, false, createTextTexture("Winner!"), 1, gScreenSurface, gameRenderer);
+	gui.push_back(levelWinMessage);
 	return success;
 }

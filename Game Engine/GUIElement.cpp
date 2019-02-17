@@ -14,6 +14,19 @@ GUIElement::GUIElement(double x, double y, double width, double height, bool vis
 	loadTexture(targetSurface, targetRenderer, imageFilePath);
 }
 
+GUIElement::GUIElement(double x, double y, double width, double height, bool visible, SDL_Texture * imageTexture, SDL_Surface * targetSurface, SDL_Renderer * targetRenderer)
+{
+	rect = new SDL_Rect();
+	rect->x = x;
+	rect->y = y;
+	rect->w = width;
+	rect->h = height;
+	isVisible = visible;
+	trgtSurface = targetSurface;
+	trgtRenderer = targetRenderer;
+	texture = imageTexture;
+}
+
 GUIElement::~GUIElement() {}
 
 bool GUIElement::loadTexture(SDL_Surface* targetSurface, SDL_Renderer* targetRenderer, std::string filePath)

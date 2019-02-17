@@ -24,6 +24,18 @@ View::View(int levelW, int levelH, int windowW, int windowH, SDL_Window* window,
 	tileSet.insert(tileSet.end(), loadTexture("map_tiles/pit.bmp"));
 	tileSet.insert(tileSet.end(), loadTexture("map_tiles/lava.bmp"));
 	tileSet.insert(tileSet.end(), loadTexture("map_tiles/spikes.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/door.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/ladder.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_bottom_end.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_left_end.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_right_end.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_top_end.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_filled.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_horizontal_bottom.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_horizontal_top.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_vertical_left.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_vertical_right.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_single.bmp"));
 
 	levelWidth = levelW;
 	levelHeight = levelH;
@@ -256,11 +268,11 @@ void View::renderEntitySprite(Entity * e, int frame)
 	}
 }
 
-void View::renderText(std::string text, SDL_Rect * textRect)
+SDL_Texture* View::createTextTexture(std::string text)
 {
 	if (text == "")
 	{
-		return;
+		return nullptr;
 	}
 	std::stringstream s;
 	s << text;
@@ -272,19 +284,29 @@ void View::renderText(std::string text, SDL_Rect * textRect)
 	}
 	SDL_Color textColor = { 0, 0, 0 };
 	SDL_Surface* messageSurface;
+	SDL_Texture* message = nullptr;
 	if (!(messageSurface = TTF_RenderText_Solid(font, s.str().c_str(), textColor)))
 	{
 		printf("Text could not display. TTF Error: %s\n", TTF_GetError());
 	}
 	else
 	{
-		SDL_Texture* message = SDL_CreateTextureFromSurface(gameRenderer, messageSurface);
-
-		SDL_RenderCopy(gameRenderer, message, NULL, textRect);
-		SDL_DestroyTexture(message);
+		message = SDL_CreateTextureFromSurface(gameRenderer, messageSurface);
 	}
 	SDL_FreeSurface(messageSurface);
 	TTF_CloseFont(font);
+	return message;
+}
+
+void View::renderText(std::string text, SDL_Rect * textRect)
+{
+	SDL_Texture* message = createTextTexture(text);
+	if (message = nullptr)
+	{
+		return;
+	}
+	SDL_RenderCopy(gameRenderer, message, NULL, textRect);
+	SDL_DestroyTexture(message);
 }
 
 void View::renderButtons()

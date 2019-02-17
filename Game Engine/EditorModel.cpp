@@ -39,9 +39,36 @@ void EditorModel::clickTile(int x, int y)
 	}
 	switch (selectedTileType)
 	{
-	case 18:
+	case DOOR:
 	{
-		if (getTileAtMapIndex(row, col)->isSolid() || getTileAtMapIndex(row, col)->getType() == PIT)
+		if (exit != nullptr)
+		{
+			removeExit();
+		}
+
+		short direction = -1;
+		//TODO: determine direction of door based on surrounding walls
+		ExitTile* newTile = new ExitTile(col * tileSize, row * tileSize, tileSize, selectedTileType, false, false, nullptr, false, direction);
+		replaceTile(row, col, newTile);
+		exit = newTile;
+		break;
+	}
+	case LADDER:
+	{
+		if (exit != nullptr)
+		{
+			removeExit();
+		}
+
+		ExitTile* newTile = new ExitTile(col * tileSize, row * tileSize, tileSize, selectedTileType, false, false, nullptr, false, 4);
+		replaceTile(row, col, newTile);
+		exit = newTile;
+		break;
+	}
+	case PLAYER:
+	{
+		int typeAtClickedLocation = getTileAtMapIndex(row, col)->getType();
+		if (getTileAtMapIndex(row, col)->isSolid() || typeAtClickedLocation == PIT || typeAtClickedLocation == DOOR || typeAtClickedLocation == LADDER)
 		{
 			break;
 		}
@@ -74,9 +101,10 @@ void EditorModel::clickTile(int x, int y)
 		}
 		break;
 	}
-	case 19:
+	case ENEMY:
 	{
-		if (getTileAtMapIndex(row, col)->isSolid() || getTileAtMapIndex(row, col)->getType() == PIT)
+		int typeAtClickedLocation = getTileAtMapIndex(row, col)->getType();
+		if (getTileAtMapIndex(row, col)->isSolid() || typeAtClickedLocation == PIT || typeAtClickedLocation == DOOR || typeAtClickedLocation == LADDER)
 		{
 			break;
 		}
@@ -96,9 +124,10 @@ void EditorModel::clickTile(int x, int y)
 		addEntity(enemy);
 		break;
 	}
-	case 20:
+	case ARROW:
 	{
-		if (getTileAtMapIndex(row, col)->isSolid())
+		int typeAtClickedLocation = getTileAtMapIndex(row, col)->getType();
+		if (getTileAtMapIndex(row, col)->isSolid() || typeAtClickedLocation == DOOR || typeAtClickedLocation == LADDER)
 		{
 			break;
 		}
@@ -181,6 +210,36 @@ bool EditorModel::openMap()
 void EditorModel::replaceTile(int row, int col, Tile * newTile)
 {
 	Tile* temp = getTileAtMapIndex(row, col);
+	if (temp == exit)
+	{
+		exit == nullptr;
+	}
 	tileMap.at((row*mapCols) + col) = newTile;
 	delete temp;
+}
+
+void EditorModel::removeExit()
+{
+	int row = exit->getTileSpace()->y / tileSize;
+	int col = exit->getTileSpace()->x / tileSize;
+	//Replace old exit tile with a generic floor tile if it was a ladder, or a wall if it was a door
+	if (exit->getType() == LADDER)
+	{
+		Tile* newTile = new Tile(row * tileSize, col * tileSize, tileSize, FLOOR, false, false, nullptr);
+		replaceTile(row * tileSize, col * tileSize, newTile);
+	}
+	else //DOOR
+	{
+		placeWall(row, col);
+	}
+}
+
+void EditorModel::placeWall(int row, int col)
+{
+
+}
+
+void EditorModel::selectWallType(int row, int col)
+{
+
 }

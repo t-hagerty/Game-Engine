@@ -4,6 +4,7 @@
 #include "SDL_endian.h"
 #include "Tile.h"
 #include "TileEffect.h"
+#include "ExitTile.h"
 #include "Player.h"
 #include "Enemy.h"
 #include "Arrow.h"
@@ -18,6 +19,7 @@ public:
 	void removeEntity(Entity* e);
 	int getNumberOfEntities() const;
 	Player* getPlayer() const;
+	ExitTile* getExit() const;
 	int getTileSize() const;
 	int getMapRows() const;
 	int getMapCols() const;
@@ -30,7 +32,7 @@ public:
 	bool saveMap(std::string filePath) const;
 protected:
 	int tileSize;
-	const static int NUMBER_TILE_TYPES = 18;
+	const static int NUMBER_TILE_TYPES = 20;
 	int levelWidth;
 	int levelHeight;
 	std::vector<Tile*> tileMap;
@@ -41,6 +43,7 @@ protected:
 	int mapCols;
 	std::vector<Entity*> entities;
 	Player* player;
+	ExitTile* exit;
 	static bool isInsideWall(Entity* entity, Tile* t);
 	bool isInsideAnyWalls(Entity* entity, int topRow, int bottomRow, int leftCol, int rightCol) const;
 	static bool isIntersectingEntity(Entity* e1, Entity* e2);
@@ -64,8 +67,24 @@ protected:
 		MUD,
 		PIT,
 		LAVA,
-		SPIKES
+		SPIKES,
+		DOOR,
+		LADDER,
+		WALL_BOTTOM_END,
+		WALL_LEFT_END,
+		WALL_RIGHT_END,
+		WALL_TOP_END,
+		WALL_FILLED,
+		WALL_HORIZONTAL_BOTTOM,
+		WALL_HORIZONTAL_TOP,
+		WALL_VERTICAL_LEFT,
+		WALL_VERTICAL_RIGHT,
+		WALL_SINGLE,
+
+		PLAYER,
+		ENEMY,
+		ARROW
 	};
-	bool isSolidTable[NUMBER_TILE_TYPES] = { false, true, true, true, true, true, true, false, true, false, false, false, false, false, false, false, false, false };
+	bool isSolidTable[NUMBER_TILE_TYPES] = { false, true, true, true, true, true, true, false, true, false, false, false, false, false, false, false, false, false, false, false };
 };
 

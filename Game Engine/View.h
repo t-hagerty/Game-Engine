@@ -32,6 +32,7 @@ public:
 	virtual void renderTileMap(std::vector<Tile*> map, int rows, int cols, int tileSize, int frame);
 	void renderRectangle(double posX, double posY, int width, int height) const; //FOR TESTING ONLY
 	virtual void renderEntitySprite(Entity* e, int frame);
+	SDL_Texture* createTextTexture(std::string text);
 	void renderText(std::string text, SDL_Rect* textRect);
 	void renderButtons();
 	void renderAButton(Button* aButton);
@@ -73,7 +74,19 @@ protected:
 		MUD,
 		PIT,
 		LAVA,
-		SPIKES
+		SPIKES,
+		DOOR,
+		LADDER,
+		WALL_BOTTOM_END,
+		WALL_LEFT_END,
+		WALL_RIGHT_END,
+		WALL_TOP_END,
+		WALL_FILLED,
+		WALL_HORIZONTAL_BOTTOM,
+		WALL_HORIZONTAL_TOP,
+		WALL_VERTICAL_LEFT,
+		WALL_VERTICAL_RIGHT,
+		WALL_SINGLE
 	};
 	std::vector<GUIElement*> gui;
 	std::vector<Button*> buttons;
