@@ -130,17 +130,17 @@ int Tile::setNumberFrames() const
 {
 	switch (type)
 	{
-	case 9:
+	case 19:
 		return 8;
-	case 10:
+	case 20:
 		return 8;
-	case 11:
+	case 21:
 		return 8;
-	case 12:
+	case 22:
 		return 8;
-	case 16:
+	case 26:
 		return 8;
-	case 18:
+	case 28:
 		return 8;
 	default:
 		return 1;

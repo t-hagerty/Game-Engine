@@ -32,7 +32,7 @@ public:
 	bool saveMap(std::string filePath) const;
 protected:
 	int tileSize;
-	const static int NUMBER_TILE_TYPES = 20;
+	const static int NUMBER_TILE_TYPES = 30;
 	int levelWidth;
 	int levelHeight;
 	std::vector<Tile*> tileMap;
@@ -50,17 +50,27 @@ protected:
 	void deleteMap() const;
 	enum textures
 	{
-		FLOOR,
+		WALL_SINGLE,
+		WALL_BOTTOM_END,
+		WALL_LEFT_END,
 		WALL_BOTTOM_LEFT_CORNER,
-		WALL_BOTTOM_RIGHT_CORNER,
-		WALL_TOP_LEFT_CORNER,
-		WALL_TOP_RIGHT_CORNER,
-		WALL_HORIZONTAL,
+		WALL_TOP_END,
 		WALL_VERTICAL,
+		WALL_TOP_LEFT_CORNER,
+		WALL_VERTICAL_LEFT,
+		WALL_RIGHT_END,
+		WALL_BOTTOM_RIGHT_CORNER,
+		WALL_HORIZONTAL,
+		WALL_HORIZONTAL_BOTTOM,
+		WALL_TOP_RIGHT_CORNER,
+		WALL_VERTICAL_RIGHT,
+		WALL_HORIZONTAL_TOP,
+		WALL_FILLED,
+		FLOOR,
 		GRASS,
 		BARRIER,
 		DOWN_TREADMILL,
-		RIGHT_TREADMILL, //10
+		RIGHT_TREADMILL,
 		LEFT_TREADMILL,
 		UP_TREADMILL,
 		ICE,
@@ -70,21 +80,11 @@ protected:
 		SPIKES,
 		DOOR,
 		LADDER,
-		WALL_BOTTOM_END,
-		WALL_LEFT_END,
-		WALL_RIGHT_END,
-		WALL_TOP_END,
-		WALL_FILLED,
-		WALL_HORIZONTAL_BOTTOM,
-		WALL_HORIZONTAL_TOP,
-		WALL_VERTICAL_LEFT,
-		WALL_VERTICAL_RIGHT,
-		WALL_SINGLE,
 
 		PLAYER,
 		ENEMY,
 		ARROW
 	};
-	bool isSolidTable[NUMBER_TILE_TYPES] = { false, true, true, true, true, true, true, false, true, false, false, false, false, false, false, false, false, false, false, false };
+	bool isSolidTable[NUMBER_TILE_TYPES] = { true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, true, false, false, false, false, false, false, false, false, false, false, false };
 };
 

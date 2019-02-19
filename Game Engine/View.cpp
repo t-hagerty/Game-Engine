@@ -6,13 +6,23 @@ View::View(int levelW, int levelH, int windowW, int windowH, SDL_Window* window,
 	gScreenSurface = screen;
 	gameRenderer = renderer;
 
-	tileSet.insert(tileSet.end(), loadTexture("map_tiles/floor.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_single.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_bottom_end.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_left_end.bmp"));
 	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_bottom_left_corner.bmp"));
-	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_bottom_right_corner.bmp"));
-	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_top_left_corner.bmp"));
-	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_top_right_corner.bmp"));
-	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_horizontal.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_top_end.bmp"));
 	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_vertical.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_top_left_corner.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_vertical_left.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_right_end.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_bottom_right_corner.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_horizontal.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_horizontal_bottom.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_top_right_corner.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_vertical_right.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_horizontal_top.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_filled.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/floor.bmp"));
 	tileSet.insert(tileSet.end(), loadTexture("map_tiles/grass.bmp"));
 	tileSet.insert(tileSet.end(), loadTexture("map_tiles/barrier.bmp"));
 	tileSet.insert(tileSet.end(), loadTexture("map_tiles/down_treadmill.bmp"));
@@ -26,16 +36,6 @@ View::View(int levelW, int levelH, int windowW, int windowH, SDL_Window* window,
 	tileSet.insert(tileSet.end(), loadTexture("map_tiles/spikes.bmp"));
 	tileSet.insert(tileSet.end(), loadTexture("map_tiles/door.bmp"));
 	tileSet.insert(tileSet.end(), loadTexture("map_tiles/ladder.bmp"));
-	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_bottom_end.bmp"));
-	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_left_end.bmp"));
-	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_right_end.bmp"));
-	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_top_end.bmp"));
-	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_filled.bmp"));
-	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_horizontal_bottom.bmp"));
-	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_horizontal_top.bmp"));
-	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_vertical_left.bmp"));
-	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_vertical_right.bmp"));
-	tileSet.insert(tileSet.end(), loadTexture("map_tiles/wall_single.bmp"));
 
 	levelWidth = levelW;
 	levelHeight = levelH;
