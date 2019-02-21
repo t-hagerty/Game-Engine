@@ -16,6 +16,7 @@ private:
 	void removeExit();
 	void placeWall(int row, int col);
 	void selectWallType(int row, int col);
+	bool isAWall(int type);
 	int selectedTileType = 0;
 };
 

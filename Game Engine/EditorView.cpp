@@ -184,7 +184,13 @@ void EditorView::incrementTileAnimationSynchronizer()
 
 void EditorView::populateSelectionMenu()
 {
-	for (int i = 0; i < static_cast<int>(tileSet.size()); i++)
+	Button* b = new Button(0, 0, 32, 32, true, "default_button.bmp", gScreenSurface, gameRenderer, " ", nullptr);
+	b->setTexture(tileSet[0]);
+	b->setEventArg(0);
+	addButton(b);
+	selectionMenu->addButton(b);
+	//Skip all the other wall tiles...
+	for (int i = 16; i < static_cast<int>(tileSet.size()); i++)
 	{
 		Button* b = new Button(0, 0, 32, 32, true, "default_button.bmp", gScreenSurface, gameRenderer, " ", nullptr);
 		b->setTexture(tileSet[i]);

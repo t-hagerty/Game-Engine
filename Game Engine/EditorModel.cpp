@@ -147,6 +147,9 @@ void EditorModel::clickTile(int x, int y)
 		addEntity(arrow);
 		break;
 	}
+	case WALL_SINGLE: //Will be the type passed by the generic "place a wall" button and the actual type will be calculated.
+		placeWall(row, col);
+		break;
 	default:
 	{
 		Tile* newTile = new Tile(col * tileSize, row * tileSize, tileSize, selectedTileType, setIsSolid(selectedTileType), ((selectedTileType == PIT) ? true : false), nullptr);
@@ -225,8 +228,8 @@ void EditorModel::removeExit()
 	//Replace old exit tile with a generic floor tile if it was a ladder, or a wall if it was a door
 	if (exit->getType() == LADDER)
 	{
-		Tile* newTile = new Tile(row * tileSize, col * tileSize, tileSize, FLOOR, false, false, nullptr);
-		replaceTile(row * tileSize, col * tileSize, newTile);
+		Tile* newTile = new Tile(col * tileSize, row * tileSize, tileSize, FLOOR, false, false, nullptr);
+		replaceTile(row, col, newTile);
 	}
 	else //DOOR
 	{
@@ -236,10 +239,84 @@ void EditorModel::removeExit()
 
 void EditorModel::placeWall(int row, int col)
 {
-
+	selectWallType(row, col);
+	if (row != 0 && isAWall(getTileAtMapIndex(row - 1, col)->getType()))
+	{
+		selectWallType(row - 1, col);
+	}
+	if (col != 0 && isAWall(getTileAtMapIndex(row, col - 1)->getType()))
+	{
+		selectWallType(row, col - 1);
+	}
+	if (row != mapRows - 1 && isAWall(getTileAtMapIndex(row + 1, col)->getType()))
+	{
+		selectWallType(row + 1, col);
+	}
+	if (col != mapCols - 1 && isAWall(getTileAtMapIndex(row, col + 1)->getType()))
+	{
+		selectWallType(row, col + 1);
+	}
 }
 
 void EditorModel::selectWallType(int row, int col)
 {
+	short wallsum = 0;
+	if (row == 0 || isAWall(getTileAtMapIndex(row - 1, col)->getType()))
+	{
+		wallsum += 1;
+	}
+	if (col == mapCols -1 || isAWall(getTileAtMapIndex(row, col + 1)->getType()))
+	{
+		wallsum += 2;
+	}
+	if (row == mapRows -1 || isAWall(getTileAtMapIndex(row + 1, col)->getType()))
+	{
+		wallsum += 4;
+	}
+	if (col == 0 || isAWall(getTileAtMapIndex(row, col - 1)->getType()))
+	{
+		wallsum += 8;
+	}
+	replaceTile(row, col, new Tile(col * tileSize, row * tileSize, tileSize, wallsum, true, false, nullptr));
+}
 
+bool EditorModel::isAWall(int type)
+{
+	switch (type)
+	{
+	case WALL_SINGLE:
+		return true;
+	case WALL_BOTTOM_END:
+		return true;
+	case WALL_LEFT_END:
+		return true;
+	case WALL_BOTTOM_LEFT_CORNER:
+		return true;
+	case WALL_TOP_END:
+		return true;
+	case WALL_VERTICAL:
+		return true;
+	case WALL_TOP_LEFT_CORNER:
+		return true;
+	case WALL_VERTICAL_LEFT:
+		return true;
+	case WALL_RIGHT_END:
+		return true;
+	case WALL_BOTTOM_RIGHT_CORNER:
+		return true;
+	case WALL_HORIZONTAL:
+		return true;
+	case WALL_HORIZONTAL_BOTTOM:
+		return true;
+	case WALL_TOP_RIGHT_CORNER:
+		return true;
+	case WALL_VERTICAL_RIGHT:
+		return true;
+	case WALL_HORIZONTAL_TOP:
+		return true;
+	case WALL_FILLED:
+		return true;
+	default:
+		return false;
+	}
 }

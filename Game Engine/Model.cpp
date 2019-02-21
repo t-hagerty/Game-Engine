@@ -338,3 +338,15 @@ void Model::deleteMap() const
 		delete tileMap[i];
 	}
 }
+
+void Model::printTileMap()
+{
+	for (int r = 0; r < mapRows; r++)
+	{
+		for (int c = 0; c < mapCols; c++)
+		{
+			printf("%2d, ", getTileAtMapIndex(r, c)->getType());
+		}
+		printf("\n");
+	}
+}

@@ -48,6 +48,7 @@ protected:
 	bool isInsideAnyWalls(Entity* entity, int topRow, int bottomRow, int leftCol, int rightCol) const;
 	static bool isIntersectingEntity(Entity* e1, Entity* e2);
 	void deleteMap() const;
+	void printTileMap();
 	enum textures
 	{
 		WALL_SINGLE,
