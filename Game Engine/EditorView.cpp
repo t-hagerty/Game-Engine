@@ -8,6 +8,11 @@ EditorView::EditorView(int levelW, int levelH, int windowW, int windowH, SDL_Win
 	
 	for (int i = 0; i < tileSet.size(); i++)
 	{
+		if (i == DOOR || i == LADDER)
+		{
+			tileAnimationSynchronizer.insert(tileAnimationSynchronizer.end(), new ExitTile(0, 0, 0, i, false, false, false, 0));
+			continue;
+		}
 		tileAnimationSynchronizer.insert(tileAnimationSynchronizer.end(), new Tile(0, 0, 0, i, false, false, nullptr));
 	}
 	tileSet.insert(tileSet.end(), loadTexture("spritesheets/player_walking.bmp"));

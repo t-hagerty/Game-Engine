@@ -127,7 +127,7 @@ bool Model::openMap(std::string filePath)
 					Sint32 tempDirection = -1;
 					SDL_RWread(file, &tempLocked, sizeof(bool), 1);
 					SDL_RWread(file, &tempDirection, sizeof(Sint32), 1);
-					exit = new ExitTile(c * tileSize, r * tileSize, tileSize, tempType, setIsSolid(tempType), ((tempType == PIT) ? true : false), setTileEffect(tempType), tempLocked, tempDirection);
+					exit = new ExitTile(c * tileSize, r * tileSize, tileSize, tempType, false, false, setTileEffect(tempType), tempLocked, tempDirection);
 					tileMap.push_back(exit);
 				}
 				else

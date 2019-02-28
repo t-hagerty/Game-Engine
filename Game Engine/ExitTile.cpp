@@ -13,9 +13,34 @@ ExitTile::ExitTile(int x, int y, int size, int typeOfTile, bool isSolid, bool is
 	}
 }
 
+ExitTile::ExitTile(const ExitTile & t)
+{
+	tileSpace = new SDL_Rect();
+	tileSpace->x = t.getTileSpace()->x;
+	tileSpace->y = t.getTileSpace()->y;
+	tileSpace->w = t.getTileSpace()->w;
+	tileSpace->h = t.getTileSpace()->h;
+	type = t.getType();
+	isLocked = t.getIsLocked();
+	solid = isLocked;
+	pit = t.isAPit();
+	anEffect = nullptr;
+	textureFrames = setNumberFrames();
+	exitDirection = t.getExitDirection();
+	if (isLocked)
+	{
+		animationFrame = 1;
+	}
+}
+
 
 ExitTile::~ExitTile()
 {
+}
+
+Tile * ExitTile::clone() const
+{
+	return new ExitTile(*this);
 }
 
 bool ExitTile::isSolid()
@@ -35,12 +60,12 @@ void ExitTile::setIsLocked(bool locked)
 	isLocked = locked;
 }
 
-bool ExitTile::getIsLocked()
+bool ExitTile::getIsLocked() const
 {
 	return isLocked;
 }
 
-short ExitTile::getExitDirection()
+short ExitTile::getExitDirection() const
 {
 	return exitDirection;
 }

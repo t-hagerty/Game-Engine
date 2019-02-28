@@ -179,7 +179,7 @@ void GameModel::moveAnEntity(Entity * e, double delta)
 		fallIntoPit(e);
 		return;
 	}
-	if (isCompletelyOverExit(e, posRowTop, posRowBottom, posColLeft, posColRight))
+	if (isCompletelyOverExit(e, posRowTop, posRowBottom, posColLeft, posColRight) && e == player)
 	{
 		winLevel();
 		return;
@@ -272,7 +272,7 @@ void GameModel::moveAnEntity(Entity * e, double delta)
 			if ((posColRight) < mapCols && posRowBottom < mapRows && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight))
 			{
 				e->hitWall(1);
-				e->setPosX((posColRight)* tileSize - e->getWidth());
+				e->setPosX((posColRight)* tileSize - e->getGroundHitBox()->w);
 			}
 		}
 		else if (e->getVelocityX() < 0) //left
@@ -288,9 +288,10 @@ void GameModel::moveAnEntity(Entity * e, double delta)
 			if ((posColLeft) >= 0 && posRowBottom < mapRows && isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight)) //left
 			{
 				e->hitWall(2);
-				e->setPosX((posColLeft + 1)* tileSize);
+				e->setPosX((posColLeft + 1)* tileSize - ((e->getWidth() - e->getGroundHitBox()->w) / 2));
 			}
 		}
+		//TO DO: bug appears to be back where you cannot walk up/down along the left side of a vertical wall while walking into it, to be fixed
 	}
 	//Safety check, make sure once we're done, the entity didnt manage to still make it inside a wall, if so, fallback on moving it back to former pos:
 	if(isInsideAnyWalls(e, posRowTop, posRowBottom, posColLeft, posColRight))

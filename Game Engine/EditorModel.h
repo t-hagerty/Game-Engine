@@ -14,7 +14,9 @@ public:
 private:
 	void replaceTile(int row, int col, Tile* newTile);
 	void removeExit();
+	int determineDoorDirection(int row, int col);
 	void placeWall(int row, int col);
+	void updateSurroundingWalls(int row, int col);
 	void selectWallType(int row, int col);
 	bool isAWall(int type);
 	int selectedTileType = 0;

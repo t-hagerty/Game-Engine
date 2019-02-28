@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "Tile.h"
+#include "ExitTile.h"
 #include "Entity.h"
 #include "Button.h"
 #include "Image.h"

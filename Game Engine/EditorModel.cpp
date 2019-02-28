@@ -41,15 +41,22 @@ void EditorModel::clickTile(int x, int y)
 	{
 	case DOOR:
 	{
+		if (!isAWall(getTileAtMapIndex(row, col)->getType()))
+		{
+			break;
+		}
+		short direction = determineDoorDirection(row, col);
+		if (direction == -1)
+		{
+			break;
+		}
 		if (exit != nullptr)
 		{
 			removeExit();
 		}
-
-		short direction = -1;
-		//TODO: determine direction of door based on surrounding walls
 		ExitTile* newTile = new ExitTile(col * tileSize, row * tileSize, tileSize, selectedTileType, false, false, nullptr, false, direction);
 		replaceTile(row, col, newTile);
+		updateSurroundingWalls(row, col);
 		exit = newTile;
 		break;
 	}
@@ -152,8 +159,13 @@ void EditorModel::clickTile(int x, int y)
 		break;
 	default:
 	{
+		bool wasWall = ((isAWall(getTileAtMapIndex(row, col)->getType())) ? true : false);
 		Tile* newTile = new Tile(col * tileSize, row * tileSize, tileSize, selectedTileType, setIsSolid(selectedTileType), ((selectedTileType == PIT) ? true : false), nullptr);
 		replaceTile(row, col, newTile);
+		if (wasWall)
+		{
+			updateSurroundingWalls(row, col);
+		}
 		if (setIsSolid(selectedTileType) || ((selectedTileType == PIT) ? true : false))
 		{
 			for (Entity* e : entities)
@@ -178,7 +190,7 @@ bool EditorModel::openMap()
 	bool success = true;
 	mapRows = 20;
 	mapCols = 30;
-	int testMap[20][30] = { { WALL_TOP_LEFT_CORNER, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_TOP_RIGHT_CORNER },
+	int testMap[20][30] = { { WALL_TOP_LEFT_CORNER, WALL_HORIZONTAL, DOOR, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_TOP_RIGHT_CORNER },
 							{ WALL_VERTICAL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, WALL_VERTICAL },
 							{ WALL_VERTICAL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, WALL_VERTICAL },
 							{ WALL_VERTICAL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, WALL_VERTICAL },
@@ -203,7 +215,15 @@ bool EditorModel::openMap()
 	{
 		for (int c = 0; c < mapCols; c++)
 		{
-			tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, testMap[r][c], setIsSolid(testMap[r][c]), ((testMap[r][c] == PIT) ? true : false), nullptr));
+			if (testMap[r][c] == DOOR || testMap[r][c] == LADDER)
+			{
+				exit = new ExitTile(c * tileSize, r * tileSize, tileSize, testMap[r][c], false, false, nullptr, false, 0);
+				tileMap.push_back(exit);
+			}
+			else
+			{
+				tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, testMap[r][c], setIsSolid(testMap[r][c]), ((testMap[r][c] == PIT) ? true : false), nullptr));
+			}
 		}
 	}
 	saveMap("blankMap");
@@ -237,9 +257,54 @@ void EditorModel::removeExit()
 	}
 }
 
+int EditorModel::determineDoorDirection(int row, int col)
+{
+	int direction = -1;
+	short wallsum = 0;
+	if (row == 0 || isAWall(getTileAtMapIndex(row - 1, col)->getType()))
+	{
+		wallsum += 1;
+	}
+	if (col == mapCols - 1 || isAWall(getTileAtMapIndex(row, col + 1)->getType()))
+	{
+		wallsum += 2;
+	}
+	if (row == mapRows - 1 || isAWall(getTileAtMapIndex(row + 1, col)->getType()))
+	{
+		wallsum += 4;
+	}
+	if (col == 0 || isAWall(getTileAtMapIndex(row, col - 1)->getType()))
+	{
+		wallsum += 8;
+	}
+	switch (wallsum)
+	{
+	case 11:
+		direction = 0;
+		break;
+	case 7:
+		direction = 1;
+		break;
+	case 14:
+		direction = 2;
+		break;
+	case 13:
+		direction = 3;
+		break;
+	default:
+		break;
+	}
+	return direction;
+}
+
 void EditorModel::placeWall(int row, int col)
 {
 	selectWallType(row, col);
+	updateSurroundingWalls(row, col);
+}
+
+void EditorModel::updateSurroundingWalls(int row, int col)
+{
 	if (row != 0 && isAWall(getTileAtMapIndex(row - 1, col)->getType()))
 	{
 		selectWallType(row - 1, col);

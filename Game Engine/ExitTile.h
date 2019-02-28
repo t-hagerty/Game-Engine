@@ -6,11 +6,13 @@ class ExitTile :
 {
 public:
 	ExitTile(int x = 0, int y = 0, int size = 0, int typeOfTile = -1, bool isSolid = false, bool isAPit = false, TileEffect* effect = nullptr, bool isLocked = false, short exitDir = 0);
+	ExitTile(const ExitTile &t);
 	~ExitTile();
+	Tile* clone() const override;
 	bool isSolid() override;
 	void setIsLocked(bool locked);
-	bool getIsLocked();
-	short getExitDirection();
+	bool getIsLocked() const;
+	short getExitDirection() const;
 	void switchTriggered(bool switchStatus);
 	void incrementAnimationFrame() override;
 private:

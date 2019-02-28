@@ -8,7 +8,7 @@ public:
 	Tile(int x = 0, int y = 0, int size = 0, int typeOfTile = -1, bool isSolid = false, bool isAPit = false, TileEffect* effect = nullptr);
 	Tile(const Tile &t);
 	~Tile();
-	Tile* clone() const;
+	virtual Tile* clone() const;
 	int getType() const;
 	bool isSolid() const;
 	virtual bool isSolid();
