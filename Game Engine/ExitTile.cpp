@@ -6,10 +6,11 @@ ExitTile::ExitTile(int x, int y, int size, int typeOfTile, bool isSolid, bool is
 	Tile(x, y, size, typeOfTile, false, false, effect)
 {
 	exitDirection = exitDir;
+	renderAngle = exitDirection * 90;
 	isLocked = locked;
 	if (isLocked)
 	{
-		animationFrame = 1;
+		animationFrame = 0;
 	}
 }
 
@@ -27,9 +28,10 @@ ExitTile::ExitTile(const ExitTile & t)
 	anEffect = nullptr;
 	textureFrames = setNumberFrames();
 	exitDirection = t.getExitDirection();
+	renderAngle = t.getRenderAngle();
 	if (isLocked)
 	{
-		animationFrame = 1;
+		animationFrame = 0;
 	}
 }
 

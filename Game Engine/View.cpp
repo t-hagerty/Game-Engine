@@ -223,7 +223,7 @@ void View::renderTileMap(std::vector<Tile*> map, int rows, int cols, int tileSiz
 			SDL_Rect renderQuad = { (t->getTileSpace()->x - camera->x) * zoomScale , (t->getTileSpace()->y - camera->y) * zoomScale , t->getTileSpace()->w * zoomScale, t->getTileSpace()->h * zoomScale };
 			SDL_Rect textureFrameClip = { 0, t->getAnimationFrame() * t->getTextureFrameHeight(), t->getTextureFrameWidth(), t->getTextureFrameHeight() };
 			//Render to screen
-			SDL_RenderCopyEx(gameRenderer, tileSet.at(t->getType()), &textureFrameClip, &renderQuad, 0.0, NULL, SDL_FLIP_NONE);
+			SDL_RenderCopyEx(gameRenderer, tileSet.at(t->getType()), &textureFrameClip, &renderQuad, t->getRenderAngle(), NULL, SDL_FLIP_NONE);
 		}
 		if ((frame == 0 || frame == 10 || frame == 20 || frame == 30 || frame == 40 || frame == 50) && !isPaused)
 		{

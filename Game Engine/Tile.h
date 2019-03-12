@@ -23,6 +23,8 @@ public:
 	int getTextureFrames() const;
 	int getAnimationFrame() const;
 	void setAnimationFrame(int newFrame);
+	double getRenderAngle() const;
+	void setRenderAngle(double newAngle);
 	virtual void incrementAnimationFrame();
 protected:
 	int type;
@@ -34,6 +36,7 @@ protected:
 	const int TEXTURE_FRAME_HEIGHT = 16;
 	int textureFrames;
 	int animationFrame = 0;
+	double renderAngle = 0;
 	int setNumberFrames() const;
 };
 

@@ -62,7 +62,7 @@ void EditorView::renderTileMap(std::vector<Tile*> map, int rows, int cols, int t
 			SDL_Rect renderQuad = { ((t->getTileSpace()->x - camera->x) * zoomScale) + selectionMenuWidth, (t->getTileSpace()->y - camera->y) * zoomScale , t->getTileSpace()->w * zoomScale, t->getTileSpace()->h * zoomScale };
 			SDL_Rect textureFrameClip = { 0, getAnimationFrameForTile(t->getType()) * t->getTextureFrameHeight(), t->getTextureFrameWidth(), t->getTextureFrameHeight() };
 			//Render to screen
-			SDL_RenderCopyEx(gameRenderer, tileSet.at(t->getType()), &textureFrameClip, &renderQuad, 0.0, NULL, SDL_FLIP_NONE);
+			SDL_RenderCopyEx(gameRenderer, tileSet.at(t->getType()), &textureFrameClip, &renderQuad, t->getRenderAngle(), NULL, SDL_FLIP_NONE);
 		}
 	}
 }

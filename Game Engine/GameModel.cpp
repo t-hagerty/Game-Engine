@@ -428,7 +428,7 @@ bool GameModel::openMap()
 		{
 			if (testMap[r][c] == DOOR || testMap[r][c] == LADDER)
 			{
-				exit = new ExitTile(c * tileSize, r * tileSize, tileSize, testMap[r][c], false, false, nullptr, false, 0);
+				exit = new ExitTile(c * tileSize, r * tileSize, tileSize, testMap[r][c], false, false, nullptr, true, 0);
 				tileMap.push_back(exit);
 			}
 			else

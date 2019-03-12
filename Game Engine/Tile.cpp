@@ -28,6 +28,7 @@ Tile::Tile(const Tile & t)
 	pit = t.isAPit();
 	anEffect = nullptr;
 	textureFrames = setNumberFrames();
+	renderAngle = t.getRenderAngle();
 }
 
 
@@ -116,6 +117,16 @@ void Tile::setAnimationFrame(int newFrame)
 	{
 		animationFrame = 0;
 	}
+}
+
+double Tile::getRenderAngle() const
+{
+	return renderAngle;
+}
+
+void Tile::setRenderAngle(double newAngle)
+{
+	renderAngle = newAngle;
 }
 
 void Tile::incrementAnimationFrame()
