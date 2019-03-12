@@ -20,6 +20,9 @@ private:
 	bool isGameOver = false;
 	TileEffect* setTileEffect(int tileType) override;
 	void moveAnEntity(Entity* e, double delta);
+	void calculateMovement(Entity* e, int posRowTop, int posRowBottom, int posColLeft, int posColRight);
+	//void checkEntityMovementX(Entity* e, double delta);
+	//void checkEntityMovementY(Entity* e, double delta);
 	void knockback(Entity* knockerbacker, Entity* knockedback);
 	bool isCompletelyOverPit(Entity* entity, int topRow, int bottomRow, int leftCol, int rightCol);
 	void fallIntoPit(Entity* e);
