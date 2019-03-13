@@ -1,7 +1,6 @@
 #pragma once
 #include "GameModel.h"
 #include "GameView.h"
-#include <SDL.h>
 #undef main
 
 class GameController

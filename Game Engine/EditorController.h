@@ -1,7 +1,7 @@
 #pragma once
 #include "EditorModel.h"
 #include "EditorView.h"
-#include <SDL.h>
+
 class EditorController
 {
 public:

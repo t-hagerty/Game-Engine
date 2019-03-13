@@ -8,6 +8,11 @@ EditorView::EditorView(int levelW, int levelH, int windowW, int windowH, SDL_Win
 	
 	for (int i = 0; i < tileSet.size(); i++)
 	{
+		if (i == DOOR || i == LADDER)
+		{
+			tileAnimationSynchronizer.insert(tileAnimationSynchronizer.end(), new ExitTile(0, 0, 0, i, false, false, false, 0));
+			continue;
+		}
 		tileAnimationSynchronizer.insert(tileAnimationSynchronizer.end(), new Tile(0, 0, 0, i, false, false, nullptr));
 	}
 	tileSet.insert(tileSet.end(), loadTexture("spritesheets/player_walking.bmp"));
@@ -57,7 +62,7 @@ void EditorView::renderTileMap(std::vector<Tile*> map, int rows, int cols, int t
 			SDL_Rect renderQuad = { ((t->getTileSpace()->x - camera->x) * zoomScale) + selectionMenuWidth, (t->getTileSpace()->y - camera->y) * zoomScale , t->getTileSpace()->w * zoomScale, t->getTileSpace()->h * zoomScale };
 			SDL_Rect textureFrameClip = { 0, getAnimationFrameForTile(t->getType()) * t->getTextureFrameHeight(), t->getTextureFrameWidth(), t->getTextureFrameHeight() };
 			//Render to screen
-			SDL_RenderCopyEx(gameRenderer, tileSet.at(t->getType()), &textureFrameClip, &renderQuad, 0.0, NULL, SDL_FLIP_NONE);
+			SDL_RenderCopyEx(gameRenderer, tileSet.at(t->getType()), &textureFrameClip, &renderQuad, t->getRenderAngle(), NULL, SDL_FLIP_NONE);
 		}
 	}
 }
@@ -184,7 +189,13 @@ void EditorView::incrementTileAnimationSynchronizer()
 
 void EditorView::populateSelectionMenu()
 {
-	for (int i = 0; i < static_cast<int>(tileSet.size()); i++)
+	Button* b = new Button(0, 0, 32, 32, true, "default_button.bmp", gScreenSurface, gameRenderer, " ", nullptr);
+	b->setTexture(tileSet[0]);
+	b->setEventArg(0);
+	addButton(b);
+	selectionMenu->addButton(b);
+	//Skip all the other wall tiles...
+	for (int i = 16; i < static_cast<int>(tileSet.size()); i++)
 	{
 		Button* b = new Button(0, 0, 32, 32, true, "default_button.bmp", gScreenSurface, gameRenderer, " ", nullptr);
 		b->setTexture(tileSet[i]);

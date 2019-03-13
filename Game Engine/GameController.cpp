@@ -200,7 +200,16 @@ void GameController::gameLoop()
 				//update game logic/model
 				update(delta); //<- all time related values must be multiplied by delta
 			}
-			if (model->getIsGameOver())
+			if (model->getIsLevelWon())
+			{
+				view->isLevelWonScreen(true);
+			}
+			else if (view->getIsLevelWonScreen()) //if model says it's not won but view still says it is, we have restarted the level
+			{
+				view->isLevelWonScreen(false);
+				continue;
+			}
+			else if (model->getIsGameOver())
 			{
 				view->isGameOverScreen(true);
 			}

@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "Tile.h"
+#include "ExitTile.h"
 #include "Entity.h"
 #include "Button.h"
 #include "Image.h"
@@ -32,6 +33,7 @@ public:
 	virtual void renderTileMap(std::vector<Tile*> map, int rows, int cols, int tileSize, int frame);
 	void renderRectangle(double posX, double posY, int width, int height) const; //FOR TESTING ONLY
 	virtual void renderEntitySprite(Entity* e, int frame);
+	SDL_Texture* createTextTexture(std::string text);
 	void renderText(std::string text, SDL_Rect* textRect);
 	void renderButtons();
 	void renderAButton(Button* aButton);
@@ -56,13 +58,23 @@ protected:
 
 	enum textures
 	{
-		FLOOR,
+		WALL_SINGLE,
+		WALL_BOTTOM_END,
+		WALL_LEFT_END,
 		WALL_BOTTOM_LEFT_CORNER,
-		WALL_BOTTOM_RIGHT_CORNER,
-		WALL_TOP_LEFT_CORNER,
-		WALL_TOP_RIGHT_CORNER,
-		WALL_HORIZONTAL,
+		WALL_TOP_END,
 		WALL_VERTICAL,
+		WALL_TOP_LEFT_CORNER,
+		WALL_VERTICAL_LEFT,
+		WALL_RIGHT_END,
+		WALL_BOTTOM_RIGHT_CORNER,
+		WALL_HORIZONTAL,
+		WALL_HORIZONTAL_BOTTOM,
+		WALL_TOP_RIGHT_CORNER,
+		WALL_VERTICAL_RIGHT,
+		WALL_HORIZONTAL_TOP,
+		WALL_FILLED,
+		FLOOR,
 		GRASS,
 		BARRIER,
 		DOWN_TREADMILL,
@@ -73,7 +85,9 @@ protected:
 		MUD,
 		PIT,
 		LAVA,
-		SPIKES
+		SPIKES,
+		DOOR,
+		LADDER
 	};
 	std::vector<GUIElement*> gui;
 	std::vector<Button*> buttons;

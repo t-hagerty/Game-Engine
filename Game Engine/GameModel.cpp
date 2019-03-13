@@ -71,6 +71,11 @@ bool GameModel::getIsGameOver()
 	return isGameOver;
 }
 
+bool GameModel::getIsLevelWon()
+{
+	return isLevelWon;
+}
+
 TileEffect * GameModel::setTileEffect(int tileType)
 {
 	switch (tileType)
@@ -110,6 +115,11 @@ void GameModel::moveAnEntity(Entity * e, double delta)
 	if (isCompletelyOverPit(e, posRowTop, posRowBottom, posColLeft, posColRight))
 	{
 		fallIntoPit(e);
+		return;
+	}
+	if (isCompletelyOverExit(e, posRowTop, posRowBottom, posColLeft, posColRight) && e == player)
+	{
+		winLevel();
 		return;
 	}
 	if (e->getVelocityY() != 0)
@@ -307,7 +317,7 @@ void GameModel::knockback(Entity * knockerbacker, Entity * knockedback)
 	//Calculate knockback:
 	float vectorX = knockerbacker->getCenterPosX() - knockedback->getCenterPosX();
 	float vectorY = knockerbacker->getCenterPosY() - knockedback->getCenterPosY();
-	double magnitude = sqrt(pow(vectorX, 2) + pow(vectorY, 2));
+	float magnitude = sqrt(pow(vectorX, 2) + pow(vectorY, 2));
 	//get unit vector:
 	vectorX /= magnitude;
 	vectorY /= magnitude;
@@ -328,6 +338,25 @@ bool GameModel::isCompletelyOverPit(Entity * entity, int topRow, int bottomRow, 
 			if (r < mapRows && r >= 0 && c >= 0 && c < mapCols && SDL_HasIntersection(entity->getGroundHitBox(), getTileAtMapIndex(r, c)->getTileSpace()))
 			{
 				if (!getTileAtMapIndex(r, c)->isAPit())
+				{
+					return false;
+				}
+			}
+		}
+	}
+	return true;
+}
+
+bool GameModel::isCompletelyOverExit(Entity * entity, int topRow, int bottomRow, int leftCol, int rightCol)
+{
+	for (int r = topRow; r <= bottomRow; r++)
+	{
+		for (int c = leftCol; c <= rightCol; c++)
+		{
+			if (r < mapRows && r >= 0 && c >= 0 && c < mapCols && SDL_HasIntersection(entity->getGroundHitBox(), getTileAtMapIndex(r, c)->getTileSpace()))
+			{
+				short type = getTileAtMapIndex(r, c)->getType();
+				if (type != DOOR && type != LADDER)
 				{
 					return false;
 				}
@@ -363,37 +392,51 @@ void GameModel::killEntity(Entity * e)
 	removeEntity(e);
 }
 
+void GameModel::winLevel()
+{
+	isLevelWon = true;
+	
+}
+
 bool GameModel::openMap()
 {
 	bool success = true;
 	mapRows = 20;
     mapCols = 30;
-	int testMap[20][30] = { { 3, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0, 12, 0, 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 15, 15, 0, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 15, 15, 15, 15, 15, 15, 0, 0, 0, 8, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 15, 0, 15, 0, 0, 0, 0, 8, 8, 0, 8, 8, 0, 0, 0, 0, 17, 0, 0, 12, 0, 6 },
-							{ 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
-							{ 6, 0, 0, 0, 0, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 0, 8, 8, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
-							{ 6, 0, 9, 0, 9, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 8, 0, 0, 0, 0, 17, 17, 0, 0, 12, 0, 6 },
-							{ 6, 0, 9, 0, 9, 0, 9, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
-							{ 0, 0, 9, 0, 9, 0, 9, 0, 8, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0 },
-							{ 0, 0, 13, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 16, 16, 16, 0, 0, 12, 0, 0 },
-							{ 0, 0, 13, 0, 0, 0, 12, 0, 8, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 16, 16, 16, 0, 0, 12, 0, 0 },
-							{ 11, 11, 0, 0, 12, 0, 12, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 16, 16, 0, 0, 12, 0, 0 },
-							{ 6, 0, 9, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
-							{ 6, 0, 9, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
-							{ 6, 0, 9, 0, 12, 0, 0, 13, 13, 13, 13, 0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 0, 0, 0, 0, 0, 0, 12, 0, 6 },
-							{ 6, 0, 14, 14, 14, 0, 0, 13, 13, 13, 13, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 9, 0, 0, 12, 0, 6 },
-							{ 6, 0, 14, 14, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 14, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 12, 0, 6 },
-							{ 6, 0, 14, 14, 0, 0, 10, 10, 11, 11, 0, 9, 0, 0, 13, 14, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 6 },
-							{ 1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0, 9, 0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 2 } };
+	int testMap[20][30] = { { WALL_TOP_LEFT_CORNER, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, DOOR, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, FLOOR, FLOOR, UP_TREADMILL, FLOOR, FLOOR, FLOOR, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_TOP_RIGHT_CORNER },
+							{ WALL_VERTICAL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, UP_TREADMILL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, RIGHT_TREADMILL, RIGHT_TREADMILL, WALL_VERTICAL },
+							{ WALL_VERTICAL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, PIT, PIT, FLOOR, PIT, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, WALL_VERTICAL },
+							{ WALL_VERTICAL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, PIT, PIT, PIT, PIT, PIT, PIT, FLOOR, FLOOR, FLOOR, BARRIER, FLOOR, BARRIER, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, UP_TREADMILL, FLOOR, WALL_VERTICAL },
+							{ WALL_VERTICAL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, PIT, FLOOR, PIT, FLOOR, FLOOR, FLOOR, FLOOR, BARRIER, BARRIER, FLOOR, BARRIER, BARRIER, FLOOR, FLOOR, FLOOR, FLOOR, SPIKES, FLOOR, FLOOR, UP_TREADMILL, FLOOR, WALL_VERTICAL },
+							{ WALL_VERTICAL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, UP_TREADMILL, FLOOR, WALL_VERTICAL },
+							{ WALL_VERTICAL, FLOOR, FLOOR, FLOOR, FLOOR, PIT, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, BARRIER, BARRIER, FLOOR, BARRIER, BARRIER, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, UP_TREADMILL, FLOOR, WALL_VERTICAL },
+							{ WALL_VERTICAL, FLOOR, DOWN_TREADMILL, FLOOR, DOWN_TREADMILL, FLOOR, DOWN_TREADMILL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, BARRIER, FLOOR, BARRIER, FLOOR, FLOOR, FLOOR, FLOOR, SPIKES, SPIKES, FLOOR, FLOOR, UP_TREADMILL, FLOOR, WALL_VERTICAL },
+							{ WALL_VERTICAL, FLOOR, DOWN_TREADMILL, FLOOR, DOWN_TREADMILL, FLOOR, DOWN_TREADMILL, FLOOR, FLOOR, BARRIER, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, UP_TREADMILL, FLOOR, WALL_VERTICAL },
+							{ FLOOR, FLOOR, DOWN_TREADMILL, FLOOR, DOWN_TREADMILL, FLOOR, DOWN_TREADMILL, FLOOR, BARRIER, FLOOR, FLOOR, FLOOR, FLOOR, BARRIER, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, UP_TREADMILL, FLOOR, FLOOR },
+							{ FLOOR, FLOOR, ICE, FLOOR, FLOOR, FLOOR, UP_TREADMILL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, BARRIER, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, LAVA, LAVA, LAVA, FLOOR, FLOOR, UP_TREADMILL, FLOOR, FLOOR },
+							{ FLOOR, FLOOR, ICE, FLOOR, FLOOR, FLOOR, UP_TREADMILL, FLOOR, BARRIER, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, BARRIER, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, LAVA, LAVA, LAVA, FLOOR, FLOOR, UP_TREADMILL, FLOOR, FLOOR },
+							{ LEFT_TREADMILL, LEFT_TREADMILL, FLOOR, FLOOR, UP_TREADMILL, FLOOR, UP_TREADMILL, FLOOR, FLOOR, BARRIER, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, LAVA, LAVA, LAVA, FLOOR, FLOOR, UP_TREADMILL, FLOOR, FLOOR },
+							{ WALL_VERTICAL, FLOOR, DOWN_TREADMILL, FLOOR, UP_TREADMILL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, BARRIER, BARRIER, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, UP_TREADMILL, FLOOR, WALL_VERTICAL },
+							{ WALL_VERTICAL, FLOOR, DOWN_TREADMILL, FLOOR, UP_TREADMILL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, UP_TREADMILL, FLOOR, WALL_VERTICAL },
+							{ WALL_VERTICAL, FLOOR, DOWN_TREADMILL, FLOOR, UP_TREADMILL, FLOOR, FLOOR, ICE, ICE, ICE, ICE, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, RIGHT_TREADMILL, RIGHT_TREADMILL, RIGHT_TREADMILL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, UP_TREADMILL, FLOOR, WALL_VERTICAL },
+							{ WALL_VERTICAL, FLOOR, MUD, MUD, MUD, FLOOR, FLOOR, ICE, ICE, ICE, ICE, ICE, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, BARRIER, FLOOR, FLOOR, DOWN_TREADMILL, FLOOR, FLOOR, UP_TREADMILL, FLOOR, WALL_VERTICAL },
+							{ WALL_VERTICAL, FLOOR, MUD, MUD, MUD, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, ICE, MUD, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, DOWN_TREADMILL, FLOOR, FLOOR, UP_TREADMILL, FLOOR, WALL_VERTICAL },
+							{ WALL_VERTICAL, FLOOR, MUD, MUD, FLOOR, FLOOR, RIGHT_TREADMILL, RIGHT_TREADMILL, LEFT_TREADMILL, LEFT_TREADMILL, FLOOR, DOWN_TREADMILL, FLOOR, FLOOR, ICE, MUD, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, DOWN_TREADMILL, FLOOR, FLOOR, FLOOR, FLOOR, WALL_VERTICAL },
+							{ WALL_BOTTOM_LEFT_CORNER, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, FLOOR, DOWN_TREADMILL, FLOOR, FLOOR, FLOOR, FLOOR, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_BOTTOM_RIGHT_CORNER } };
 	tileMap.reserve(mapRows * mapCols);
 	for (int r = 0; r < mapRows; r++)
 	{
 		for(int c = 0; c < mapCols; c++)
 		{
-			tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, testMap[r][c], setIsSolid(testMap[r][c]), ((testMap[r][c] == PIT) ? true : false), setTileEffect(testMap[r][c])));
+			if (testMap[r][c] == DOOR || testMap[r][c] == LADDER)
+			{
+				exit = new ExitTile(c * tileSize, r * tileSize, tileSize, testMap[r][c], false, false, nullptr, true, 0);
+				tileMap.push_back(exit);
+			}
+			else
+			{
+				tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, testMap[r][c], setIsSolid(testMap[r][c]), ((testMap[r][c] == PIT) ? true : false), setTileEffect(testMap[r][c])));
+			}
 		}
 	}
 	player = new Player(32, 32, 60, 80, 0, 0, 10);
@@ -433,4 +476,5 @@ void GameModel::resetLevel()
 	}
 	player = static_cast<Player*>(entities[0]); //According to save file format, player should always end up as first in the array so this is safe-ish
 	isGameOver = false;
+	isLevelWon = false;
 }

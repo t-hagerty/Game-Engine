@@ -8,9 +8,10 @@ public:
 	Tile(int x = 0, int y = 0, int size = 0, int typeOfTile = -1, bool isSolid = false, bool isAPit = false, TileEffect* effect = nullptr);
 	Tile(const Tile &t);
 	~Tile();
-	Tile* clone() const;
+	virtual Tile* clone() const;
 	int getType() const;
 	bool isSolid() const;
+	virtual bool isSolid();
 	bool isAPit() const;
 	SDL_Rect* getTileSpace() const;
 	float getCenterPosX();
@@ -22,8 +23,10 @@ public:
 	int getTextureFrames() const;
 	int getAnimationFrame() const;
 	void setAnimationFrame(int newFrame);
-	void incrementAnimationFrame();
-private:
+	double getRenderAngle() const;
+	void setRenderAngle(double newAngle);
+	virtual void incrementAnimationFrame();
+protected:
 	int type;
 	bool solid; //True if impassable by entities
 	bool pit;
@@ -33,6 +36,7 @@ private:
 	const int TEXTURE_FRAME_HEIGHT = 16;
 	int textureFrames;
 	int animationFrame = 0;
+	double renderAngle = 0;
 	int setNumberFrames() const;
 };
 

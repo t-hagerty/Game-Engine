@@ -10,6 +10,7 @@ public:
 	~GameModel();
 	void moveEntities(double delta);
 	bool getIsGameOver();
+	bool getIsLevelWon();
 	bool openMap() override;
 	void addEntityFromFile(Entity* e) override;
 	void resetLevel();
@@ -18,6 +19,7 @@ private:
 	int screenHeight;
 	std::vector<Entity*> entitiesInitialState; //For a game over, we have a copy of how every entity starts rather than have to reload the whole level
 	bool isGameOver = false;
+	bool isLevelWon = false;
 	TileEffect* setTileEffect(int tileType) override;
 	void moveAnEntity(Entity* e, double delta);
 	void calculateMovement(Entity* e, int posRowTop, int posRowBottom, int posColLeft, int posColRight);
@@ -25,15 +27,17 @@ private:
 	//void checkEntityMovementY(Entity* e, double delta);
 	void knockback(Entity* knockerbacker, Entity* knockedback);
 	bool isCompletelyOverPit(Entity* entity, int topRow, int bottomRow, int leftCol, int rightCol);
+	bool isCompletelyOverExit(Entity* entity, int topRow, int bottomRow, int leftCol, int rightCol);
 	void fallIntoPit(Entity* e);
 	void killEntity(Entity* e);
-	TileEffect* downTreadmillEffect = new TileEffect(1, 1, 0, 0.4);
-	TileEffect* rightTreadmillEffect = new TileEffect(1, 1, 0.4, 0);
-	TileEffect* leftTreadmillEffect = new TileEffect(1, 1, -0.4, 0);
-	TileEffect* upTreadmillEffect = new TileEffect(1, 1, 0, -0.4);
-	TileEffect* iceEffect = new TileEffect(0.9 , 1.9, 0, 0);
-	TileEffect* mudEffect = new TileEffect(0.4, 1, 0, 0, -1);
-	TileEffect* lavaEffect = new TileEffect(0.7, 1, 0, 0, -0.5, 0, 1);
+	void winLevel();
+	TileEffect* downTreadmillEffect = new TileEffect(1, 1, 0, 0.4f);
+	TileEffect* rightTreadmillEffect = new TileEffect(1, 1, 0.4f, 0);
+	TileEffect* leftTreadmillEffect = new TileEffect(1, 1, -0.4f, 0);
+	TileEffect* upTreadmillEffect = new TileEffect(1, 1, 0, -0.4f);
+	TileEffect* iceEffect = new TileEffect(0.9f , 1.9f, 0, 0);
+	TileEffect* mudEffect = new TileEffect(0.4f, 1, 0, 0, -1);
+	TileEffect* lavaEffect = new TileEffect(0.7f, 1, 0, 0, -0.5f, 0, 1);
 	TileEffect* spikeEffect = new TileEffect(1, 1, 0, 0, 0, 4, 2);
 };
 

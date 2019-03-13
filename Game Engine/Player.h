@@ -24,7 +24,7 @@ public:
 private:
 	short horizontalMovementKeyPress = 0; // -1 for left, 0 for neither key pressed, 1 for right, should only be one of these three values
 	short verticalMovementKeyPress = 0; // -1 for up, 0 for neither key pressed, 1 for down, should only be one of these three values
-	const float MAX_VELOCITY = 2;
-	const float BASE_ACCELERATION = 1.2;
-	const float BASE_DECELERATION = 0.5;
+	const float MAX_VELOCITY = 2.0f;
+	const float BASE_ACCELERATION = 1.2f;
+	const float BASE_DECELERATION = 0.5f;
 };

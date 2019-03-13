@@ -28,6 +28,7 @@ Tile::Tile(const Tile & t)
 	pit = t.isAPit();
 	anEffect = nullptr;
 	textureFrames = setNumberFrames();
+	renderAngle = t.getRenderAngle();
 }
 
 
@@ -47,6 +48,11 @@ int Tile::getType() const
 }
 
 bool Tile::isSolid() const
+{
+	return solid;
+}
+
+bool Tile::isSolid()
 {
 	return solid;
 }
@@ -113,6 +119,16 @@ void Tile::setAnimationFrame(int newFrame)
 	}
 }
 
+double Tile::getRenderAngle() const
+{
+	return renderAngle;
+}
+
+void Tile::setRenderAngle(double newAngle)
+{
+	renderAngle = newAngle;
+}
+
 void Tile::incrementAnimationFrame()
 {
 	if (animationFrame++ >= textureFrames - 1)
@@ -125,15 +141,17 @@ int Tile::setNumberFrames() const
 {
 	switch (type)
 	{
-	case 9:
+	case 19:
 		return 8;
-	case 10:
+	case 20:
 		return 8;
-	case 11:
+	case 21:
 		return 8;
-	case 12:
+	case 22:
 		return 8;
-	case 16:
+	case 26:
+		return 8;
+	case 28:
 		return 8;
 	default:
 		return 1;

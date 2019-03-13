@@ -11,7 +11,6 @@ EditorController::EditorController(EditorModel * m, EditorView * v)
 	view = v;
 	view->setButtonHandlers(std::bind(&EditorController::goToTest, this), std::bind(&EditorController::goToGame, this), std::bind(&EditorController::goToMenu, this));
 	view->setSelectionButtonHandlers(std::bind(&EditorModel::setSelectedTileType, model, _1));
-	//view->setSelectionButtonHandlers(std::bind(&EditorController::setTileSelection, this, _1));
 	gameLoop();
 }
 

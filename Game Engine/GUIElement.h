@@ -7,6 +7,7 @@ class GUIElement
 {
 public:
 	GUIElement(double x, double y, double width, double height, bool visible, std::string imageFilePath, SDL_Surface* targetSurface, SDL_Renderer* targetRenderer);
+	GUIElement(double x, double y, double width, double height, bool visible, SDL_Texture* imageTexture, SDL_Surface* targetSurface, SDL_Renderer* targetRenderer);
 	virtual ~GUIElement() = 0;
 	bool loadTexture(SDL_Surface* targetSurface, SDL_Renderer* targetRenderer, std::string filePath);
 	virtual void setTexture(SDL_Texture* newTexture);

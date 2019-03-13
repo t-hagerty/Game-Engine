@@ -6,6 +6,18 @@ Image::Image(double x, double y, double width, double height, bool visible, std:
 	: GUIElement(x, y, width, height, visible, imageFilePath, targetSurface, targetRenderer)
 {
 	numberOfFrames = numberFrames;
+	int textureHeight;
+	SDL_QueryTexture(texture, NULL, NULL, &FRAME_WIDTH, &textureHeight);
+	FRAME_HEIGHT = textureHeight / numberOfFrames;
+}
+
+Image::Image(double x, double y, double width, double height, bool visible, SDL_Texture * imageTexture, int numberFrames, SDL_Surface * targetSurface, SDL_Renderer * targetRenderer)
+	: GUIElement(x, y, width, height, visible, imageTexture, targetSurface, targetRenderer)
+{
+	numberOfFrames = numberFrames;
+	int textureHeight;
+	SDL_QueryTexture(texture, NULL, NULL, &FRAME_WIDTH, &textureHeight);
+	FRAME_HEIGHT = textureHeight / numberOfFrames;
 }
 
 Image::~Image()

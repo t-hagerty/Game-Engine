@@ -13,12 +13,14 @@ public:
 	void settingsButtonPressed();
 	void isGameOverScreen(bool isGameOver);
 	bool getIsGameOverScreen();
+	void isLevelWonScreen(bool isLevelWon);
+	bool getIsLevelWonScreen();
 protected:
 	Button* editorButton;
 	Button* restartButton;
 	Button* retryButton;
 	HealthBar* hpBar;
-
+	Image* levelWinMessage; //temp
 	virtual bool initGUI() override;
 };
 
