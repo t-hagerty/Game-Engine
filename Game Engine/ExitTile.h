@@ -1,8 +1,9 @@
 #pragma once
 #include "Tile.h"
+#include "Toggleable.h"
 #include <functional>
 class ExitTile :
-	public Tile
+	public Tile, public Toggleable
 {
 public:
 	ExitTile(int x = 0, int y = 0, int size = 0, int typeOfTile = -1, bool isSolid = false, bool isAPit = false, TileEffect* effect = nullptr, bool isLocked = false, short exitDir = 0);
@@ -13,7 +14,7 @@ public:
 	void setIsLocked(bool locked);
 	bool getIsLocked() const;
 	short getExitDirection() const;
-	void switchTriggered(bool switchStatus);
+	void toggle() override;
 	void incrementAnimationFrame() override;
 private:
 	bool isLocked = false;

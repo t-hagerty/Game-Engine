@@ -1,5 +1,5 @@
 #include "Model.h"
-
+#include <tuple>
 
 
 Model::Model()
@@ -98,7 +98,7 @@ std::vector<Tile*> Model::getTileMap() const
 bool Model::openMap(std::string filePath)
 {
 	bool success = true;
-
+	std::vector<std::tuple<int, int, int, int, char>> tempSwitchInfo;
 	SDL_RWops* file = SDL_RWFromFile(filePath.c_str(), "r+b");
 	if (file == nullptr)
 	{
@@ -129,6 +129,27 @@ bool Model::openMap(std::string filePath)
 					SDL_RWread(file, &tempDirection, sizeof(Sint32), 1);
 					exit = new ExitTile(c * tileSize, r * tileSize, tileSize, tempType, false, false, setTileEffect(tempType), tempLocked, tempDirection);
 					tileMap.push_back(exit);
+				}
+				else if(tempType == SWITCH)
+				{
+					tileMap.push_back(new Switch(c * tileSize, r * tileSize, tileSize));
+					char temp;
+					SDL_RWread(file, &temp, sizeof(char), 1);
+					while (temp != '|')
+					{
+						if (temp == 'T')
+						{
+							int tempRow, tempCol;
+							SDL_RWread(file, &tempRow, sizeof(Sint32), 1);
+							SDL_RWread(file, &tempCol, sizeof(Sint32), 1);
+							tempSwitchInfo.insert(tempSwitchInfo.end(), std::make_tuple(r, c, tempRow, tempCol, temp));
+						}
+						else if (temp == 'E')
+						{
+
+						}
+						SDL_RWread(file, &temp, sizeof(char), 1);
+					}
 				}
 				else
 				{
@@ -189,6 +210,22 @@ bool Model::openMap(std::string filePath)
 		SDL_RWclose(file);
 	}
 
+	if (tempSwitchInfo.size() > 0)
+	{
+		for (int i = 0; i < tempSwitchInfo.size(); i++)
+		{
+			Switch* currentSwitch = dynamic_cast<Switch*>(getTileAtMapIndex(std::get<0>(tempSwitchInfo[i]), std::get<1>(tempSwitchInfo[i])));
+			if (std::get<4>(tempSwitchInfo[i]) == 'T')
+			{
+				currentSwitch->addToggleable(dynamic_cast<Toggleable*>(getTileAtMapIndex(std::get<2>(tempSwitchInfo[i]), std::get<3>(tempSwitchInfo[i]))));
+			}
+			else if (std::get<4>(tempSwitchInfo[i]) == 'E')
+			{
+
+			}
+		}
+	}
+
 	return success;
 }
 
@@ -219,6 +256,32 @@ bool Model::saveMap(std::string filePath) const
 					SDL_RWwrite(file, &tempType, sizeof(Sint32), 1);
 					SDL_RWwrite(file, &tempLocked, sizeof(bool), 1);
 					SDL_RWwrite(file, &tempDirection, sizeof(Sint32), 1);
+				}
+				else if (tempType == SWITCH || tempType == SWITCH_WEIGHTED || tempType == SWITCH_LEVER)
+				{
+					SDL_RWwrite(file, &tempType, sizeof(Sint32), 1);
+					char temp;
+					for (Toggleable* t : dynamic_cast<Switch*>(tileMap[(r*mapCols) + c])->getConnectedToggleables())
+					{
+						Tile *aTile = dynamic_cast<Tile*>(t);
+						if (aTile != nullptr)
+						{
+							temp = 'T';
+							SDL_RWwrite(file, &temp, sizeof(char), 1);
+							int tempInt = aTile->getRow();
+							SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
+							tempInt = aTile->getCol();
+							SDL_RWwrite(file, &tempInt, sizeof(Sint32), 1);
+							continue;
+						}
+						Entity *anEntity = dynamic_cast<Entity*>(t);
+						if (anEntity != nullptr)
+						{
+
+						}
+					}
+					temp = '|'; //signifies end of toggleables vector
+					SDL_RWwrite(file, &temp, sizeof(char), 1);
 				}
 				else
 				{

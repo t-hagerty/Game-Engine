@@ -141,6 +141,7 @@
     <ClCompile Include="HealthBar.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Switch.cpp" />
     <ClCompile Include="TileEffect.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Arrow.cpp" />
@@ -151,6 +152,7 @@
     <ClCompile Include="GameModel.cpp" />
     <ClCompile Include="GameView.cpp" />
     <ClCompile Include="Tile.cpp" />
+    <ClCompile Include="Toggleable.cpp" />
     <ClCompile Include="View.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -168,6 +170,7 @@
     <ClInclude Include="HealthBar.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="Switch.h" />
     <ClInclude Include="TileEffect.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Arrow.h" />
@@ -177,6 +180,7 @@
     <ClInclude Include="GameModel.h" />
     <ClInclude Include="GameView.h" />
     <ClInclude Include="Tile.h" />
+    <ClInclude Include="Toggleable.h" />
     <ClInclude Include="View.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

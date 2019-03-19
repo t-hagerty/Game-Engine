@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL.h>
 #include "TileEffect.h"
+#include "Entity.h"
 
 class Tile
 {
@@ -16,6 +17,8 @@ public:
 	SDL_Rect* getTileSpace() const;
 	float getCenterPosX();
 	float getCenterPosY();
+	int getRow();
+	int getCol();
 	TileEffect* getTileEffect();
 	void setTileEffect(TileEffect* newEffect);
 	int getTextureFrameWidth() const;
@@ -26,6 +29,7 @@ public:
 	double getRenderAngle() const;
 	void setRenderAngle(double newAngle);
 	virtual void incrementAnimationFrame();
+	virtual void entityEnteredTile(Entity * e);
 protected:
 	int type;
 	bool solid; //True if impassable by entities

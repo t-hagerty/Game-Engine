@@ -36,6 +36,9 @@ View::View(int levelW, int levelH, int windowW, int windowH, SDL_Window* window,
 	tileSet.insert(tileSet.end(), loadTexture("map_tiles/spikes.bmp"));
 	tileSet.insert(tileSet.end(), loadTexture("map_tiles/door.bmp"));
 	tileSet.insert(tileSet.end(), loadTexture("map_tiles/ladder.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/switch.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/switch_weighted.bmp"));
+	tileSet.insert(tileSet.end(), loadTexture("map_tiles/switch_lever.bmp"));
 
 	levelWidth = levelW;
 	levelHeight = levelH;

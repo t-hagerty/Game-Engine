@@ -72,9 +72,9 @@ short ExitTile::getExitDirection() const
 	return exitDirection;
 }
 
-void ExitTile::switchTriggered(bool switchStatus)
+void ExitTile::toggle()
 {
-	isLocked = !switchStatus;
+	isLocked = !isLocked;
 }
 
 void ExitTile::incrementAnimationFrame()

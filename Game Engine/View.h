@@ -87,7 +87,10 @@ protected:
 		LAVA,
 		SPIKES,
 		DOOR,
-		LADDER
+		LADDER,
+		SWITCH,
+		SWITCH_WEIGHTED,
+		SWITCH_LEVER
 	};
 	std::vector<GUIElement*> gui;
 	std::vector<Button*> buttons;

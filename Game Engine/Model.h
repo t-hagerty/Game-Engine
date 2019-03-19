@@ -5,6 +5,7 @@
 #include "Tile.h"
 #include "TileEffect.h"
 #include "ExitTile.h"
+#include "Switch.h"
 #include "Player.h"
 #include "Enemy.h"
 #include "Arrow.h"
@@ -81,6 +82,9 @@ protected:
 		SPIKES,
 		DOOR,
 		LADDER,
+		SWITCH,
+		SWITCH_WEIGHTED,
+		SWITCH_LEVER,
 
 		PLAYER,
 		ENEMY,

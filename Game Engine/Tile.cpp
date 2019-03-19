@@ -77,6 +77,16 @@ float Tile::getCenterPosY()
 	return tileSpace->y + (tileSpace->h / 2);
 }
 
+int Tile::getRow()
+{
+	return tileSpace->y / tileSpace->h;
+}
+
+int Tile::getCol()
+{
+	return tileSpace->x / tileSpace->w;
+}
+
 TileEffect * Tile::getTileEffect()
 {
 	return anEffect;
@@ -135,6 +145,10 @@ void Tile::incrementAnimationFrame()
 	{
 		animationFrame = 0;
 	}
+}
+
+void Tile::entityEnteredTile(Entity * e)
+{
 }
 
 int Tile::setNumberFrames() const
