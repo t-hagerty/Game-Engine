@@ -108,11 +108,11 @@
     <ClCompile Include="ExitTile.cpp">
       <Filter>Source Files\Model</Filter>
     </ClCompile>
-    <ClCompile Include="Toggleable.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Switch.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Toggleable.cpp">
+      <Filter>Source Files\Model</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -188,11 +188,11 @@
     <ClInclude Include="ExitTile.h">
       <Filter>Header Files\Model</Filter>
     </ClInclude>
-    <ClInclude Include="Toggleable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Switch.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Toggleable.h">
+      <Filter>Header Files\Model</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

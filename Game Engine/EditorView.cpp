@@ -13,6 +13,21 @@ EditorView::EditorView(int levelW, int levelH, int windowW, int windowH, SDL_Win
 			tileAnimationSynchronizer.insert(tileAnimationSynchronizer.end(), new ExitTile(0, 0, 0, i, false, false, false, 0));
 			continue;
 		}
+		else if (i == SWITCH)
+		{
+			tileAnimationSynchronizer.insert(tileAnimationSynchronizer.end(), new Switch(0, 0, 0));
+			continue;
+		}
+		/*else if (i == SWITCH_LEVER)
+		{
+			tileAnimationSynchronizer.insert(tileAnimationSynchronizer.end(), new Switch(0, 0, 0));
+			continue;
+		}
+		else if (i == SWITCH_WEIGHTED)
+		{
+			tileAnimationSynchronizer.insert(tileAnimationSynchronizer.end(), new Switch(0, 0, 0));
+			continue;
+		}*/
 		tileAnimationSynchronizer.insert(tileAnimationSynchronizer.end(), new Tile(0, 0, 0, i, false, false, nullptr));
 	}
 	tileSet.insert(tileSet.end(), loadTexture("spritesheets/player_walking.bmp"));

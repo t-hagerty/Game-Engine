@@ -470,6 +470,13 @@ void GameModel::addEntityFromFile(Entity * e)
 
 void GameModel::resetLevel()
 {
+	for (Tile* t : tileMap)
+	{
+		if (t->getType() == SWITCH || t->getType() == SWITCH_LEVER || t->getType() == SWITCH_LEVER)
+		{
+			dynamic_cast<Switch*>(t)->setPressedState(false);
+		}
+	}
 	//delete all entities
 	for (int i = 0; i < entities.size(); i++)
 	{

@@ -33,7 +33,7 @@ public:
 	bool saveMap(std::string filePath) const;
 protected:
 	int tileSize;
-	const static int NUMBER_TILE_TYPES = 30;
+	const static int NUMBER_TILE_TYPES = 33;
 	int levelWidth;
 	int levelHeight;
 	std::vector<Tile*> tileMap;
@@ -90,6 +90,6 @@ protected:
 		ENEMY,
 		ARROW
 	};
-	bool isSolidTable[NUMBER_TILE_TYPES] = { true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, true, false, false, false, false, false, false, false, false, false, false, false };
+	bool isSolidTable[NUMBER_TILE_TYPES] = { true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, true, false, false, false, false, false, false, false, false, false, false, false, false, false, false };
 };
 

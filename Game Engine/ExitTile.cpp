@@ -79,7 +79,7 @@ void ExitTile::toggle()
 
 void ExitTile::incrementAnimationFrame()
 {
-	if (isLocked && animationFrame > 1)
+	if (isLocked && animationFrame >= 1)
 	{
 		animationFrame--;
 		//if it's not at first frame, go backwards until it's "closed"

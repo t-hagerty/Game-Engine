@@ -4,6 +4,7 @@
 #include <vector>
 #include "Tile.h"
 #include "ExitTile.h"
+#include "Switch.h"
 #include "Entity.h"
 #include "Button.h"
 #include "Image.h"

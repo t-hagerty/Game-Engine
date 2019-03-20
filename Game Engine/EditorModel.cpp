@@ -72,6 +72,24 @@ void EditorModel::clickTile(int x, int y)
 		exit = newTile;
 		break;
 	}
+	case SWITCH:
+	{
+		bool wasWall = ((isAWall(getTileAtMapIndex(row, col)->getType())) ? true : false);
+		replaceTile(row, col, new Switch(col * tileSize, row * tileSize, tileSize));
+		if (wasWall)
+		{
+			updateSurroundingWalls(row, col);
+		}
+		break;
+	}
+	case SWITCH_WEIGHTED:
+	{
+		break;
+	}
+	case SWITCH_LEVER:
+	{
+		break;
+	}
 	case PLAYER:
 	{
 		int typeAtClickedLocation = getTileAtMapIndex(row, col)->getType();
@@ -235,7 +253,7 @@ void EditorModel::replaceTile(int row, int col, Tile * newTile)
 	Tile* temp = getTileAtMapIndex(row, col);
 	if (temp == exit)
 	{
-		exit == nullptr;
+		exit = nullptr;
 	}
 	tileMap.at((row*mapCols) + col) = newTile;
 	delete temp;

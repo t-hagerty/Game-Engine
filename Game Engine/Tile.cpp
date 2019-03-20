@@ -155,18 +155,20 @@ int Tile::setNumberFrames() const
 {
 	switch (type)
 	{
-	case 19:
+	case 19: //DOWN_TREADMILL
 		return 8;
-	case 20:
+	case 20: //RIGHT_TREADMILL
 		return 8;
-	case 21:
+	case 21: //LEFT_TREADMILL
 		return 8;
-	case 22:
+	case 22: //UP_TREADMILL
 		return 8;
-	case 26:
+	case 26: //LAVA
 		return 8;
-	case 28:
+	case 28: //DOOR
 		return 8;
+	case 30: //SWITCH
+		return 2;
 	default:
 		return 1;
 	}
