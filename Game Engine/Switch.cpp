@@ -5,7 +5,23 @@
 Switch::Switch(int x, int y, int size) :
 	Tile(x, y, size, 30, false, false, nullptr)
 {
+	switchHitBox = new SDL_Rect();
+	int hitboxOffset = (((size / 8) * 3) / 2);
+	switchHitBox->x = x + hitboxOffset;
+	switchHitBox->y = y + hitboxOffset;
+	switchHitBox->w = (size / 8) * 5;
+	switchHitBox->h = switchHitBox->w;
+}
 
+Switch::Switch(int x, int y, int size, int typeOfTile, bool isSolid) :
+	Tile(x, y, size, typeOfTile, isSolid, false, nullptr)
+{
+	switchHitBox = new SDL_Rect();
+	int hitboxOffset = (((size / 8) * 3) / 2);
+	switchHitBox->x = x + hitboxOffset;
+	switchHitBox->y = y + hitboxOffset;
+	switchHitBox->w = (size / 8) * 5;
+	switchHitBox->h = switchHitBox->w;
 }
 
 Switch::Switch(const Switch & t)
@@ -23,6 +39,7 @@ Switch::Switch(const Switch & t)
 	renderAngle = t.getRenderAngle();
 	pressedState = t.getPressedState();
 	connectedToggleables = t.getConnectedToggleables();
+	switchHitBox = t.getSwitchHitBox();
 }
 
 Switch::~Switch()
@@ -91,10 +108,17 @@ bool Switch::getPressedState() const
 	return pressedState;
 }
 
+SDL_Rect * Switch::getSwitchHitBox() const
+{
+	return switchHitBox;
+}
+
 void Switch::entityEnteredTile(Entity * e)
 {
-	setPressedState(true);
-	//how to know when no entity on the switch anymore for the weighted switch?
+	if (SDL_HasIntersection(e->getGroundHitBox(), switchHitBox))
+	{
+		setPressedState(true);
+	}
 }
 
 void Switch::incrementAnimationFrame()

@@ -6,6 +6,8 @@
 #include "TileEffect.h"
 #include "ExitTile.h"
 #include "Switch.h"
+#include "WeightedSwitch.h"
+#include "LeverSwitch.h"
 #include "Player.h"
 #include "Enemy.h"
 #include "Arrow.h"

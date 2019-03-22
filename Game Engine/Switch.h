@@ -7,6 +7,7 @@ class Switch :
 {
 public:
 	Switch(int x = 0, int y = 0, int size = 0);
+	Switch(int x, int y, int size, int typeOfTile, bool isSolid);
 	Switch(const Switch &t);
 	~Switch();
 	Tile* clone() const override;
@@ -16,11 +17,13 @@ public:
 	std::vector<Toggleable*> getConnectedToggleables() const;
 	void setPressedState(bool pressed);
 	bool getPressedState() const;
+	SDL_Rect* getSwitchHitBox() const;
 	virtual void entityEnteredTile(Entity * e) override;
-	void incrementAnimationFrame() override;
+	virtual void incrementAnimationFrame() override;
 protected:
 	void toggleToggleables();
 	std::vector<Toggleable*> connectedToggleables;
 	bool pressedState = false;
+	SDL_Rect* switchHitBox;
 };
 

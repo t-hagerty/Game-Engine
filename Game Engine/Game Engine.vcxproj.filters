@@ -114,6 +114,12 @@
     <ClCompile Include="Toggleable.cpp">
       <Filter>Source Files\Model</Filter>
     </ClCompile>
+    <ClCompile Include="WeightedSwitch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LeverSwitch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Arrow.h">
@@ -193,6 +199,12 @@
     </ClInclude>
     <ClInclude Include="Toggleable.h">
       <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="WeightedSwitch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LeverSwitch.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

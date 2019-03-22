@@ -472,9 +472,17 @@ void GameModel::resetLevel()
 {
 	for (Tile* t : tileMap)
 	{
-		if (t->getType() == SWITCH || t->getType() == SWITCH_LEVER || t->getType() == SWITCH_LEVER)
+		if (t->getType() == SWITCH )
 		{
 			dynamic_cast<Switch*>(t)->setPressedState(false);
+		}
+		else if (t->getType() == SWITCH_WEIGHTED)
+		{
+			dynamic_cast<WeightedSwitch*>(t)->setPressedState(false);
+		}
+		else if (t->getType() == SWITCH_LEVER)
+		{
+			dynamic_cast<LeverSwitch*>(t)->setPressedState(false);
 		}
 	}
 	//delete all entities

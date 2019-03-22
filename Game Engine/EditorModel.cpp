@@ -84,6 +84,12 @@ void EditorModel::clickTile(int x, int y)
 	}
 	case SWITCH_WEIGHTED:
 	{
+		bool wasWall = ((isAWall(getTileAtMapIndex(row, col)->getType())) ? true : false);
+		replaceTile(row, col, new WeightedSwitch(col * tileSize, row * tileSize, tileSize));
+		if (wasWall)
+		{
+			updateSurroundingWalls(row, col);
+		}
 		break;
 	}
 	case SWITCH_LEVER:
