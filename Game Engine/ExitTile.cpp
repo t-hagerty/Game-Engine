@@ -75,6 +75,7 @@ short ExitTile::getExitDirection() const
 void ExitTile::toggle()
 {
 	isLocked = !isLocked;
+	solid = !solid;
 }
 
 void ExitTile::incrementAnimationFrame()

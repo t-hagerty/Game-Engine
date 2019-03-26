@@ -50,6 +50,7 @@ int main()
 			{
 				//Initialize renderer color
 				SDL_SetRenderDrawColor(gameRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+				SDL_SetRenderDrawBlendMode(gameRenderer, SDL_BLENDMODE_BLEND);
 			}
 			//Get window surface
 			gScreenSurface = SDL_GetWindowSurface(gameWindow);

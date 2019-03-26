@@ -114,11 +114,11 @@
     <ClCompile Include="Toggleable.cpp">
       <Filter>Source Files\Model</Filter>
     </ClCompile>
-    <ClCompile Include="WeightedSwitch.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="LeverSwitch.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="WeightedSwitch.cpp">
+      <Filter>Source Files\Model</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

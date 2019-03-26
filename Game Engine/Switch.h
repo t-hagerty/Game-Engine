@@ -11,13 +11,14 @@ public:
 	Switch(const Switch &t);
 	~Switch();
 	Tile* clone() const override;
-	void addToggleable(Toggleable* t);
+	bool addToggleable(Toggleable* t);
 	void removeToggleable(Toggleable* t);
 	void clearToggleables();
 	std::vector<Toggleable*> getConnectedToggleables() const;
-	void setPressedState(bool pressed);
+	virtual void setPressedState(bool pressed);
 	bool getPressedState() const;
 	SDL_Rect* getSwitchHitBox() const;
+	void setIsHighlighted(bool highlighted) override;
 	virtual void entityEnteredTile(Entity * e) override;
 	virtual void incrementAnimationFrame() override;
 protected:

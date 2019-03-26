@@ -17,10 +17,23 @@ GameModel::GameModel(std::vector<Tile*> map, int rows, int cols, std::vector<Ent
 	mapRows = rows;
 	mapCols = cols;
 	tileSize = 32; 
+	std::vector<std::tuple<int, int, int, int, char>> tempSwitchInfo;
 	for (Tile* t : map)
 	{
 		tileMap.insert(tileMap.end(), t->clone());
 		tileMap.back()->setTileEffect(setTileEffect(t->getType()));
+		Switch * s = dynamic_cast<Switch*>(t);
+		if (s != nullptr)
+		{
+			for (Toggleable* toggleable : s->getConnectedToggleables())
+			{
+				Tile* toggleableTile = dynamic_cast<Tile*>(toggleable);
+				if (toggleableTile != nullptr)
+				{
+					tempSwitchInfo.insert(tempSwitchInfo.end(), std::make_tuple(s->getRow(), s->getCol(), toggleableTile->getRow(), toggleableTile->getCol(), 'T'));
+				}
+			}
+		}
 	}
 	for (auto* e : levelEntities)
 	{
@@ -33,6 +46,21 @@ GameModel::GameModel(std::vector<Tile*> map, int rows, int cols, std::vector<Ent
 	}
 	levelHeight = mapRows * tileSize;
 	levelWidth = mapCols * tileSize;
+	if (tempSwitchInfo.size() > 0)
+	{
+		for (int i = 0; i < tempSwitchInfo.size(); i++)
+		{
+			Switch* currentSwitch = dynamic_cast<Switch*>(getTileAtMapIndex(std::get<0>(tempSwitchInfo[i]), std::get<1>(tempSwitchInfo[i])));
+			if (std::get<4>(tempSwitchInfo[i]) == 'T')
+			{
+				currentSwitch->addToggleable(dynamic_cast<Toggleable*>(getTileAtMapIndex(std::get<2>(tempSwitchInfo[i]), std::get<3>(tempSwitchInfo[i]))));
+			}
+			else if (std::get<4>(tempSwitchInfo[i]) == 'E')
+			{
+
+			}
+		}
+	}
 }
 
 

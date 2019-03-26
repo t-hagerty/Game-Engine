@@ -18,7 +18,7 @@ EditorView::EditorView(int levelW, int levelH, int windowW, int windowH, SDL_Win
 			tileAnimationSynchronizer.insert(tileAnimationSynchronizer.end(), new Switch(0, 0, 0));
 			continue;
 		}
-		/*else if (i == SWITCH_LEVER)
+		else if (i == SWITCH_LEVER)
 		{
 			tileAnimationSynchronizer.insert(tileAnimationSynchronizer.end(), new Switch(0, 0, 0));
 			continue;
@@ -27,7 +27,7 @@ EditorView::EditorView(int levelW, int levelH, int windowW, int windowH, SDL_Win
 		{
 			tileAnimationSynchronizer.insert(tileAnimationSynchronizer.end(), new Switch(0, 0, 0));
 			continue;
-		}*/
+		}
 		tileAnimationSynchronizer.insert(tileAnimationSynchronizer.end(), new Tile(0, 0, 0, i, false, false, nullptr));
 	}
 	tileSet.insert(tileSet.end(), loadTexture("spritesheets/player_walking.bmp"));
@@ -78,6 +78,11 @@ void EditorView::renderTileMap(std::vector<Tile*> map, int rows, int cols, int t
 			SDL_Rect textureFrameClip = { 0, getAnimationFrameForTile(t->getType()) * t->getTextureFrameHeight(), t->getTextureFrameWidth(), t->getTextureFrameHeight() };
 			//Render to screen
 			SDL_RenderCopyEx(gameRenderer, tileSet.at(t->getType()), &textureFrameClip, &renderQuad, t->getRenderAngle(), NULL, SDL_FLIP_NONE);
+			if (t->getIsHighlighted())
+			{
+				SDL_SetRenderDrawColor(gameRenderer, 0x00, 0xFF, 0x00, 0x40);
+				SDL_RenderFillRect(gameRenderer, &renderQuad);
+			}
 		}
 	}
 }
@@ -180,7 +185,7 @@ bool EditorView::initGUI()
 	addButton(mainMenuButton);
 	menu->addButton(mainMenuButton);
 	selectionMenu = new ButtonMenu(0, 0, selectionMenuWidth, windowHeight, true, "menu.bmp", gScreenSurface, gameRenderer, 32, 10, 10, 3);
-	populateSelectionMenu(); //adding the buttons to the selection menu halves the fps for some reason
+	populateSelectionMenu();
 	gui.push_back(selectionMenu); 
 	return success;
 }
@@ -210,7 +215,7 @@ void EditorView::populateSelectionMenu()
 	addButton(b);
 	selectionMenu->addButton(b);
 	//Skip all the other wall tiles...
-	for (int i = 16; i < static_cast<int>(tileSet.size()); i++)
+	for (int i = 16; i < static_cast<int>(tileSet.size()) - 1; i++)
 	{
 		Button* b = new Button(0, 0, 32, 32, true, "default_button.bmp", gScreenSurface, gameRenderer, " ", nullptr);
 		b->setTexture(tileSet[i]);
@@ -218,4 +223,9 @@ void EditorView::populateSelectionMenu()
 		addButton(b);
 		selectionMenu->addButton(b);
 	}
+	b = new Button(0, 0, 32, 32, true, "default_button.bmp", gScreenSurface, gameRenderer, " ", nullptr); //config button
+	b->setTexture(loadTexture("map_tiles/edit.bmp"));
+	b->setEventArg(-1);
+	addButton(b);
+	selectionMenu->addButton(b);
 }

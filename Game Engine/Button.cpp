@@ -212,7 +212,7 @@ bool Button::render()
 		if (isHighlighted)
 		{
 			SDL_Rect fillRect = { rect->x - 2, rect->y - 2, rect->w + 4, rect->h + 4};
-			SDL_SetRenderDrawColor(trgtRenderer, 0x00, 0x00, 0x00, 0x00);
+			SDL_SetRenderDrawColor(trgtRenderer, 0x00, 0x00, 0x00, 0xFF);
 			SDL_RenderFillRect(trgtRenderer, &fillRect);
 		}
 		SDL_Rect spriteSheetClip = { buttonState * BUTTON_IMAGE_WIDTH,

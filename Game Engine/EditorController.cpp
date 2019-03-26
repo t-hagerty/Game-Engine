@@ -190,9 +190,18 @@ void EditorController::mouseEventHandler(SDL_Event * e)
 	}
 	if ((e->type == SDL_MOUSEBUTTONDOWN || (isMouseBeingDragged && e->type == SDL_MOUSEMOTION)) && !view->getIsPaused())
 	{
-		isMouseBeingDragged = true;
-		std::tuple<int, int> modelCoords = view->convertScreenCoordsToModel(x, y);
-		model->clickTile(std::get<0>(modelCoords), std::get<1>(modelCoords));
+		if (e->button.button == SDL_BUTTON_LEFT)
+		{
+			isMouseBeingDragged = true;
+			std::tuple<int, int> modelCoords = view->convertScreenCoordsToModel(x, y);
+			model->clickTile(std::get<0>(modelCoords), std::get<1>(modelCoords));
+		}
+		else if (e->button.button == SDL_BUTTON_RIGHT)
+		{
+			isMouseBeingDragged = true;
+			std::tuple<int, int> modelCoords = view->convertScreenCoordsToModel(x, y);
+			model->clickConfigureTile(std::get<0>(modelCoords), std::get<1>(modelCoords));
+		}
 	}
 	else if (e->type == SDL_MOUSEBUTTONUP)
 	{

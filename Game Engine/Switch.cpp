@@ -44,6 +44,7 @@ Switch::Switch(const Switch & t)
 
 Switch::~Switch()
 {
+	delete switchHitBox;
 }
 
 Tile * Switch::clone() const
@@ -51,9 +52,17 @@ Tile * Switch::clone() const
 	return new Switch(*this);
 }
 
-void Switch::addToggleable(Toggleable * t)
+bool Switch::addToggleable(Toggleable * t)
 {
+	for (Toggleable* ct : connectedToggleables)
+	{
+		if (ct == t)
+		{
+			return false;
+		}
+	}
 	connectedToggleables.insert(connectedToggleables.end(), t);
+	return true;
 }
 
 void Switch::removeToggleable(Toggleable * t)
@@ -111,6 +120,19 @@ bool Switch::getPressedState() const
 SDL_Rect * Switch::getSwitchHitBox() const
 {
 	return switchHitBox;
+}
+
+void Switch::setIsHighlighted(bool highlighted)
+{
+	isHighlighted = highlighted;
+	for (Toggleable* t : connectedToggleables)
+	{
+		Tile *aTile = dynamic_cast<Tile*>(t);
+		if (aTile != nullptr)
+		{
+			aTile->setIsHighlighted(highlighted);
+		}
+	}
 }
 
 void Switch::entityEnteredTile(Entity * e)

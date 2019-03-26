@@ -10,6 +10,8 @@ public:
 	void setSelectedTileType(int newType);
 	int getSelectedTileType();
 	void clickTile(int x, int y);
+	void clickConfigureTile(int x, int y);
+	bool getIsConfigureMode();
 	bool openMap() override;
 private:
 	void replaceTile(int row, int col, Tile* newTile);
@@ -20,5 +22,7 @@ private:
 	void selectWallType(int row, int col);
 	bool isAWall(int type);
 	int selectedTileType = 0;
+	bool isConfigurableTable[NUMBER_TILE_TYPES] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, true, true, true, true, false, false, false, false, true, true, false, true, true, true };
+	Tile* configuredTile;
 };
 

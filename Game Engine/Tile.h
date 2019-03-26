@@ -28,6 +28,8 @@ public:
 	void setAnimationFrame(int newFrame);
 	double getRenderAngle() const;
 	void setRenderAngle(double newAngle);
+	bool getIsHighlighted();
+	virtual void setIsHighlighted(bool highlighted);
 	virtual void incrementAnimationFrame();
 	virtual void entityEnteredTile(Entity * e);
 protected:
@@ -41,6 +43,7 @@ protected:
 	int textureFrames;
 	int animationFrame = 0;
 	double renderAngle = 0;
+	bool isHighlighted = false;
 	int setNumberFrames() const;
 };
 

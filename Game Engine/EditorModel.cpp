@@ -18,7 +18,12 @@ EditorModel::~EditorModel()
 
 void EditorModel::setSelectedTileType(int newType)
 {
-	if (newType >= 0 && newType < NUMBER_TILE_TYPES + 3)
+	if (getIsConfigureMode() && newType != -1 && configuredTile != nullptr)
+	{
+		configuredTile->setIsHighlighted(false);
+		configuredTile = nullptr;
+	}
+	if (newType >= -1 && newType < NUMBER_TILE_TYPES + 3) //-1 will be used to signify in tile configure mode
 	{
 		selectedTileType = newType;
 	}
@@ -39,6 +44,26 @@ void EditorModel::clickTile(int x, int y)
 	}
 	switch (selectedTileType)
 	{
+	case -1: //configure mode:
+	{
+		Tile* t = getTileAtMapIndex(row, col);
+		if (isConfigurableTable[t->getType()])
+		{
+			if (configuredTile == t)
+			{
+				configuredTile->setIsHighlighted(false);
+				configuredTile = nullptr;
+				break;
+			}
+			else if (configuredTile != nullptr)
+			{
+				configuredTile->setIsHighlighted(false);
+			}
+			configuredTile = t;
+			t->setIsHighlighted(true);
+		}
+		break;
+	}
 	case DOOR:
 	{
 		if (!isAWall(getTileAtMapIndex(row, col)->getType()))
@@ -54,7 +79,7 @@ void EditorModel::clickTile(int x, int y)
 		{
 			removeExit();
 		}
-		ExitTile* newTile = new ExitTile(col * tileSize, row * tileSize, tileSize, selectedTileType, false, false, nullptr, false, direction);
+		ExitTile* newTile = new ExitTile(col * tileSize, row * tileSize, tileSize, selectedTileType, false, false, nullptr, true, direction);
 		replaceTile(row, col, newTile);
 		updateSurroundingWalls(row, col);
 		exit = newTile;
@@ -94,6 +119,12 @@ void EditorModel::clickTile(int x, int y)
 	}
 	case SWITCH_LEVER:
 	{
+		bool wasWall = ((isAWall(getTileAtMapIndex(row, col)->getType())) ? true : false);
+		replaceTile(row, col, new LeverSwitch(col * tileSize, row * tileSize, tileSize));
+		if (wasWall)
+		{
+			updateSurroundingWalls(row, col);
+		}
 		break;
 	}
 	case PLAYER:
@@ -209,6 +240,46 @@ void EditorModel::clickTile(int x, int y)
 	}
 }
 
+void EditorModel::clickConfigureTile(int x, int y)
+{
+	int col = x / tileSize;
+	int row = y / tileSize;
+	if (col < 0 || row < 0)
+	{
+		return;
+	}
+	Tile* t = getTileAtMapIndex(row, col);
+	Switch* s = dynamic_cast<Switch*>(configuredTile);
+	if (s != nullptr)
+	{
+		switch (t->getType())
+		{
+		case DOOR:
+		{
+			if (s->addToggleable(dynamic_cast<Toggleable*>(t)))
+			{
+				t->setIsHighlighted(true);
+			}
+			else
+			{
+				s->removeToggleable(dynamic_cast<Toggleable*>(t));
+				t->setIsHighlighted(false);
+			}
+			break;
+		}
+		default:
+		{
+			break;
+		}
+		}
+	}
+}
+
+bool EditorModel::getIsConfigureMode()
+{
+	return ((selectedTileType == -1) ? true : false);
+}
+
 bool EditorModel::openMap()
 {
 	bool success = true;
@@ -217,7 +288,7 @@ bool EditorModel::openMap()
 	int testMap[20][30] = { { WALL_TOP_LEFT_CORNER, WALL_HORIZONTAL, DOOR, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_HORIZONTAL, WALL_TOP_RIGHT_CORNER },
 							{ WALL_VERTICAL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, WALL_VERTICAL },
 							{ WALL_VERTICAL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, WALL_VERTICAL },
-							{ WALL_VERTICAL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, WALL_VERTICAL },
+							{ WALL_VERTICAL, FLOOR, SWITCH, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, WALL_VERTICAL },
 							{ WALL_VERTICAL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, WALL_VERTICAL },
 							{ WALL_VERTICAL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, WALL_VERTICAL },
 							{ WALL_VERTICAL, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, FLOOR, WALL_VERTICAL },
@@ -241,8 +312,14 @@ bool EditorModel::openMap()
 		{
 			if (testMap[r][c] == DOOR || testMap[r][c] == LADDER)
 			{
-				exit = new ExitTile(c * tileSize, r * tileSize, tileSize, testMap[r][c], false, false, nullptr, false, 0);
+				exit = new ExitTile(c * tileSize, r * tileSize, tileSize, testMap[r][c], false, false, nullptr, true, 0);
 				tileMap.push_back(exit);
+			}
+			else if (testMap[r][c] == SWITCH || testMap[r][c] == SWITCH_WEIGHTED || testMap[r][c] == SWITCH_LEVER)
+			{
+				Switch* s = new Switch(c * tileSize, r * tileSize, tileSize);
+				s->addToggleable(dynamic_cast<Toggleable*>(getTileAtMapIndex(0, 2)));
+				tileMap.push_back(s);
 			}
 			else
 			{

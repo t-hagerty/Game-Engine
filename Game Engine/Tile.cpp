@@ -139,6 +139,16 @@ void Tile::setRenderAngle(double newAngle)
 	renderAngle = newAngle;
 }
 
+bool Tile::getIsHighlighted()
+{
+	return isHighlighted;
+}
+
+void Tile::setIsHighlighted(bool highlighted)
+{
+	isHighlighted = highlighted;
+}
+
 void Tile::incrementAnimationFrame()
 {
 	if (animationFrame++ >= textureFrames - 1)

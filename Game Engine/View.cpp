@@ -240,7 +240,7 @@ void View::renderRectangle(double posX, double posY, int width, int height) cons
 	SDL_Rect fillRect = { posX , posY , width , height };
 	fillRect.x -= camera->x;
 	fillRect.y -= camera->y;
-	SDL_SetRenderDrawColor(gameRenderer, 0x00, 0x00, 0x00, 0x00);
+	SDL_SetRenderDrawColor(gameRenderer, 0x00, 0x00, 0x00, 0xFF);
 	SDL_RenderFillRect(gameRenderer, &fillRect);
 }
 
