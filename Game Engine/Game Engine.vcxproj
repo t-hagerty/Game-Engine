@@ -187,7 +187,17 @@
     <ClInclude Include="View.h" />
     <ClInclude Include="WeightedSwitch.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\cpprestsdk.v.141.2.10.7\build\native\cpprestsdk.v.141.targets" Condition="Exists('..\packages\cpprestsdk.v.141.2.10.7\build\native\cpprestsdk.v.141.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\cpprestsdk.v.141.2.10.7\build\native\cpprestsdk.v.141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\cpprestsdk.v.141.2.10.7\build\native\cpprestsdk.v.141.targets'))" />
+  </Target>
 </Project>

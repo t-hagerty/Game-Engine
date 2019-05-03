@@ -200,11 +200,14 @@
     <ClInclude Include="Toggleable.h">
       <Filter>Header Files\Model</Filter>
     </ClInclude>
-    <ClInclude Include="WeightedSwitch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="LeverSwitch.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Model</Filter>
     </ClInclude>
+    <ClInclude Include="WeightedSwitch.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
