@@ -11,6 +11,9 @@
 #include "Player.h"
 #include "Enemy.h"
 #include "Arrow.h"
+
+using byte = unsigned char;
+
 class Model
 {
 public:
@@ -31,6 +34,7 @@ public:
 	std::vector<Tile*> getTileMap() const;
 	virtual bool openMap() = 0;
 	virtual bool openMap(std::string filePath);
+	virtual bool openMap(const std::vector<byte>* bytes);
 	virtual void addEntityFromFile(Entity* e);
 	bool saveMap(std::string filePath) const;
 protected:
@@ -39,6 +43,7 @@ protected:
 	int levelWidth;
 	int levelHeight;
 	std::vector<Tile*> tileMap;
+	bool openMapData(SDL_RWops * mapData);
 	bool setIsSolid(int tileType);
 	virtual TileEffect* setTileEffect(int tileType);
 	Tile* getTileAtMapIndex(int row, int col) const;

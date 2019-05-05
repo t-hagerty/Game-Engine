@@ -1,7 +1,6 @@
 #include "Model.h"
 #include <tuple>
 
-
 Model::Model()
 {
 }
@@ -95,120 +94,148 @@ std::vector<Tile*> Model::getTileMap() const
 	return tileMap;
 }
 
+template< typename T > std::vector<byte> toByteArray(const T& object, std::vector<byte> bytes)
+{
+	std::vector<byte> newBytes;
+
+	const byte* begin = reinterpret_cast<const byte*>(std::addressof(object));
+	const byte* end = begin + sizeof(T);
+	std::copy(begin, end, std::begin(newBytes));
+	bytes.insert(std::end(bytes), std::begin(newBytes), std::end(newBytes));
+	return bytes;
+}
+
 bool Model::openMap(std::string filePath)
+{
+	SDL_RWops* mapData = SDL_RWFromFile(filePath.c_str(), "r+b");
+	if (mapData == nullptr)
+	{
+		printf("Warning: Unable to open file! SDL Error: %s\n", SDL_GetError());
+		openMap(); //Will be handled better in the future, for now, just load the default map
+		return false;
+	}
+	return openMapData(mapData);
+}
+
+bool Model::openMap(const std::vector<byte>* bytes)
+{
+	SDL_RWops* mapData = SDL_RWFromConstMem(bytes, sizeof(bytes));
+	if (mapData == nullptr)
+	{
+		printf("Warning: Unable to read binary data! SDL Error: %s\n", SDL_GetError());
+		openMap(); //Will be handled better in the future, for now, just load the default map
+		SDL_RWclose(mapData);
+		return false;
+	}
+	return openMapData(mapData);
+}
+
+bool Model::openMapData(SDL_RWops* mapData)
 {
 	bool success = true;
 	std::vector<std::tuple<int, int, int, int, char>> tempSwitchInfo;
-	SDL_RWops* file = SDL_RWFromFile(filePath.c_str(), "r+b");
-	if (file == nullptr)
-	{
-		printf("Warning: Unable to open file! SDL Error: %s\n", SDL_GetError());
-		success = false;
-		openMap(); //Will be handled better in the future, for now, just load the default map
-	}
-	else
-	{
-		//Load data
-		printf("Reading file...!\n");
-		SDL_RWread(file, &mapRows, sizeof(Uint8), 1); //read number of rows of saved map
-		SDL_RWread(file, &mapCols, sizeof(Uint8), 1); //read number of cols of saved map
 
-		tileMap.reserve(mapRows * mapCols);
-		for (int r = 0; r < mapRows; r++)
+	//Load data
+	printf("Reading file...!\n");
+	SDL_RWread(mapData, &mapRows, sizeof(Uint8), 1); //read number of rows of saved map
+	SDL_RWread(mapData, &mapCols, sizeof(Uint8), 1); //read number of cols of saved map
+
+	tileMap.reserve(mapRows * mapCols);
+	for (int r = 0; r < mapRows; r++)
+	{
+		for (int c = 0; c < mapCols; c++)
 		{
-			for (int c = 0; c < mapCols; c++)
+			Uint16 tempType = -1;
+			SDL_RWread(mapData, &tempType, sizeof(Uint16), 1);
+
+			if (tempType == DOOR || tempType == LADDER)
 			{
-				Sint32 tempType = -1;
-				SDL_RWread(file, &tempType, sizeof(Uint16), 1);
-				
-				if (tempType == DOOR || tempType == LADDER)
+				bool tempLocked;
+				Uint8 tempDirection = -1;
+				SDL_RWread(mapData, &tempLocked, sizeof(bool), 1);
+				SDL_RWread(mapData, &tempDirection, sizeof(Uint8), 1);
+				exit = new ExitTile(c * tileSize, r * tileSize, tileSize, tempType, false, false, setTileEffect(tempType), tempLocked, tempDirection);
+				tileMap.push_back(exit);
+			}
+			else if (tempType == SWITCH)
+			{
+				tileMap.push_back(new Switch(c * tileSize, r * tileSize, tileSize));
+				char temp;
+				SDL_RWread(mapData, &temp, sizeof(char), 1);
+				while (temp != '|')
 				{
-					bool tempLocked;
-					Sint32 tempDirection = -1;
-					SDL_RWread(file, &tempLocked, sizeof(bool), 1);
-					SDL_RWread(file, &tempDirection, sizeof(Uint8), 1);
-					exit = new ExitTile(c * tileSize, r * tileSize, tileSize, tempType, false, false, setTileEffect(tempType), tempLocked, tempDirection);
-					tileMap.push_back(exit);
-				}
-				else if(tempType == SWITCH)
-				{
-					tileMap.push_back(new Switch(c * tileSize, r * tileSize, tileSize));
-					char temp;
-					SDL_RWread(file, &temp, sizeof(char), 1);
-					while (temp != '|')
+					if (temp == 'T')
 					{
-						if (temp == 'T')
-						{
-							int tempRow, tempCol;
-							SDL_RWread(file, &tempRow, sizeof(Uint8), 1);
-							SDL_RWread(file, &tempCol, sizeof(Uint8), 1);
-							tempSwitchInfo.insert(tempSwitchInfo.end(), std::make_tuple(r, c, tempRow, tempCol, temp));
-						}
-						else if (temp == 'E')
-						{
-
-						}
-						SDL_RWread(file, &temp, sizeof(char), 1);
+						Uint8 tempRow, tempCol;
+						SDL_RWread(mapData, &tempRow, sizeof(Uint8), 1);
+						SDL_RWread(mapData, &tempCol, sizeof(Uint8), 1);
+						tempSwitchInfo.insert(tempSwitchInfo.end(), std::make_tuple(r, c, tempRow, tempCol, temp));
 					}
-				}
-				else
-				{
-					tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, tempType, setIsSolid(tempType), ((tempType == PIT) ? true : false), setTileEffect(tempType)));
+					else if (temp == 'E')
+					{
+
+					}
+					SDL_RWread(mapData, &temp, sizeof(char), 1);
 				}
 			}
-		}
-		int numEntities = 0;
-		SDL_RWread(file, &numEntities, sizeof(Uint8), 1);
-		for (int i = 1; i <= numEntities; i++)
-		{
-			char entityType;
-			int height, width, posX, posY, velX, velY, hp;
-			SDL_RWread(file, &entityType, sizeof(char), 1);
-			Entity* anEntity;
-			switch (entityType)
+			else
 			{
-			case 'P':
-				SDL_RWread(file, &height, sizeof(Uint8), 1);
-				SDL_RWread(file, &width, sizeof(Uint8), 1);
-				SDL_RWread(file, &posX, sizeof(Uint16), 1);
-				SDL_RWread(file, &posY, sizeof(Uint16), 1);
-				SDL_RWread(file, &velX, sizeof(Uint8), 1);
-				SDL_RWread(file, &velY, sizeof(Uint8), 1);
-				SDL_RWread(file, &hp, sizeof(Uint8), 1);
-				player = new Player(height, width, posX, posY, velX, velY, hp);
-				addEntityFromFile(player);
-				break;
-			case 'A':
-				SDL_RWread(file, &height, sizeof(Uint8), 1);
-				SDL_RWread(file, &width, sizeof(Uint8), 1);
-				SDL_RWread(file, &posX, sizeof(Uint16), 1);
-				SDL_RWread(file, &posY, sizeof(Uint16), 1);
-				SDL_RWread(file, &velX, sizeof(Uint8), 1);
-				SDL_RWread(file, &velY, sizeof(Uint8), 1);
-				anEntity = new Arrow(height, width, posX, posY, velX, velY);
-				addEntityFromFile(anEntity);
-				break;
-			case 'E':
-				SDL_RWread(file, &height, sizeof(Uint8), 1);
-				SDL_RWread(file, &width, sizeof(Uint8), 1);
-				SDL_RWread(file, &posX, sizeof(Uint16), 1);
-				SDL_RWread(file, &posY, sizeof(Uint16), 1);
-				SDL_RWread(file, &velX, sizeof(Uint8), 1);
-				SDL_RWread(file, &velY, sizeof(Uint8), 1);
-				SDL_RWread(file, &hp, sizeof(Uint8), 1);
-				anEntity = new Enemy(height, width, posX, posY, velX, velY, hp);
-				addEntityFromFile(anEntity);
-				break;
-			default:
-				SDL_RWclose(file);
-				printf("Error: Encountered unexpected file input of entity type %c from file %s \n", entityType, filePath);
-				return false;
-				break;
+				tileMap.push_back(new Tile(c * tileSize, r * tileSize, tileSize, tempType, setIsSolid(tempType), ((tempType == PIT) ? true : false), setTileEffect(tempType)));
 			}
 		}
-		//Close file handler
-		SDL_RWclose(file);
 	}
+	int numEntities = 0;
+	SDL_RWread(mapData, &numEntities, sizeof(Uint8), 1);
+	for (int i = 1; i <= numEntities; i++)
+	{
+		char entityType;
+		Uint8 height, width, velX, velY, hp;
+		Uint16 posX, posY;
+		SDL_RWread(mapData, &entityType, sizeof(char), 1);
+		Entity* anEntity;
+		switch (entityType)
+		{
+		case 'P':
+			SDL_RWread(mapData, &height, sizeof(Uint8), 1);
+			SDL_RWread(mapData, &width, sizeof(Uint8), 1);
+			SDL_RWread(mapData, &posX, sizeof(Uint16), 1);
+			SDL_RWread(mapData, &posY, sizeof(Uint16), 1);
+			SDL_RWread(mapData, &velX, sizeof(Uint8), 1);
+			SDL_RWread(mapData, &velY, sizeof(Uint8), 1);
+			SDL_RWread(mapData, &hp, sizeof(Uint8), 1);
+			player = new Player(height, width, posX, posY, velX, velY, hp);
+			addEntityFromFile(player);
+			break;
+		case 'A':
+			SDL_RWread(mapData, &height, sizeof(Uint8), 1);
+			SDL_RWread(mapData, &width, sizeof(Uint8), 1);
+			SDL_RWread(mapData, &posX, sizeof(Uint16), 1);
+			SDL_RWread(mapData, &posY, sizeof(Uint16), 1);
+			SDL_RWread(mapData, &velX, sizeof(Uint8), 1);
+			SDL_RWread(mapData, &velY, sizeof(Uint8), 1);
+			anEntity = new Arrow(height, width, posX, posY, velX, velY);
+			addEntityFromFile(anEntity);
+			break;
+		case 'E':
+			SDL_RWread(mapData, &height, sizeof(Uint8), 1);
+			SDL_RWread(mapData, &width, sizeof(Uint8), 1);
+			SDL_RWread(mapData, &posX, sizeof(Uint16), 1);
+			SDL_RWread(mapData, &posY, sizeof(Uint16), 1);
+			SDL_RWread(mapData, &velX, sizeof(Uint8), 1);
+			SDL_RWread(mapData, &velY, sizeof(Uint8), 1);
+			SDL_RWread(mapData, &hp, sizeof(Uint8), 1);
+			anEntity = new Enemy(height, width, posX, posY, velX, velY, hp);
+			addEntityFromFile(anEntity);
+			break;
+		default:
+			SDL_RWclose(mapData);
+			printf("Error: Encountered unexpected file input of entity type %c \n", entityType);
+			return false;
+			break;
+		}
+	}
+	//Close file handler
+	SDL_RWclose(mapData);
 
 	if (tempSwitchInfo.size() > 0)
 	{
@@ -238,28 +265,28 @@ bool Model::saveMap(std::string filePath) const
 {
 	bool success = true;
 
-	SDL_RWops* file = SDL_RWFromFile(filePath.c_str(), "w+b");
-	SDL_RWwrite(file, &mapRows, sizeof(Uint8), 1);
-	SDL_RWwrite(file, &mapCols, sizeof(Uint8), 1);
-	if (file != nullptr)
+	SDL_RWops* mapData = SDL_RWFromFile(filePath.c_str(), "w+b");
+	SDL_RWwrite(mapData, &mapRows, sizeof(Uint8), 1);
+	SDL_RWwrite(mapData, &mapCols, sizeof(Uint8), 1);
+	if (mapData != nullptr)
 	{
 		//Save data
 		for (int r = 0; r < mapRows; r++)
 		{
 			for (int c = 0; c < mapCols; c++)
 			{
-				int tempType = tileMap[(r*mapCols) + c]->getType();
+				Uint16 tempType = tileMap[(r*mapCols) + c]->getType();
 				if (tempType == DOOR || tempType == LADDER)
 				{
 					bool tempLocked = dynamic_cast<ExitTile*>(tileMap[(r*mapCols) + c])->getIsLocked();
 					Sint32 tempDirection = dynamic_cast<ExitTile*>(tileMap[(r*mapCols) + c])->getExitDirection();
-					SDL_RWwrite(file, &tempType, sizeof(Uint16), 1);
-					SDL_RWwrite(file, &tempLocked, sizeof(bool), 1);
-					SDL_RWwrite(file, &tempDirection, sizeof(Uint8), 1);
+					SDL_RWwrite(mapData, &tempType, sizeof(Uint16), 1);
+					SDL_RWwrite(mapData, &tempLocked, sizeof(bool), 1);
+					SDL_RWwrite(mapData, &tempDirection, sizeof(Uint8), 1);
 				}
 				else if (tempType == SWITCH || tempType == SWITCH_WEIGHTED || tempType == SWITCH_LEVER)
 				{
-					SDL_RWwrite(file, &tempType, sizeof(Uint16), 1);
+					SDL_RWwrite(mapData, &tempType, sizeof(Uint16), 1);
 					char temp;
 					for (Toggleable* t : dynamic_cast<Switch*>(tileMap[(r*mapCols) + c])->getConnectedToggleables())
 					{
@@ -267,11 +294,11 @@ bool Model::saveMap(std::string filePath) const
 						if (aTile != nullptr)
 						{
 							temp = 'T';
-							SDL_RWwrite(file, &temp, sizeof(char), 1);
-							int tempInt = aTile->getRow();
-							SDL_RWwrite(file, &tempInt, sizeof(Uint8), 1);
+							SDL_RWwrite(mapData, &temp, sizeof(char), 1);
+							Uint8 tempInt = aTile->getRow();
+							SDL_RWwrite(mapData, &tempInt, sizeof(Uint8), 1);
 							tempInt = aTile->getCol();
-							SDL_RWwrite(file, &tempInt, sizeof(Uint8), 1);
+							SDL_RWwrite(mapData, &tempInt, sizeof(Uint8), 1);
 							continue;
 						}
 						Entity *anEntity = dynamic_cast<Entity*>(t);
@@ -281,17 +308,17 @@ bool Model::saveMap(std::string filePath) const
 						}
 					}
 					temp = '|'; //signifies end of toggleables vector
-					SDL_RWwrite(file, &temp, sizeof(char), 1);
+					SDL_RWwrite(mapData, &temp, sizeof(char), 1);
 				}
 				else
 				{
-					SDL_RWwrite(file, &tempType, sizeof(Uint16), 1);
+					SDL_RWwrite(mapData, &tempType, sizeof(Uint16), 1);
 				}
 			}
 		}
 		char temp = 'P'; //player
 		int tempInt = getNumberOfEntities();
-		SDL_RWwrite(file, &tempInt, sizeof(Uint8), 1); //number of entities
+		SDL_RWwrite(mapData, &tempInt, sizeof(Uint8), 1); //number of entities
 		for (int i = 0; i < static_cast<int>(entities.size()); i++)
 		{
 			Entity* e = entities[i];
@@ -311,27 +338,27 @@ bool Model::saveMap(std::string filePath) const
 			{
 				temp = 'A';
 			}
-			SDL_RWwrite(file, &temp, sizeof(char), 1);
+			SDL_RWwrite(mapData, &temp, sizeof(char), 1);
 			tempInt = e->getHeight();
-			SDL_RWwrite(file, &tempInt, sizeof(Uint8), 1);
+			SDL_RWwrite(mapData, &tempInt, sizeof(Uint8), 1);
 			tempInt = e->getWidth();
-			SDL_RWwrite(file, &tempInt, sizeof(Uint8), 1);
+			SDL_RWwrite(mapData, &tempInt, sizeof(Uint8), 1);
 			tempInt = e->getPosX();
-			SDL_RWwrite(file, &tempInt, sizeof(Uint16), 1);
+			SDL_RWwrite(mapData, &tempInt, sizeof(Uint16), 1);
 			tempInt = e->getPosY();
-			SDL_RWwrite(file, &tempInt, sizeof(Uint16), 1);
+			SDL_RWwrite(mapData, &tempInt, sizeof(Uint16), 1);
 			tempInt = e->getVelocityX();
-			SDL_RWwrite(file, &tempInt, sizeof(Uint8), 1);
+			SDL_RWwrite(mapData, &tempInt, sizeof(Uint8), 1);
 			tempInt = e->getVelocityY();
-			SDL_RWwrite(file, &tempInt, sizeof(Uint8), 1);
+			SDL_RWwrite(mapData, &tempInt, sizeof(Uint8), 1);
 			if (temp != 'A')
 			{
 				tempInt = e->getHealth();
-				SDL_RWwrite(file, &tempInt, sizeof(Uint8), 1);
+				SDL_RWwrite(mapData, &tempInt, sizeof(Uint8), 1);
 			}
 		}
 		//Close file handler
-		SDL_RWclose(file);
+		SDL_RWclose(mapData);
 	}
 	else
 	{
