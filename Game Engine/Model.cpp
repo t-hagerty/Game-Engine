@@ -94,15 +94,14 @@ std::vector<Tile*> Model::getTileMap() const
 	return tileMap;
 }
 
-template< typename T > std::vector<byte> toByteArray(const T& object, std::vector<byte> bytes)
+template< typename T > void toByteArray(const T& object, std::vector<byte>* bytes)
 {
 	std::vector<byte> newBytes;
 
 	const byte* begin = reinterpret_cast<const byte*>(std::addressof(object));
 	const byte* end = begin + sizeof(T);
 	std::copy(begin, end, std::begin(newBytes));
-	bytes.insert(std::end(bytes), std::begin(newBytes), std::end(newBytes));
-	return bytes;
+	bytes->insert(std::end(bytes), std::begin(newBytes), std::end(newBytes));
 }
 
 bool Model::openMap(std::string filePath)
@@ -124,7 +123,6 @@ bool Model::openMap(const std::vector<byte>* bytes)
 	{
 		printf("Warning: Unable to read binary data! SDL Error: %s\n", SDL_GetError());
 		openMap(); //Will be handled better in the future, for now, just load the default map
-		SDL_RWclose(mapData);
 		return false;
 	}
 	return openMapData(mapData);
@@ -263,110 +261,210 @@ void Model::addEntityFromFile(Entity * e)
 
 bool Model::saveMap(std::string filePath) const
 {
-	bool success = true;
-
 	SDL_RWops* mapData = SDL_RWFromFile(filePath.c_str(), "w+b");
-	SDL_RWwrite(mapData, &mapRows, sizeof(Uint8), 1);
-	SDL_RWwrite(mapData, &mapCols, sizeof(Uint8), 1);
-	if (mapData != nullptr)
-	{
-		//Save data
-		for (int r = 0; r < mapRows; r++)
-		{
-			for (int c = 0; c < mapCols; c++)
-			{
-				Uint16 tempType = tileMap[(r*mapCols) + c]->getType();
-				if (tempType == DOOR || tempType == LADDER)
-				{
-					bool tempLocked = dynamic_cast<ExitTile*>(tileMap[(r*mapCols) + c])->getIsLocked();
-					Sint32 tempDirection = dynamic_cast<ExitTile*>(tileMap[(r*mapCols) + c])->getExitDirection();
-					SDL_RWwrite(mapData, &tempType, sizeof(Uint16), 1);
-					SDL_RWwrite(mapData, &tempLocked, sizeof(bool), 1);
-					SDL_RWwrite(mapData, &tempDirection, sizeof(Uint8), 1);
-				}
-				else if (tempType == SWITCH || tempType == SWITCH_WEIGHTED || tempType == SWITCH_LEVER)
-				{
-					SDL_RWwrite(mapData, &tempType, sizeof(Uint16), 1);
-					char temp;
-					for (Toggleable* t : dynamic_cast<Switch*>(tileMap[(r*mapCols) + c])->getConnectedToggleables())
-					{
-						Tile *aTile = dynamic_cast<Tile*>(t);
-						if (aTile != nullptr)
-						{
-							temp = 'T';
-							SDL_RWwrite(mapData, &temp, sizeof(char), 1);
-							Uint8 tempInt = aTile->getRow();
-							SDL_RWwrite(mapData, &tempInt, sizeof(Uint8), 1);
-							tempInt = aTile->getCol();
-							SDL_RWwrite(mapData, &tempInt, sizeof(Uint8), 1);
-							continue;
-						}
-						Entity *anEntity = dynamic_cast<Entity*>(t);
-						if (anEntity != nullptr)
-						{
 
-						}
-					}
-					temp = '|'; //signifies end of toggleables vector
-					SDL_RWwrite(mapData, &temp, sizeof(char), 1);
-				}
-				else
-				{
-					SDL_RWwrite(mapData, &tempType, sizeof(Uint16), 1);
-				}
-			}
-		}
-		char temp = 'P'; //player
-		int tempInt = getNumberOfEntities();
-		SDL_RWwrite(mapData, &tempInt, sizeof(Uint8), 1); //number of entities
-		for (int i = 0; i < static_cast<int>(entities.size()); i++)
-		{
-			Entity* e = entities[i];
-			char temp;
-			Player *aPlayer = dynamic_cast<Player*>(e);
-			Enemy *anEnemy = dynamic_cast<Enemy*>(e);
-			Arrow *anArrow = dynamic_cast<Arrow*>(e);
-			if (aPlayer != nullptr)
-			{
-				temp = 'P';
-			}
-			else if (anEnemy != nullptr)
-			{
-				temp = 'E';
-			}
-			else if (anArrow != nullptr)
-			{
-				temp = 'A';
-			}
-			SDL_RWwrite(mapData, &temp, sizeof(char), 1);
-			tempInt = e->getHeight();
-			SDL_RWwrite(mapData, &tempInt, sizeof(Uint8), 1);
-			tempInt = e->getWidth();
-			SDL_RWwrite(mapData, &tempInt, sizeof(Uint8), 1);
-			tempInt = e->getPosX();
-			SDL_RWwrite(mapData, &tempInt, sizeof(Uint16), 1);
-			tempInt = e->getPosY();
-			SDL_RWwrite(mapData, &tempInt, sizeof(Uint16), 1);
-			tempInt = e->getVelocityX();
-			SDL_RWwrite(mapData, &tempInt, sizeof(Uint8), 1);
-			tempInt = e->getVelocityY();
-			SDL_RWwrite(mapData, &tempInt, sizeof(Uint8), 1);
-			if (temp != 'A')
-			{
-				tempInt = e->getHealth();
-				SDL_RWwrite(mapData, &tempInt, sizeof(Uint8), 1);
-			}
-		}
-		//Close file handler
-		SDL_RWclose(mapData);
-	}
-	else
+	if (mapData == nullptr)
 	{
 		printf("Error: Unable to save file! %s\n", SDL_GetError());
-		success = false;
+		return false;
 	}
 
+	return saveMapData(mapData);
+}
+
+bool Model::saveMapData(SDL_RWops* mapData) const
+{
+	bool success = true;
+
+	//Save data
+	SDL_RWwrite(mapData, &mapRows, sizeof(Uint8), 1);
+	SDL_RWwrite(mapData, &mapCols, sizeof(Uint8), 1);
+	for (int r = 0; r < mapRows; r++)
+	{
+		for (int c = 0; c < mapCols; c++)
+		{
+			Uint16 tempType = tileMap[(r*mapCols) + c]->getType();
+			if (tempType == DOOR || tempType == LADDER)
+			{
+				bool tempLocked = dynamic_cast<ExitTile*>(tileMap[(r*mapCols) + c])->getIsLocked();
+				Uint8 tempDirection = dynamic_cast<ExitTile*>(tileMap[(r*mapCols) + c])->getExitDirection();
+				SDL_RWwrite(mapData, &tempType, sizeof(Uint16), 1);
+				SDL_RWwrite(mapData, &tempLocked, sizeof(bool), 1);
+				SDL_RWwrite(mapData, &tempDirection, sizeof(Uint8), 1);
+			}
+			else if (tempType == SWITCH || tempType == SWITCH_WEIGHTED || tempType == SWITCH_LEVER)
+			{
+				SDL_RWwrite(mapData, &tempType, sizeof(Uint16), 1);
+				char temp;
+				for (Toggleable* t : dynamic_cast<Switch*>(tileMap[(r*mapCols) + c])->getConnectedToggleables())
+				{
+					Tile *aTile = dynamic_cast<Tile*>(t);
+					if (aTile != nullptr)
+					{
+						temp = 'T';
+						SDL_RWwrite(mapData, &temp, sizeof(char), 1);
+						Uint8 tempInt = aTile->getRow();
+						SDL_RWwrite(mapData, &tempInt, sizeof(Uint8), 1);
+						tempInt = aTile->getCol();
+						SDL_RWwrite(mapData, &tempInt, sizeof(Uint8), 1);
+						continue;
+					}
+					Entity *anEntity = dynamic_cast<Entity*>(t);
+					if (anEntity != nullptr)
+					{
+
+					}
+				}
+				temp = '|'; //signifies end of toggleables vector
+				SDL_RWwrite(mapData, &temp, sizeof(char), 1);
+			}
+			else
+			{
+				SDL_RWwrite(mapData, &tempType, sizeof(Uint16), 1);
+			}
+		}
+	}
+	char temp = 'P'; //player
+	int tempInt = getNumberOfEntities();
+	SDL_RWwrite(mapData, &tempInt, sizeof(Uint8), 1); //number of entities
+	for (int i = 0; i < static_cast<int>(entities.size()); i++)
+	{
+		Entity* e = entities[i];
+		char temp;
+		Player *aPlayer = dynamic_cast<Player*>(e);
+		Enemy *anEnemy = dynamic_cast<Enemy*>(e);
+		Arrow *anArrow = dynamic_cast<Arrow*>(e);
+		if (aPlayer != nullptr)
+		{
+			temp = 'P';
+		}
+		else if (anEnemy != nullptr)
+		{
+			temp = 'E';
+		}
+		else if (anArrow != nullptr)
+		{
+			temp = 'A';
+		}
+		SDL_RWwrite(mapData, &temp, sizeof(char), 1);
+		tempInt = e->getHeight();
+		SDL_RWwrite(mapData, &tempInt, sizeof(Uint8), 1);
+		tempInt = e->getWidth();
+		SDL_RWwrite(mapData, &tempInt, sizeof(Uint8), 1);
+		tempInt = e->getPosX();
+		SDL_RWwrite(mapData, &tempInt, sizeof(Uint16), 1);
+		tempInt = e->getPosY();
+		SDL_RWwrite(mapData, &tempInt, sizeof(Uint16), 1);
+		tempInt = e->getVelocityX();
+		SDL_RWwrite(mapData, &tempInt, sizeof(Uint8), 1);
+		tempInt = e->getVelocityY();
+		SDL_RWwrite(mapData, &tempInt, sizeof(Uint8), 1);
+		if (temp != 'A')
+		{
+			tempInt = e->getHealth();
+			SDL_RWwrite(mapData, &tempInt, sizeof(Uint8), 1);
+		}
+	}
+	//Close file handler
+	SDL_RWclose(mapData);
+
 	return success;
+}
+
+std::vector<byte>* Model::saveMapToBinary() const
+{
+	std::vector<byte>* bytes = new std::vector<byte>();
+
+	toByteArray((Uint8)mapRows, bytes);
+	toByteArray((Uint8)mapCols, bytes);
+	for (int r = 0; r < mapRows; r++)
+	{
+		for (int c = 0; c < mapCols; c++)
+		{
+			Uint16 tempType = tileMap[(r*mapCols) + c]->getType();
+			if (tempType == DOOR || tempType == LADDER)
+			{
+				bool tempLocked = dynamic_cast<ExitTile*>(tileMap[(r*mapCols) + c])->getIsLocked();
+				Uint8 tempDirection = dynamic_cast<ExitTile*>(tileMap[(r*mapCols) + c])->getExitDirection();
+				toByteArray(tempType, bytes);
+				toByteArray(tempLocked, bytes);
+				toByteArray(tempDirection, bytes);
+			}
+			else if (tempType == SWITCH || tempType == SWITCH_WEIGHTED || tempType == SWITCH_LEVER)
+			{
+				toByteArray(tempType, bytes);
+				char temp;
+				for (Toggleable* t : dynamic_cast<Switch*>(tileMap[(r*mapCols) + c])->getConnectedToggleables())
+				{
+					Tile *aTile = dynamic_cast<Tile*>(t);
+					if (aTile != nullptr)
+					{
+						temp = 'T';
+						toByteArray(temp, bytes);
+						Uint8 tempInt = aTile->getRow();
+						toByteArray(tempInt, bytes);
+						tempInt = aTile->getCol();
+						toByteArray(tempInt, bytes);
+						continue;
+					}
+					Entity *anEntity = dynamic_cast<Entity*>(t);
+					if (anEntity != nullptr)
+					{
+
+					}
+				}
+				temp = '|'; //signifies end of toggleables vector
+				toByteArray(temp, bytes);
+			}
+			else
+			{
+				toByteArray(tempType, bytes);
+			}
+		}
+	}
+	char temp = 'P'; //player
+	Uint8 tempInt = getNumberOfEntities();
+	Uint16 tempInt16;
+	toByteArray(tempInt, bytes);
+	for (int i = 0; i < static_cast<int>(entities.size()); i++)
+	{
+		Entity* e = entities[i];
+		Player *aPlayer = dynamic_cast<Player*>(e);
+		Enemy *anEnemy = dynamic_cast<Enemy*>(e);
+		Arrow *anArrow = dynamic_cast<Arrow*>(e);
+		if (aPlayer != nullptr)
+		{
+			temp = 'P';
+		}
+		else if (anEnemy != nullptr)
+		{
+			temp = 'E';
+		}
+		else if (anArrow != nullptr)
+		{
+			temp = 'A';
+		}
+		toByteArray(temp, bytes);
+		tempInt = e->getHeight();
+		toByteArray(tempInt, bytes);
+		tempInt = e->getWidth();
+		toByteArray(tempInt, bytes);
+		tempInt16 = e->getPosX();
+		toByteArray(tempInt16, bytes);
+		tempInt16 = e->getPosY();
+		toByteArray(tempInt16, bytes);
+		tempInt = e->getVelocityX();
+		toByteArray(tempInt, bytes);
+		tempInt = e->getVelocityY();
+		toByteArray(tempInt, bytes);
+		if (temp != 'A')
+		{
+			tempInt = e->getHealth();
+			toByteArray(tempInt, bytes);
+		}
+	}
+
+	return bytes;
 }
 
 bool Model::setIsSolid(int tileType)
