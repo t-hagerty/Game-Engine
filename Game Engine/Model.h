@@ -45,7 +45,7 @@ protected:
 	std::vector<Tile*> tileMap;
 	bool openMapData(SDL_RWops * mapData);
 	bool saveMapData(SDL_RWops * mapData) const;
-	std::vector<byte>* saveMapToBinary() const;
+	std::vector<byte>* levelToBinary() const;
 	bool setIsSolid(int tileType);
 	virtual TileEffect* setTileEffect(int tileType);
 	Tile* getTileAtMapIndex(int row, int col) const;
