@@ -37,6 +37,7 @@ public:
 	virtual bool openMap(const std::vector<byte>* bytes);
 	virtual void addEntityFromFile(Entity* e);
 	bool saveMap(std::string filePath) const;
+	bool publishMap() const;
 protected:
 	int tileSize;
 	const static int NUMBER_TILE_TYPES = 33;
@@ -44,7 +45,6 @@ protected:
 	int levelHeight;
 	std::vector<Tile*> tileMap;
 	bool openMapData(SDL_RWops * mapData);
-	bool saveMapData(SDL_RWops * mapData) const;
 	std::vector<byte>* levelToBinary() const;
 	bool setIsSolid(int tileType);
 	virtual TileEffect* setTileEffect(int tileType);

@@ -1,5 +1,16 @@
 #include "Model.h"
 #include <tuple>
+#include <sstream>
+#include <cpprest/http_client.h>
+#include <cpprest/uri.h>
+#include <cpprest/ws_client.h>    
+
+using namespace utility;
+using namespace web;
+using namespace web::http;
+using namespace web::http::client;
+using namespace concurrency::streams;
+using namespace web::json;
 
 Model::Model()
 {
@@ -274,6 +285,47 @@ bool Model::saveMap(std::string filePath) const
 		SDL_RWwrite(mapData, &mapBinary->at(i), sizeof(char), 1);
 	}
 
+	return true;
+}
+
+bool Model::publishMap() const
+{
+	printf("Publish to database");
+	std::vector<unsigned char>* level = levelToBinary();
+	utility::string_t encodedLevel = utility::conversions::to_base64(*level);
+	std::string s = utility::conversions::to_utf8string(encodedLevel);
+	std::cout << s;
+
+	http_client client(U("http://localhost:8080"));
+	pplx::task<http_response> resp = client.request(methods::GET, U("/users/1"));
+
+	resp.then([=](pplx::task<web::http::http_response> task)
+	{
+		web::http::http_response  response = task.get();
+		if (response.status_code() == status_codes::OK)
+		{
+			return response.extract_json();
+		}
+		return pplx::task_from_result(json::value());
+	})
+	.then([](pplx::task<json::value> previousTask)
+	{
+		try
+		{
+			json::value jvalue = previousTask.get();
+			if (!jvalue.is_null())
+			{
+				std::string result = utility::conversions::to_utf8string(jvalue.serialize());
+				std::cout << result;
+			}
+		}
+		catch (http_exception const & e)
+		{
+			printf(e.what());
+			printf("\n");
+		}
+	})
+	.wait();
 	return true;
 }
 
