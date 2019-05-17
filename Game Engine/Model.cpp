@@ -1,6 +1,7 @@
 #include "Model.h"
 #include <tuple>
 #include <sstream>
+#include <iostream>
 #include <cpprest/http_client.h>
 #include <cpprest/uri.h>
 #include <cpprest/ws_client.h>    
@@ -124,12 +125,13 @@ bool Model::openMap(std::string filePath)
 		openMap(); //Will be handled better in the future, for now, just load the default map
 		return false;
 	}
+	printf("Reading file...!\n");
 	return openMapData(mapData);
 }
 
-bool Model::openMap(const std::vector<byte>* bytes)
+bool Model::openMap(std::vector<byte>* bytes)
 {
-	SDL_RWops* mapData = SDL_RWFromConstMem(bytes, sizeof(bytes));
+	SDL_RWops* mapData = SDL_RWFromConstMem(bytes->data(), bytes->size());
 	if (mapData == nullptr)
 	{
 		printf("Warning: Unable to read binary data! SDL Error: %s\n", SDL_GetError());
@@ -145,7 +147,6 @@ bool Model::openMapData(SDL_RWops* mapData)
 	std::vector<std::tuple<int, int, int, int, char>> tempSwitchInfo;
 
 	//Load data
-	printf("Reading file...!\n");
 	SDL_RWread(mapData, &mapRows, sizeof(Uint8), 1); //read number of rows of saved map
 	SDL_RWread(mapData, &mapCols, sizeof(Uint8), 1); //read number of cols of saved map
 
@@ -290,43 +291,102 @@ bool Model::saveMap(std::string filePath) const
 
 bool Model::publishMap() const
 {
-	printf("Publish to database");
+	bool success = false;
+	printf("Publishing to database \n");
 	std::vector<unsigned char>* level = levelToBinary();
 	utility::string_t encodedLevel = utility::conversions::to_base64(*level);
-	std::string s = utility::conversions::to_utf8string(encodedLevel);
-	std::cout << s;
+
+	http_request req;
+	req.set_request_uri(U("/levels"));
+	req.set_method(web::http::methods::POST);
+
+	web::json::value postParameters = web::json::value::object();
+	postParameters[L"authorId"] = web::json::value::number(1); //TODO make this pull the id of the currently logged in user when users are implemented
+	postParameters[L"name"] = web::json::value::string(L"TestLevel"); //TODO make this take a level name if/when I add a level-naming thing to the editor
+	postParameters[L"levelMap"] = web::json::value::string(encodedLevel);
+	req.set_body(postParameters);
 
 	http_client client(U("http://localhost:8080"));
-	pplx::task<http_response> resp = client.request(methods::GET, U("/users/1"));
+	pplx::task<http_response> resp = client.request(req);
 
-	resp.then([=](pplx::task<web::http::http_response> task)
-	{
-		web::http::http_response  response = task.get();
-		if (response.status_code() == status_codes::OK)
-		{
-			return response.extract_json();
-		}
-		return pplx::task_from_result(json::value());
-	})
-	.then([](pplx::task<json::value> previousTask)
+	resp.then([=, &success](pplx::task<web::http::http_response> task)
 	{
 		try
 		{
-			json::value jvalue = previousTask.get();
-			if (!jvalue.is_null())
+			web::http::http_response  response = task.get();
+			if (response.status_code() == status_codes::OK)
 			{
-				std::string result = utility::conversions::to_utf8string(jvalue.serialize());
-				std::cout << result;
+				printf("recieved ok status code \n");
+				success = true;
 			}
 		}
 		catch (http_exception const & e)
 		{
 			printf(e.what());
 			printf("\n");
+			success = false;
 		}
-	})
-	.wait();
-	return true;
+	}).wait();
+	return success;
+}
+
+bool Model::retrieveMap(long id)
+{
+	printf("Retrieving level %d from database... \n", id);
+	bool success = false;
+	std::stringstream ss;
+	ss << "/levels/" << id;
+	std::string uri = ss.str();
+	
+	try {
+		http_client client(U("http://localhost:8080"));
+
+		pplx::task<http_response> resp = client.request(methods::GET, utility::conversions::to_string_t(uri));
+
+		resp.then([=](pplx::task<web::http::http_response> task)
+		{
+			try
+			{
+				web::http::http_response  response = task.get();
+				if (response.status_code() == status_codes::OK)
+				{
+					return response.extract_json();
+				}
+				return pplx::task_from_result(json::value());
+			}
+			catch (http_exception const & e)
+			{
+				printf(e.what());
+				printf("\n");
+				return pplx::task_from_result(json::value());
+			}
+		})
+			.then([this, &success](pplx::task<json::value> previousTask)
+		{
+			try
+			{
+				json::value jvalue = previousTask.get();
+				if (!jvalue.is_null())
+				{
+					std::vector<byte> decodedMap = utility::conversions::from_base64(jvalue[U("encodedMap")].as_string());
+					openMap(&decodedMap);
+					success = true;
+				}
+			}
+			catch (http_exception const & e)
+			{
+				printf(e.what());
+				printf("\n");
+			}
+		})
+			.wait();
+	}
+	catch (const std::exception& e)
+	{
+		printf(e.what());
+		printf("\n");
+	}
+	return success;
 }
 
 std::vector<byte>* Model::levelToBinary() const

@@ -6,6 +6,7 @@ class GameModel :
 {
 public:
 	GameModel();
+	GameModel(long id);
 	GameModel(std::vector<Tile*> map,int rows, int cols, std::vector<Entity*> levelEntities);
 	~GameModel();
 	void moveEntities(double delta);

@@ -34,10 +34,11 @@ public:
 	std::vector<Tile*> getTileMap() const;
 	virtual bool openMap() = 0;
 	virtual bool openMap(std::string filePath);
-	virtual bool openMap(const std::vector<byte>* bytes);
+	virtual bool openMap(std::vector<byte>* bytes);
 	virtual void addEntityFromFile(Entity* e);
 	bool saveMap(std::string filePath) const;
 	bool publishMap() const;
+	bool retrieveMap(long id);
 protected:
 	int tileSize;
 	const static int NUMBER_TILE_TYPES = 33;
