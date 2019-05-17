@@ -56,11 +56,14 @@ std::tuple<int, int> EditorView::convertScreenCoordsToModel(int mouseX, int mous
 	return std::make_tuple(resultX, resultY);
 }
 
-void EditorView::setButtonHandlers(EventHandler testButtonHandler, EventHandler gameButtonHandler, EventHandler mainMenuButtonHandler)
+void EditorView::setButtonHandlers(EventHandler testButtonHandler, EventHandler gameButtonHandler, EventHandler mainMenuButtonHandler, 
+	EventHandler saveButtonHandler, EventHandler publishButtonHandler)
 {
 	testButton->setEventHandler(testButtonHandler);
 	gameButton->setEventHandler(gameButtonHandler);
 	mainMenuButton->setEventHandler(mainMenuButtonHandler);
+	saveButton->setEventHandler(saveButtonHandler);
+	publishButton->setEventHandler(publishButtonHandler);
 }
 
 void EditorView::renderTileMap(std::vector<Tile*> map, int rows, int cols, int tileSize, int frame)
@@ -175,6 +178,12 @@ bool EditorView::initGUI()
 	testButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "TEST", nullptr);
 	addButton(testButton);
 	menu->addButton(testButton);
+	saveButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "SAVE", nullptr);
+	addButton(saveButton);
+	menu->addButton(saveButton);
+	publishButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "PUBLISH", nullptr);
+	addButton(publishButton);
+	menu->addButton(publishButton);
 	settingsButton = new Button(0, 0, 200, 100, false, "default_button.bmp", gScreenSurface, gameRenderer, "SETTINGS", nullptr);
 	addButton(settingsButton);
 	menu->addButton(settingsButton);

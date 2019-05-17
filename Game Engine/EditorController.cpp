@@ -9,7 +9,8 @@ EditorController::EditorController(EditorModel * m, EditorView * v)
 	using namespace std::placeholders; //for the _1 argument placeholder below
 	model = m;
 	view = v;
-	view->setButtonHandlers(std::bind(&EditorController::goToTest, this), std::bind(&EditorController::goToGame, this), std::bind(&EditorController::goToMenu, this));
+	view->setButtonHandlers(std::bind(&EditorController::goToTest, this), std::bind(&EditorController::goToGame, this), std::bind(&EditorController::goToMenu, this), 
+		std::bind(&Model::saveMap, model, "temp"), std::bind(&Model::publishMap, model));
 	view->setSelectionButtonHandlers(std::bind(&EditorModel::setSelectedTileType, model, _1));
 	gameLoop();
 }

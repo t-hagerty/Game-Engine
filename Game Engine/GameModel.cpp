@@ -12,6 +12,18 @@ GameModel::GameModel()
 	levelWidth = mapCols * tileSize;
 }
 
+GameModel::GameModel(long id)
+{
+	tileSize = 32;
+	if (!retrieveMap(id))
+	{
+		printf("Retreiving map ID %d from the backend failed! Opening from file...", id);
+		Model::openMap("testMap"); //temp
+	}
+	levelHeight = mapRows * tileSize;
+	levelWidth = mapCols * tileSize;
+}
+
 GameModel::GameModel(std::vector<Tile*> map, int rows, int cols, std::vector<Entity*> levelEntities)
 {
 	mapRows = rows;

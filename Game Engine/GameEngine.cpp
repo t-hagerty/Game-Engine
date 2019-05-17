@@ -91,7 +91,7 @@ int main()
 			quit = true;
 			break;
 		case GAME:
-			aGameModel =  new GameModel();
+			aGameModel =  new GameModel(2);
 			aGameView = new GameView(aGameModel->getLevelWidth(), aGameModel->getLevelHeight(), windowWidth, windowHeight, gameWindow, gScreenSurface, gameRenderer);
 			aGameController = new GameController(aGameModel, aGameView);
 			router = aGameController->getExitCondition();

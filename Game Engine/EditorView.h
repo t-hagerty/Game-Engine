@@ -14,13 +14,16 @@ public:
 	void moveCameraRight();
 	void moveCameraUp();
 	void moveCameraDown();
-	void setButtonHandlers(EventHandler retryButtonHandler, EventHandler gameButtonHandler, EventHandler mainMenuButtonHandler);
+	void setButtonHandlers(EventHandler retryButtonHandler, EventHandler gameButtonHandler, EventHandler mainMenuButtonHandler, 
+		EventHandler saveButtonHandler, EventHandler publishButtonHandler);
 	void setSelectionButtonHandlers(EventHandler handler);
 private:
 	std::vector<Tile*> tileAnimationSynchronizer;
 	Button* gameButton;
 	Button* testButton;
 	Button* retryButton;
+	Button* saveButton;
+	Button* publishButton;
 	ButtonMenu* selectionMenu;
 	int selectionMenuWidth = 126;
 
